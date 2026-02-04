@@ -1,0 +1,204 @@
+<ion-content>
+  <!-- HEADER -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <span class="navbar-brand fw-semibold">Admin Dashboard</span>
+
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <button class="btn btn-outline-light position-relative">
+        <i class="bi bi-bell"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          5
+        </span>
+      </button>
+
+      <button class="btn btn-outline-light" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <div class="container-fluid p-4">
+
+    <!-- Welcome Section -->
+    <div class="mb-4">
+      <h1 class="fw-bold">Welcome back, Admin 👋</h1>
+      <p class="text-muted">Here's what's happening with your treks today</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-sm-6 col-lg-3" *ngFor="let stat of stats">
+        <div class="card shadow-sm h-100 stat-card" [class.disabled]="stat.disabled"
+          [attr.aria-disabled]="stat.disabled" role="button" (click)="onCardClick(stat)">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <i class="bi fs-3" [ngClass]="'bi-' + stat.icon + ' text-' + stat.color">
+              </i>
+
+            </div>
+
+            <h3 class="fw-bold mb-0">
+              {{ stat.isCurrency
+              ? (stat.value | currency:'INR':'symbol':'1.0-0')
+              : stat.value
+              }}
+            </h3>
+
+            <small class="text-muted">{{ stat.title }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Quick Actions -->
+    <div class="mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="fw-semibold">Quick Actions</h4>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-6 col-md-3" *ngFor="let action of quickActions">
+          <div class="card text-center shadow-sm h-100" [routerLink]='action.route'>
+            <div class="card-body">
+              <i class="bi fs-2 mb-2 d-block" [class]="'bi-' + action.icon + ' text-' + action.color"></i>
+              <span class="fw-medium">{{ action.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-semibold">Recent Bookings</h4>
+        <a class="btn btn-link p-0">
+          View All <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <!-- Desktop Table -->
+      <div class="table-responsive d-none d-md-block">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Booking ID</th>
+              <th>Customer</th>
+              <th>Trek</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let booking of recentBooking ; let i = index">
+              <td>#{{ booking.id }}</td>
+              <td>{{ booking.customerName }}</td>
+              <td>{{ booking.trekName }}</td>
+              <td> {{ booking.bookingDate | date: 'dd MMM yyyy' }}</td>
+              <td class="fw-bold">₹{{ booking.amount }}</td>
+              <td>
+                <span class="badge" [class]="'bg-' + getStatusColor(booking.status)">
+                  {{ booking.status }}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-secondary" (click)="toggleDetails(i)" type="button"
+                  class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#recentBookings">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="d-md-none">
+        <div class="card shadow-sm mb-3" *ngFor="let booking of recentBooking;  let i = index">
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="fw-semibold">#{{ booking.id }}</span>
+              <span class="badge" [class]="'bg-' + getStatusColor(booking.status)">
+                {{ booking.status }}
+              </span>
+            </div>
+
+            <h6 class="mb-0">{{ booking.bookingDate }}</h6>
+            <small class="text-muted">{{ booking.trekName }}</small>
+
+            <div class="d-flex justify-content-between mt-2">
+              <span>
+                <i class="bi bi-calendar"></i>
+                {{ booking.bookingDate | date: 'dd MMM yyyy' }}
+              </span>
+              <span class="fw-bold">₹{{ booking.amount }}</span>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" (click)="toggleDetails(i)" type="button"
+              class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#recentBookings">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics
+    <div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-semibold">Analytics Overview</h4>
+        <a class="btn btn-link p-0">
+          View Details <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-bar-chart fs-1 text-muted"></i>
+          <p class="fw-medium mt-2 mb-0">Bookings & Revenue Chart</p>
+          <canvas id="bookingsRevenueChart"></canvas>
+        </div>
+      </div>
+    </div>-->
+  </div>
+</ion-content>
+
+<!-- Modal -->
+<div class="modal custom-backdrop" id="recentBookings" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">
+          Recent Bookings
+        </h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body recent-bookings card p-2 mb-3">
+        <div *ngFor="let booking of recentBooking; let i = index" class="booking-item">
+          <div *ngIf="selectedBookingIndex == i" class="booking-details mt-2 p-2 border rounded bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <span>{{ booking.customerName }} ({{ booking.trekName }})</span>
+              <span class="fw-bold">₹{{ booking.amount }}</span>
+            </div>
+            <p><strong>Email:</strong> {{ booking.email }}</p>
+            <p><strong>Phone:</strong> {{ booking.phone }}</p>
+            <p><strong>Date:</strong> {{ booking.bookingDate | date:'dd MMM yyyy' }}</p>
+            <p><strong>Participants:</strong> {{ booking.participants }}</p>
+            <p><strong>Status:</strong> {{ booking.status }}</p>
+            <p><strong>Payment Status:</strong> {{ booking.paymentStatus }}</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal"
+          (click)="closeDetails()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

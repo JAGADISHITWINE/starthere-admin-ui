@@ -1,0 +1,100 @@
+<ion-content>
+  <div class="container-fluid py-3">
+
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+          <ion-back-button defaultHref="/dashboard"></ion-back-button>
+        </ion-buttons>
+        <ion-title>All Treks</ion-title>
+      </ion-toolbar>
+
+      <ion-toolbar>
+        <ion-searchbar [(ngModel)]="searchQuery" placeholder="Search treks..." animated="true">
+        </ion-searchbar>
+      </ion-toolbar>
+    </ion-header>
+
+    <!-- Summary -->
+    <div class="row text-center mb-3 mt-3">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h3>{{ treks.length }}</h3>
+            <p class="text-muted mb-0">Total Treks</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h3>{{ activeCount }}</h3>
+            <p class="text-muted mb-0">Active</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h3>{{ draftCount }}</h3>
+            <p class="text-muted mb-0">Draft</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Treks List -->
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let trek of filteredTreks">
+        <div class="card h-100 trek-card" (click)="viewTrek(trek.id)">
+
+          <!-- Image -->
+          <div class="position-relative">
+            <img class="card-img-top" [src]="'http://localhost:4001/' + trek.cover_image" />
+            <span class="badge position-absolute top-0 end-0 m-2" [ngClass]="{
+              'bg-success': trek.status === 'active',
+              'bg-secondary': trek.status === 'draft'
+            }">
+              {{ trek.status | uppercase }}
+            </span>
+          </div>
+
+          <!-- Content -->
+          <div class="card-body">
+            <h5 class="card-title">{{ trek.name }}</h5>
+
+            <p class="text-muted mb-1">
+              📍 {{ trek.location }}
+            </p>
+
+            <div class="d-flex justify-content-between mb-2">
+              <span>⏱ {{ trek.duration }}</span>
+              <span>₹{{ trek.starting_price }}</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-2" (click)="$event.stopPropagation()">
+              <button class="btn btn-outline-secondary btn-sm" (click)="editTrek(trek.id)">
+                ✏️ Edit
+              </button>
+
+              <button class="btn btn-outline-primary btn-sm" (click)="viewTrek(trek.id)">
+                👁 View
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredTreks.length === 0" class="text-center py-5">
+      <h5>No treks found</h5>
+      <p class="text-muted">Try a different search</p>
+    </div>
+
+  </div>
+</ion-content>

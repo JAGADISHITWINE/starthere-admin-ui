@@ -1,0 +1,117 @@
+<ion-content>
+  <!-- HEADER -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+
+    <span class="navbar-brand mb-0 h5">Blog Posts</span>
+
+    <div class="ms-auto">
+      <button class="btn btn-light" (click)="createPost()">
+        ➕
+      </button>
+    </div>
+  </nav>
+
+  <!-- SEARCH BAR -->
+  <div class="bg-light p-3 border-bottom">
+    <input type="text" class="form-control" [(ngModel)]="searchQuery" placeholder="Search posts..." />
+  </div>
+
+  <!-- FILTERS -->
+  <div class="container-fluid py-3 border-bottom">
+    <div class="row align-items-center g-3">
+
+      <div class="col-12 col-md-4">
+        <strong>{{ filteredPosts.length }}</strong> posts found
+      </div>
+
+      <div class="col-12 col-md-4">
+        <select class="form-select" [(ngModel)]="selectedStatus">
+          <option *ngFor="let opt of statusOptions" [value]="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <select class="form-select" [(ngModel)]="selectedCategory">
+          <option *ngFor="let opt of categoryOptions" [value]="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- POSTS GRID -->
+  <div class="container-fluid py-4">
+    <div class="row g-4">
+
+      <div class="col-12 col-md-6 col-lg-4" *ngFor="let post of filteredPosts">
+        <div class="card h-100">
+
+          <!-- IMAGE -->
+          <div class="position-relative">
+            <img [src]="post.image" [alt]="post.title" class="card-img-top" />
+            <span class="badge position-absolute top-0 end-0 m-2" [ngClass]="{
+              'bg-success': post.status === 'published',
+              'bg-warning': post.status === 'draft',
+              'bg-secondary': post.status === 'scheduled'
+            }">
+              {{ post.status }}
+            </span>
+          </div>
+
+          <!-- CONTENT -->
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="card-text">{{ post.excerpt }}</p>
+
+            <div class="mb-2 d-flex justify-content-between align-items-center">
+              <span class="badge bg-outline-secondary">
+                {{ post.category }}
+              </span>
+              <small>
+                👤 {{ post.author }}
+              </small>
+            </div>
+
+            <div class="small text-muted mb-3">
+              👁 {{ post.views }} views |
+              💬 {{ post.comments }} comments |
+              📅 {{ post.publishDate }}
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="mt-auto d-flex gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm" (click)="editPost(post.id)">
+                ✏️ Edit
+              </button>
+
+              <button class="btn btn-outline-success btn-sm" *ngIf="post.status !== 'published'"
+                (click)="publishPost(post)">
+                ✅ Publish
+              </button>
+
+              <button class="btn btn-outline-danger btn-sm" (click)="deletePost(post.id)">
+                🗑 Delete
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FLOATING ADD BUTTON -->
+  <button class="btn btn-success position-fixed bottom-0 end-0 m-4 rounded-circle" style="width: 56px; height: 56px;"
+    (click)="createPost()">
+    ➕
+  </button>
+
+</ion-content>

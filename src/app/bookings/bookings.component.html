@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Manage Booking</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Bookings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="filters d-flex gap-2 mb-2 align-items-center justify-content-end">
+    <input type="text" placeholder="Search..." [(ngModel)]="searchQuery" class="filter-input" />
+
+    <select [(ngModel)]="selectedStatus" class="filter-select">
+      <option *ngFor="let s of statusOptions" [value]="s.value">
+        {{ s.label }}
+      </option>
+    </select>
+
+    <input type="date" [(ngModel)]="startDate" class="filter-input" placeholder="Start" />
+
+    <input type="date" [(ngModel)]="endDate" class="filter-input" placeholder="End" />
+  </div>
+
+
+  <!-- Booking Cards -->
+  <ion-card *ngFor="let booking of filteredBookings" class="booking-card">
+
+    <ion-card-header>
+      <div class="header-row">
+        <ion-card-title>#{{ booking.id }}</ion-card-title>
+        <ion-badge [color]="getStatusColor(booking.status)">
+          {{ booking.status | titlecase }}
+        </ion-badge>
+      </div>
+      <ion-card-subtitle>
+        Booked on {{ booking.bookingDate }}
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p><strong>Customer:</strong> {{ booking.customerName }}</p>
+      <p><strong>Email:</strong> {{ booking.email }}</p>
+      <p><strong>Phone:</strong> {{ booking.phone }}</p>
+
+      <hr />
+
+      <p><strong>Trek:</strong> {{ booking.trekName }}</p>
+      <p><strong>Date:</strong> {{ booking.date }}</p>
+      <p><strong>Participants:</strong> {{ booking.participants }}</p>
+
+      <div class="amount-row">
+        <strong>₹{{ booking.amount }}</strong>
+        <ion-badge [color]="getPaymentColor(booking.paymentStatus)">
+          {{ booking.paymentStatus | titlecase }}
+        </ion-badge>
+      </div>
+    </ion-card-content>
+
+  </ion-card>
+
+  <p *ngIf="filteredBookings.length === 0" class="empty">
+    No bookings found 😕
+  </p>
+
+</ion-content>

@@ -1,0 +1,109 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Manage Reviews</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-searchbar
+      [(ngModel)]="searchQuery"
+      placeholder="Search reviews..."
+      animated="true"
+    ></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Filters -->
+  <div class="filters-section">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6">
+          <div class="results-count">
+            <strong>{{ filteredReviews.length }}</strong> reviews found
+          </div>
+        </ion-col>
+        <ion-col size="12" size-md="6">
+          <ion-item>
+            <ion-label>Status</ion-label>
+            <ion-select [(ngModel)]="selectedStatus" interface="popover">
+              <ion-select-option *ngFor="let opt of statusOptions" [value]="opt.value">
+                {{ opt.label }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Reviews List -->
+  <div class="reviews-list">
+    <ion-card *ngFor="let review of filteredReviews" class="review-card">
+      <ion-card-content>
+        <div class="review-header">
+          <div class="customer-info">
+            <img [src]="review.avatar" [alt]="review.customerName" class="avatar" />
+            <div>
+              <h3>{{ review.customerName }}</h3>
+              <p class="trek-name">{{ review.trekName }}</p>
+            </div>
+          </div>
+          <ion-badge [color]="getStatusColor(review.status)">
+            {{ review.status }}
+          </ion-badge>
+        </div>
+
+        <div class="rating">
+          <ion-icon
+            *ngFor="let filled of getStars(review.rating)"
+            [name]="filled ? 'star' : 'star-outline'"
+            [color]="filled ? 'warning' : 'medium'"
+          ></ion-icon>
+          <span class="rating-value">{{ review.rating }}/5</span>
+        </div>
+
+        <p class="comment">{{ review.comment }}</p>
+
+        <div class="review-footer">
+          <span class="date">
+            <ion-icon name="calendar-outline"></ion-icon>
+            {{ review.date }}
+          </span>
+          <div class="actions">
+            <ion-button
+              size="small"
+              color="success"
+              (click)="approveReview(review)"
+              *ngIf="review.status !== 'approved'"
+            >
+              <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+              Approve
+            </ion-button>
+            <ion-button
+              size="small"
+              fill="outline"
+              color="danger"
+              (click)="rejectReview(review)"
+              *ngIf="review.status !== 'rejected'"
+            >
+              <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+              Reject
+            </ion-button>
+            <ion-button
+              size="small"
+              fill="outline"
+              color="danger"
+              (click)="deleteReview(review.id)"
+            >
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Delete
+            </ion-button>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

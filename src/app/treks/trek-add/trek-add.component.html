@@ -1,0 +1,556 @@
+<ion-content>
+  <!-- HEADER -->
+  <nav class="modern-header">
+    <div class="container-fluid px-4 py-3">
+      <div class="d-flex align-items-center">
+        <a class="btn-back" routerLink="/dashboard">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="header-title mb-0 ms-3">Add New Trek</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="excel-upload-section" *ngIf="!isUploadingExcel">
+  <div class="container py-4">
+    <div class="excel-upload-card">
+      <!-- Header -->
+      <div class="excel-upload-header">
+        <div class="excel-icon">
+          <i class="bi bi-file-earmark-excel-fill"></i>
+        </div>
+        <div class="excel-text">
+          <h3>Quick Upload via Excel</h3>
+          <p>Upload single or multiple batches at once using our Excel template</p>
+        </div>
+      </div>
+
+      <!-- Template Download Options -->
+      <div class="template-download-section">
+        <h4 class="section-subtitle">
+          <i class="bi bi-download me-2"></i>
+          Download Template
+        </h4>
+        <div class="template-buttons">
+          <button
+            type="button"
+            class="btn-template single"
+            (click)="downloadSingleBatchTemplate()"
+          >
+            <i class="bi bi-file-earmark me-2"></i>
+            Single Batch Template
+          </button>
+
+          <button
+            type="button"
+            class="btn-template multiple"
+            (click)="downloadTemplate()"
+          >
+            <i class="bi bi-files me-2"></i>
+            Multi-Batch Template (Recommended)
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Action -->
+      <div class="excel-upload-actions">
+        <button
+          type="button"
+          class="btn-excel-upload"
+          (click)="excelFileInput.click()"
+        >
+          <i class="bi bi-upload me-2"></i>
+          Upload Excel File
+        </button>
+
+        <input
+          type="file"
+          #excelFileInput
+          accept=".xlsx,.xls"
+          hidden
+          (change)="onExcelFileSelect($event)"
+        />
+      </div>
+
+      <!-- Upload Success Info -->
+      <div class="excel-upload-success" *ngIf="excelFileName && uploadedBatchCount > 0">
+        <div class="success-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="success-info">
+          <strong>{{ excelFileName }}</strong>
+          <p>{{ uploadedBatchCount }} batch{{ uploadedBatchCount > 1 ? 'es' : '' }} loaded successfully</p>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="excel-upload-instructions">
+        <div class="instruction-card">
+          <div class="instruction-number">1</div>
+          <div class="instruction-content">
+            <h5>Download Template</h5>
+            <p>Choose single or multi-batch template based on your needs</p>
+          </div>
+        </div>
+
+        <div class="instruction-card">
+          <div class="instruction-number">2</div>
+          <div class="instruction-content">
+            <h5>Fill Trek Data</h5>
+            <p>Fill in trek details and batch information in Excel</p>
+          </div>
+        </div>
+
+        <div class="instruction-card">
+          <div class="instruction-number">3</div>
+          <div class="instruction-content">
+            <h5>Upload & Auto-Fill</h5>
+            <p>Upload the file and form will auto-populate with all data</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi-Batch Info -->
+      <div class="multi-batch-info">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <div>
+          <strong>Multi-Batch Upload:</strong> You can upload multiple batches for the same trek in one go.
+          Each row with a different "Batch Number" will create a separate batch with its own dates, pricing, and itinerary.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="excel-loading-overlay" *ngIf="isUploadingExcel">
+  <div class="excel-loading-content">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <h4>Processing Excel file...</h4>
+    <p>This may take a moment for large files with multiple batches</p>
+  </div>
+</div>
+
+  <div class="form-wrapper">
+    <div class="container py-4">
+      <form [formGroup]="addTrekForm">
+
+        <!-- BASIC TREK INFO -->
+        <div class="section-card">
+          <div class="section-header">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <span>Basic Information</span>
+          </div>
+          <div class="section-body">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Trek Name <span class="required">*</span></label>
+                  <input class="form-control modern-input" formControlName="name"
+                    placeholder="e.g., Mountain Peak Trek" />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Location <span class="required">*</span></label>
+                  <input class="form-control modern-input" formControlName="location"
+                    placeholder="e.g., Kudure Mukha" />
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Difficulty <span class="required">*</span></label>
+                  <select class="form-select modern-select" formControlName="difficulty">
+                    <option value="" selected disabled>Select Difficulty</option>
+                    <option *ngFor="let d of difficulties" [value]="d">{{ d }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Category <span class="required">*</span></label>
+                  <select class="form-select modern-select" formControlName="category">
+                    <option value="" selected disabled>Select Category</option>
+                    <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Fitness Level</label>
+                  <select class="form-select modern-select" formControlName="fitnessLevel">
+                    <option value="" selected disabled>Select Fitness Level</option>
+                    <option *ngFor="let f of fitnessLevels" [value]="f">{{ f }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-group">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control modern-textarea" rows="4" formControlName="description"
+                    placeholder="Describe your trek experience, highlights, and what makes it special..."></textarea>
+                </div>
+              </div>
+
+              <!-- HIGHLIGHTS -->
+              <div class="col-12">
+                <div class="highlight-section">
+                  <div class="highlight-header">
+                    <i class="bi bi-star-fill me-2"></i>
+                    <span>Highlights</span>
+                  </div>
+                  <div class="highlight-body" formArrayName="highlights">
+                    <div class="highlight-item" *ngFor="let h of highlights.controls; let hi = index">
+                      <input class="form-control" [formControlName]="hi" placeholder="e.g., 360° Beautiful views" />
+                      <button class="btn-remove" type="button" (click)="removeHighlight(hi)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                    <button class="btn-add-item" type="button" (click)="addHighlight()">
+                      <i class="bi bi-plus-circle me-2"></i> Add Highlight
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BATCHES -->
+        <div class="section-card">
+          <div class="section-header">
+            <i class="bi bi-calendar-event-fill me-2"></i>
+            <span>Batch Information</span>
+          </div>
+          <div class="section-body">
+            <div class="batches-wrapper" formArrayName="batches">
+              <div class="batch-card" *ngFor="let batch of batches.controls; let i = index" [formGroupName]="i">
+                <!-- BATCH HEADER -->
+                <div class="batch-header">
+                  <h3 class="batch-title">
+                    <i class="bi bi-calendar3 me-2"></i>
+                    Batch {{ i + 1 }}
+                  </h3>
+                  <button type="button" class="btn-delete-batch" (click)="removeBatch(i)">
+                    <i class="bi bi-trash"></i> Remove
+                  </button>
+                </div>
+
+                <!-- BATCH BODY -->
+                <div class="batch-body">
+                  <!-- DATES & BASIC INFO -->
+                  <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Start Date <span class="required">*</span></label>
+                        <input type="date" class="form-control modern-input" formControlName="startDate" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                      <div class="form-group">
+                        <label class="form-label">End Date <span class="required">*</span></label>
+                        <input type="date" class="form-control modern-input" formControlName="endDate" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-2 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Available Slots <span class="required">*</span></label>
+                        <input type="number" class="form-control modern-input" formControlName="availableSlots"
+                          placeholder="20" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-2 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Price (₹) <span class="required">*</span></label>
+                        <input type="number" class="form-control modern-input" formControlName="price"
+                          placeholder="2000" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-2 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Status <span class="required">*</span></label>
+                        <select class="form-select modern-select" formControlName="batchStatus">
+                          <option *ngFor="let s of batchStatuses" [value]="s">
+                            {{ s | titlecase }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ADDITIONAL INFO -->
+                  <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Min Age</label>
+                        <input type="number" class="form-control modern-input" formControlName="minAge"
+                          placeholder="16" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Max Age</label>
+                        <input type="number" class="form-control modern-input" formControlName="maxAge"
+                          placeholder="60" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Duration</label>
+                        <input class="form-control modern-input" formControlName="duration"
+                          placeholder="2 Days / 1 Night" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Min Participants</label>
+                        <input type="number" class="form-control modern-input" formControlName="minParticipants"
+                          placeholder="10" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                      <div class="form-group">
+                        <label class="form-label">Max Participants</label>
+                        <input type="number" class="form-control modern-input" formControlName="maxParticipants"
+                          placeholder="25" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- INCLUSIONS / EXCLUSIONS -->
+                  <div class="row g-4 mb-4">
+                    <!-- INCLUSIONS -->
+                    <div class="col-md-6">
+                      <div class="inclusions-card">
+                        <div class="inc-exc-header inclusions-header">
+                          <i class="bi bi-check-circle-fill me-2"></i>
+                          <span>Inclusions</span>
+                        </div>
+                        <div class="inc-exc-body" formArrayName="inclusions">
+                          <div class="inc-exc-item" *ngFor="let inc of getInclusions(i).controls; let ii = index">
+                            <input class="form-control" [formControlName]="ii" placeholder="e.g., Professional guide" />
+                            <button class="btn-remove-small" type="button" (click)="removeInclusion(i, ii)">
+                              <i class="bi bi-x-lg"></i>
+                            </button>
+                          </div>
+                          <button class="btn-add-inc-exc" type="button" (click)="addInclusion(i)">
+                            <i class="bi bi-plus me-1"></i> Add Inclusion
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- EXCLUSIONS -->
+                    <div class="col-md-6">
+                      <div class="exclusions-card">
+                        <div class="inc-exc-header exclusions-header">
+                          <i class="bi bi-x-circle-fill me-2"></i>
+                          <span>Exclusions</span>
+                        </div>
+                        <div class="inc-exc-body" formArrayName="exclusions">
+                          <div class="inc-exc-item" *ngFor="let ex of getExclusions(i).controls; let ei = index">
+                            <input class="form-control" [formControlName]="ei" placeholder="e.g., Personal expenses" />
+                            <button class="btn-remove-small" type="button" (click)="removeExclusion(i, ei)">
+                              <i class="bi bi-x-lg"></i>
+                            </button>
+                          </div>
+                          <button class="btn-add-inc-exc" type="button" (click)="addExclusion(i)">
+                            <i class="bi bi-plus me-1"></i> Add Exclusion
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ITINERARY -->
+                  <div class="itinerary-section">
+                    <h4 class="itinerary-title">
+                      <i class="bi bi-map me-2"></i>
+                      Day-wise Itinerary
+                    </h4>
+                    <div class="itinerary-wrapper" formArrayName="itineraryDays">
+                      <div class="itinerary-day-card" *ngFor="let day of getItineraryDays(i).controls; let di = index"
+                        [formGroupName]="di">
+                        <div class="day-header">
+                          <span class="day-badge">Day {{ di + 1 }}</span>
+                          <button type="button" class="btn-remove-day" (click)="removeItineraryDay(i, di)">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+
+                        <div class="day-body">
+                          <input class="form-control day-title-input" formControlName="title"
+                            placeholder="e.g., Bangalore to Kotagiri (Via Hosur)" />
+
+                          <div class="activities-section" formArrayName="activities">
+                            <div class="activity-item" *ngFor="let act of getActivities(i, di).controls; let ai = index"
+                              [formGroupName]="ai">
+                              <div class="activity-time">
+                                <i class="bi bi-clock me-2"></i>
+                                <input type="time" class="form-control time-input" formControlName="activityTime" />
+                              </div>
+                              <div class="activity-text">
+                                <input class="form-control" formControlName="activityText"
+                                  placeholder="e.g., Pick-up from BMC, Indiranagar" />
+                              </div>
+                              <button type="button" class="btn-remove-activity" (click)="removeActivity(i, di, ai)">
+                                <i class="bi bi-trash"></i>
+                              </button>
+                            </div>
+                            <button type="button" class="btn-add-activity" (click)="addActivity(i, di)">
+                              <i class="bi bi-plus-circle me-2"></i> Add Activity
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button type="button" class="btn-add-day" (click)="addItineraryDay(i)">
+                        <i class="bi bi-plus-circle me-2"></i> Add Day
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn-add-batch mt-2" (click)="addBatch()">
+              <i class="bi bi-plus-circle me-2"></i> Add New Batch
+            </button>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-header">
+            <i class="bi bi-backpack-fill me-2"></i>
+            <span>Things to Carry</span>
+          </div>
+          <div class="section-body">
+            <div class="things-to-carry-section" formArrayName="thingsToCarry">
+              <div class="carry-item" *ngFor="let item of thingsToCarry.controls; let i = index">
+                <input class="form-control" [formControlName]="i" placeholder="e.g., Trekking shoes with good grip" />
+                <button class="btn-remove" type="button" (click)="removeCarryItem(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              <button class="btn-add-item" type="button" (click)="addCarryItem()">
+                <i class="bi bi-plus-circle me-2"></i> Add Item
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IMPORTANT NOTES -->
+        <div class="section-card">
+          <div class="section-header">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span>Important Notes</span>
+          </div>
+          <div class="section-body">
+            <div class="important-notes-section" formArrayName="importantNotes">
+              <div class="note-item" *ngFor="let note of importantNotes.controls; let i = index">
+                <input class="form-control" [formControlName]="i" placeholder="e.g., Minimum age: 16 years" />
+                <button class="btn-remove" type="button" (click)="removeNote(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              <button class="btn-add-item" type="button" (click)="addNote()">
+                <i class="bi bi-plus-circle me-2"></i> Add Note
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IMAGES -->
+        <div class="section-card">
+          <div class="section-header">
+            <i class="bi bi-images me-2"></i>
+            <span>Images</span>
+            <span class="badge-info ms-auto">PNG / JPG supported</span>
+          </div>
+          <div class="section-body">
+            <!-- COVER IMAGE -->
+            <div class="image-upload-section">
+              <h4 class="upload-title">
+                Cover Image <span class="required">*</span>
+              </h4>
+              <div class="upload-buttons">
+                <button type="button" class="btn-upload primary" (click)="coverGalleryInput.click()">
+                  <i class="bi bi-images me-2"></i> Choose from Gallery
+                </button>
+                <button type="button" class="btn-upload secondary" (click)="coverCameraInput.click()">
+                  <i class="bi bi-camera me-2"></i> Take Photo
+                </button>
+              </div>
+
+              <input type="file" #coverGalleryInput accept="image/*" hidden (change)="onCoverImageSelect($event)" />
+              <input type="file" #coverCameraInput accept="image/*" capture="environment" hidden
+                (change)="onCoverImageSelect($event)" />
+
+              <div *ngIf="coverPreview" class="image-preview-card cover-preview">
+                <img [src]="coverPreview" alt="Cover" />
+                <button type="button" class="btn-remove-image" (click)="removeCoverImage()">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- GALLERY IMAGES -->
+            <div class="image-upload-section">
+              <h4 class="upload-title">Gallery Images</h4>
+              <div class="upload-buttons">
+                <button type="button" class="btn-upload primary" (click)="galleryGalleryInput.click()">
+                  <i class="bi bi-images me-2"></i> Choose from Gallery
+                </button>
+                <button type="button" class="btn-upload secondary" (click)="galleryCameraInput.click()">
+                  <i class="bi bi-camera me-2"></i> Take Photo
+                </button>
+              </div>
+
+              <input type="file" #galleryGalleryInput accept="image/*" multiple hidden
+                (change)="onGallerySelect($event)" />
+              <input type="file" #galleryCameraInput accept="image/*" capture="environment" hidden
+                (change)="onGallerySelect($event)" />
+
+              <div class="gallery-grid" *ngIf="galleryPreviews.length">
+                <div class="gallery-item" *ngFor="let img of galleryPreviews; let i = index">
+                  <img [src]="img" alt="Gallery image" />
+                  <button type="button" class="btn-remove-image" (click)="removeGalleryImage(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div *ngIf="!galleryPreviews.length" class="empty-state">
+                <i class="bi bi-images"></i>
+                <p>No gallery images added yet</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBMIT BUTTON -->
+        <div class="submit-section">
+          <button class="btn-publish" (click)="saveTrek()" [disabled]="addTrekForm.invalid">
+            <i class="bi bi-check-circle me-2"></i> Publish Trek
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ion-content>

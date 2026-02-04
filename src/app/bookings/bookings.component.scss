@@ -1,0 +1,47 @@
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  ion-input,
+  ion-select {
+    flex: 1;
+  }
+}
+
+.filter-input,
+.filter-select {
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  height: 30px;
+  min-width: 80px;
+  background: white;
+  color: black;
+}
+
+.booking-card {
+  margin-bottom: 16px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 1.1rem;
+}
+
+.empty {
+  text-align: center;
+  margin-top: 40px;
+  color: var(--ion-color-medium);
+}
+

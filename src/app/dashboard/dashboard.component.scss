@@ -1,0 +1,267 @@
+// Welcome Section
+.welcome-section {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  padding: 32px 20px;
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  p {
+    opacity: 0.9;
+  }
+}
+
+// Stats Grid
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 20px 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+.stat-card {
+  margin: 0;
+  border-radius: 12px;
+  border-left: 4px solid transparent;
+
+  &.stat-primary { border-left-color: var(--ion-color-primary); }
+  &.stat-success { border-left-color: var(--ion-color-success); }
+  &.stat-warning { border-left-color: var(--ion-color-warning); }
+  &.stat-tertiary { border-left-color: var(--ion-color-tertiary); }
+  &.stat-secondary { border-left-color: var(--ion-color-secondary); }
+  &.stat-medium { border-left-color: var(--ion-color-medium); }
+
+  .stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    ion-icon {
+      font-size: 32px;
+    }
+
+    .trend-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+
+      ion-icon {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #1f2937;
+  }
+
+  .stat-title {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+}
+
+// Section
+.section {
+  padding: 20px 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+// Quick Actions
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.action-card {
+  margin: 0;
+
+  ion-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+
+    ion-icon {
+      font-size: 40px;
+    }
+
+    span {
+      font-weight: 600;
+      text-align: center;
+    }
+  }
+}
+
+// Table Container
+.table-container {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.bookings-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: #f9fafb;
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #e5e7eb;
+
+      &:hover {
+        background: #f9fafb;
+      }
+
+      td {
+        padding: 16px 12px;
+        font-size: 0.95rem;
+      }
+    }
+  }
+}
+
+// Mobile Bookings
+.mobile-bookings {
+  ion-card {
+    margin-bottom: 12px;
+
+    .booking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .booking-id {
+        font-weight: 700;
+        color: #059669;
+      }
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      margin-bottom: 4px;
+    }
+
+    .trek-name {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-bottom: 12px;
+    }
+
+    .booking-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+
+      .date {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #6b7280;
+        font-size: 0.875rem;
+      }
+
+      .amount {
+        font-weight: 700;
+        color: #059669;
+        font-size: 1.125rem;
+      }
+    }
+  }
+}
+
+// Chart Placeholder
+.chart-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+
+  ion-icon {
+    font-size: 80px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 1.125rem;
+    color: #4b5563;
+    margin-bottom: 8px;
+  }
+}
+
+// Notification Badge
+.notification-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.65rem;
+  min-width: 18px;
+  height: 18px;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.disabled {
+  opacity: 0.70;
+  cursor: not-allowed;
+  pointer-events: none; /* 💣 kills navigation */
+}
+
+#bookingsRevenueChart {
+  height: 300px;
+}
+
+.custom-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(10px);
+}

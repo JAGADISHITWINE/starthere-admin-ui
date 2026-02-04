@@ -1,0 +1,65 @@
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+
+    <!-- Logo Section -->
+    <div class="text-center mb-4">
+      <div class="mb-2">
+        <img class='logo' src="../../../assets/assets/navbarimg.png" alt="Logo" routerLink="" />
+
+      </div>
+      <h1 class="fw-bold text-dark">Admin Panel</h1>
+      <img class='title' src="../../../assets/assets/titlename.png" alt="Logo" routerLink="" />
+    </div>
+
+    <!-- Login Card -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h2 class="fw-semibold mb-1">Sign In</h2>
+        <p class="text-muted mb-4">
+          Enter your credentials to access the admin panel
+        </p>
+
+        <form [formGroup]="credentials">
+          <!-- Email -->
+          <div class="mb-3">
+            <label class="form-label">Admin Email</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-envelope"></i>
+              </span>
+              <input type="email" class="form-control" placeholder="admin@email.com" required formControlName="email"/>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-lock"></i>
+              </span>
+              <input [type]="showPassword ? 'text' : 'password'" class="form-control" placeholder="Enter password" required formControlName="password"/>
+              <button class="btn btn-outline-secondary" type="button" (click)="togglePassword()">
+                {{ showPassword ? '🙈' : '👁️' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Login Button -->
+          <button type="submit" class="btn btn-primary w-100 py-2" (click)="login()">
+            Sign In
+            <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-4">
+      <small class="text-muted">
+        © 2026 Karnataka Adventures. All rights reserved.
+      </small>
+    </div>
+
+  </div>
+</div>

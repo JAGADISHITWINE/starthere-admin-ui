@@ -1,0 +1,313 @@
+<ion-content>
+  <div *ngIf="tour && !isLoading">
+
+    <!-- Header -->
+    <nav class="navbar navbar-dark bg-primary sticky-top">
+      <div class="container-fluid">
+        <a class="btn btn-outline-light" routerLink="/admin/treks/list">
+          <i>←</i>
+        </a>
+        <span class="navbar-brand mx-auto fw-semibold">Trek Details</span>
+        <div style="width: 40px;"></div> <!-- Spacer for centering -->
+      </div>
+    </nav>
+
+    <!-- Hero Image -->
+    <div class="hero-image">
+      <img [src]="getImageUrl(tour.image)"
+           [alt]="tour.name"
+           class="img-fluid w-100"
+           style="max-height: 420px; object-fit: cover;"
+           (error)="$event.target.src='assets/placeholder-trek.jpg'" />
+
+      <!-- Floating badge for slots -->
+      <div class="position-absolute top-0 end-0 m-3">
+        <span class="badge bg-success fs-6">
+          {{ tour.availableSlots }} slots available
+        </span>
+      </div>
+    </div>
+
+    <!-- Tour Header -->
+    <div class="container my-4">
+      <h1 class="fw-bold">{{ tour.name }}</h1>
+
+      <p class="text-muted mb-2">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ tour.location }}
+      </p>
+
+      <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+        <span class="fw-semibold">
+          <ion-icon name="star" class="text-warning"></ion-icon>
+          {{ tour.rating }}
+        </span>
+        <span class="text-muted">({{ tour.reviewCount }} reviews)</span>
+        <span class="badge" [ngClass]="getDifficultyColor(tour.difficulty)">
+          {{ tour.difficulty }}
+        </span>
+        <span class="badge bg-info text-dark">
+          {{ tour.category }}
+        </span>
+      </div>
+
+      <!-- Quick Info Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <ion-icon name="time-outline" class="fs-4 text-primary"></ion-icon>
+              <p class="small text-muted mb-0">Duration</p>
+              <p class="fw-bold mb-0">{{ tour.duration }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <ion-icon name="trending-up-outline" class="fs-4 text-warning"></ion-icon>
+              <p class="small text-muted mb-0">Difficulty</p>
+              <p class="fw-bold mb-0">{{ tour.difficulty }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <ion-icon name="fitness-outline" class="fs-4 text-success"></ion-icon>
+              <p class="small text-muted mb-0">Fitness</p>
+              <p class="fw-bold mb-0">{{ tour.fitnessLevel }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <ion-icon name="people-outline" class="fs-4 text-info"></ion-icon>
+              <p class="small text-muted mb-0">Age Range</p>
+              <p class="fw-bold mb-0">{{ tour.minAge }}-{{ tour.maxAge }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="container">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link"
+                  [class.active]="selectedSegment === 'overview'"
+                  (click)="selectedSegment='overview'"
+                  type="button">
+            Overview
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link"
+                  [class.active]="selectedSegment === 'itinerary'"
+                  (click)="selectedSegment='itinerary'"
+                  type="button">
+            Itinerary
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link"
+                  [class.active]="selectedSegment === 'inclusions'"
+                  (click)="selectedSegment='inclusions'"
+                  type="button">
+            Inclusions
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link"
+                  [class.active]="selectedSegment === 'info'"
+                  (click)="selectedSegment='info'"
+                  type="button">
+            Info
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Content -->
+    <div class="container my-4">
+
+      <!-- Overview Tab -->
+      <div *ngIf="selectedSegment === 'overview'">
+        <h4 class="mb-3">
+          <ion-icon name="document-text-outline"></ion-icon>
+          About This Trek
+        </h4>
+        <p class="text-justify">{{ tour.overview }}</p>
+
+        <h4 class="mt-4 mb-3">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          Highlights
+        </h4>
+        <div class="list-group list-group-flush">
+          <div class="list-group-item d-flex align-items-start"
+               *ngFor="let highlight of tour.highlights">
+            <ion-icon name="chevron-forward-circle"
+                      class="text-success me-2 mt-1 flex-shrink-0"></ion-icon>
+            <span>{{ highlight }}</span>
+          </div>
+        </div>
+
+        <h4 class="mt-4 mb-3">
+          <ion-icon name="images-outline"></ion-icon>
+          Photo Gallery
+        </h4>
+        <div class="row g-3">
+          <div class="col-6 col-md-4" *ngFor="let photo of tour.gallery">
+            <img [src]="getImageUrl(photo)"
+                 class="img-fluid rounded shadow-sm"
+                 style="aspect-ratio: 1; object-fit: cover;"
+                 (error)="$event.target.src='assets/placeholder-trek.jpg'" />
+          </div>
+        </div>
+
+        <!-- Available Dates -->
+        <h4 class="mt-4 mb-3">
+          <ion-icon name="calendar-outline"></ion-icon>
+          Available Dates
+        </h4>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="badge bg-primary p-2" *ngFor="let date of tour.nextDates">
+            {{ date }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Itinerary Tab -->
+      <div *ngIf="selectedSegment === 'itinerary'">
+        <div class="accordion" id="itineraryAccordion">
+          <div class="accordion-item" *ngFor="let day of tour.itinerary; let i = index">
+            <h2 class="accordion-header" [id]="'heading' + i">
+              <button class="accordion-button"
+                      [class.collapsed]="i !== 0"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      [attr.data-bs-target]="'#collapse' + i"
+                      [attr.aria-expanded]="i === 0"
+                      [attr.aria-controls]="'collapse' + i">
+                <div>
+                  <span class="badge bg-primary me-2">Day {{ day.day }}</span>
+                  <strong>{{ day.title }}</strong>
+                </div>
+              </button>
+            </h2>
+            <div [id]="'collapse' + i"
+                 class="accordion-collapse collapse"
+                 [class.show]="i === 0"
+                 [attr.aria-labelledby]="'heading' + i"
+                 data-bs-parent="#itineraryAccordion">
+              <div class="accordion-body">
+                <div class="timeline">
+                  <div class="timeline-item d-flex mb-3"
+                       *ngFor="let activity of day.activities">
+                    <div class="timeline-time text-muted me-3 fw-bold" style="min-width: 80px;">
+                      {{ formatTime(activity.activityTime) }}
+                    </div>
+                    <div class="timeline-marker me-3">
+                      <ion-icon name="ellipse" class="text-primary"></ion-icon>
+                    </div>
+                    <div class="timeline-content">
+                      {{ activity.activityText }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inclusions Tab -->
+      <div *ngIf="selectedSegment === 'inclusions'">
+        <h4 class="mb-3 fw-bold">
+          <i name="checkmark-done-outline" class="text-success fw-bold "></i>
+          What's Included
+        </h4>
+        <ul class="list-group mb-4">
+          <li class="list-group-item d-flex align-items-start"
+              *ngFor="let item of tour.inclusions">
+            <i class="text-success me-2 mt-1 bi bi-check-circle"></i>
+            <span>{{ item }}</span>
+          </li>
+        </ul>
+
+        <h4 class="mb-3 fw-bold">
+          <ion-icon name="close-circle-outline" class="text-danger"></ion-icon>
+          What's Not Included
+        </h4>
+        <ul class="list-group">
+          <li class="list-group-item d-flex align-items-start"
+              *ngFor="let item of tour.exclusions">
+            <i class="text-danger me-2 mt-1 bi bi-x-circle-fill"></i>
+            <span>{{ item }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Info Tab -->
+      <div *ngIf="selectedSegment === 'info'">
+        <h4 class="mb-3 fw-bold">
+          <ion-icon name="bag-outline"></ion-icon>
+          Things to Carry
+        </h4>
+        <ul class="list-group mb-4">
+          <li class="list-group-item d-flex align-items-start"
+              *ngFor="let item of tour.thingsToCarry">
+            <i class="text-info me-2 mt-1 bi bi-bag"></i>
+            <span>{{ item }}</span>
+          </li>
+        </ul>
+
+        <h4 class="mb-3 fw-bold">
+          <ion-icon name="alert-circle-outline" class="text-warning"></ion-icon>
+          Important Notes
+        </h4>
+        <div class="alert alert-warning" role="alert">
+          <ul class="mb-0">
+            <li *ngFor="let note of tour.importantNotes">{{ note }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Footer -->
+    <div class="sticky-bottom bg-white border-top shadow-lg">
+      <div class="container py-3">
+        <div class="row align-items-center">
+          <div class="col-6">
+            <small class="text-muted d-block">Starting from</small>
+            <div class="fw-bold fs-4 text-success">
+              ₹{{ tour.price | number }}
+              <small class="text-muted fs-6">/person</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center"
+       style="min-height: 80vh;">
+    <div class="text-center">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p class="mt-3 text-muted">Loading trek details...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !tour" class="text-center py-5">
+    <ion-icon name="alert-circle-outline" class="fs-1 text-danger"></ion-icon>
+    <h4 class="mt-3">Trek not found</h4>
+    <p class="text-muted">The trek you're looking for doesn't exist.</p>
+    <button class="btn btn-primary" routerLink="/treklist">
+      Back to Trek List
+    </button>
+  </div>
+</ion-content>

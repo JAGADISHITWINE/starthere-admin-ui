@@ -1,0 +1,1265 @@
+// ===== VARIABLES =====
+$primary-color: #2563eb;
+$primary-dark: #1e40af;
+$success-color: #10b981;
+$danger-color: #ef4444;
+$warning-color: #f59e0b;
+$text-dark: #1f2937;
+$text-light: #6b7280;
+$border-color: #e5e7eb;
+$bg-light: #f9fafb;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+$border-radius: 12px;
+$transition: all 0.3s ease;
+
+// ===== RESET & BASE =====
+* {
+  box-sizing: border-box;
+}
+
+ion-content {
+  --background: #f3f4f6;
+}
+
+// ===== HEADER =====
+.modern-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  box-shadow: $shadow-md;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  .btn-back {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateX(-2px);
+    }
+
+    i {
+      font-size: 20px;
+    }
+  }
+
+  .header-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+}
+
+// ===== FORM WRAPPER =====
+.form-wrapper {
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+// ===== SECTION CARD =====
+.section-card {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: $transition;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+.section-header {
+  background: linear-gradient(135deg, $bg-light 0%, white 100%);
+  padding: 20px 24px;
+  border-bottom: 2px solid $border-color;
+  display: flex;
+  align-items: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $text-dark;
+
+  i {
+    color: $primary-color;
+    font-size: 1.25rem;
+  }
+
+  .badge-info {
+    background: rgba($primary-color, 0.1);
+    color: $primary-color;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+}
+
+.section-body {
+  padding: 24px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+// ===== FORM ELEMENTS =====
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $text-dark;
+  margin-bottom: 8px;
+  display: block;
+
+  .required {
+    color: $danger-color;
+    margin-left: 2px;
+  }
+}
+
+.modern-input,
+.modern-select,
+.modern-textarea {
+  border: 1.5px solid $border-color;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.9375rem;
+  transition: $transition;
+  background: white;
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.modern-textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+// ===== HIGHLIGHTS SECTION =====
+.highlight-section {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: $border-radius;
+  overflow: hidden;
+}
+
+.highlight-header {
+  background: linear-gradient(135deg, $warning-color 0%, #d97706 100%);
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.9375rem;
+
+  i {
+    font-size: 1.125rem;
+  }
+}
+
+.highlight-body {
+  padding: 20px;
+}
+
+.highlight-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  input {
+    flex: 1;
+    border: 1.5px solid #fbbf24;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: white;
+
+    &:focus {
+      border-color: $warning-color;
+      box-shadow: 0 0 0 3px rgba($warning-color, 0.1);
+      outline: none;
+    }
+  }
+}
+
+// ===== THINGS TO CARRY SECTION =====
+.things-to-carry-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.carry-item {
+  display: flex;
+  gap: 8px;
+
+  input {
+    flex: 1;
+    border: 1.5px solid $border-color;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: white;
+
+    &:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      outline: none;
+    }
+  }
+}
+
+// ===== IMPORTANT NOTES SECTION =====
+.important-notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.note-item {
+  display: flex;
+  gap: 8px;
+
+  input {
+    flex: 1;
+    border: 1.5px solid $border-color;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: white;
+
+    &:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+      outline: none;
+    }
+  }
+}
+
+.btn-remove {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  background: $danger-color;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+  }
+}
+
+.btn-add-item {
+  width: 100%;
+  padding: 12px;
+  border: 2px dashed $warning-color;
+  background: white;
+  border-radius: 8px;
+  color: $warning-color;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+
+  &:hover {
+    background: rgba($warning-color, 0.05);
+    border-color: #d97706;
+  }
+
+  i {
+    font-size: 1.125rem;
+  }
+}
+
+// ===== BATCHES =====
+.batches-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.batch-card {
+  background: $bg-light;
+  border-radius: $border-radius;
+  border: 2px solid $border-color;
+  overflow: hidden;
+  transition: $transition;
+
+  &:hover {
+    border-color: $primary-color;
+  }
+}
+
+.batch-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}
+
+.batch-title {
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+.btn-delete-batch {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: $transition;
+
+  &:hover {
+    background: $danger-color;
+    border-color: $danger-color;
+    transform: translateY(-2px);
+  }
+
+  i {
+    margin-right: 6px;
+  }
+}
+
+.batch-body {
+  padding: 24px;
+  background: white;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+// ===== INCLUSIONS / EXCLUSIONS =====
+.inclusions-card,
+.exclusions-card {
+  border-radius: $border-radius;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+  height: 100%;
+}
+
+.inc-exc-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.9375rem;
+
+  i {
+    font-size: 1.125rem;
+  }
+}
+
+.inclusions-header {
+  background: linear-gradient(135deg, $success-color 0%, #059669 100%);
+  color: white;
+}
+
+.exclusions-header {
+  background: linear-gradient(135deg, $danger-color 0%, #dc2626 100%);
+  color: white;
+}
+
+.inc-exc-body {
+  padding: 16px;
+  background: white;
+}
+
+.inc-exc-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+
+  input {
+    flex: 1;
+    border: 1.5px solid $border-color;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+      outline: none;
+    }
+  }
+}
+
+.btn-remove-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: none;
+  background: $danger-color;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+  }
+
+  i {
+    font-size: 0.875rem;
+  }
+}
+
+.btn-add-inc-exc {
+  width: 100%;
+  padding: 10px;
+  border: 2px dashed #d1d5db;
+  background: $bg-light;
+  border-radius: 6px;
+  color: $text-light;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: $transition;
+
+  &:hover {
+    background: white;
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
+// ===== ITINERARY =====
+.itinerary-section {
+  margin-top: 32px;
+}
+
+.itinerary-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $text-dark;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+
+  i {
+    color: $primary-color;
+    font-size: 1.25rem;
+  }
+}
+
+.itinerary-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.itinerary-day-card {
+  background: white;
+  border: 2px solid $border-color;
+  border-radius: $border-radius;
+  overflow: hidden;
+  transition: $transition;
+
+  &:hover {
+    border-color: $primary-color;
+    box-shadow: $shadow-sm;
+  }
+}
+
+.day-header {
+  background: linear-gradient(135deg, $bg-light 0%, white 100%);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid $border-color;
+}
+
+.day-badge {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.btn-remove-day {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: rgba($danger-color, 0.1);
+  color: $danger-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+
+  &:hover {
+    background: $danger-color;
+    color: white;
+  }
+}
+
+.day-body {
+  padding: 16px;
+}
+
+.day-title-input {
+  border: 1.5px solid $border-color;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    outline: none;
+  }
+}
+
+.activities-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activity-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+.activity-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    color: $primary-color;
+    font-size: 1rem;
+
+    @media (max-width: 576px) {
+      display: none;
+    }
+  }
+
+  .time-input {
+    width: 140px;
+    border: 1.5px solid $border-color;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+
+    @media (max-width: 576px) {
+      width: 100%;
+    }
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+      outline: none;
+    }
+  }
+}
+
+.activity-text {
+  input {
+    border: 1.5px solid $border-color;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    width: 100%;
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+      outline: none;
+    }
+  }
+}
+
+.btn-remove-activity {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: none;
+  background: rgba($danger-color, 0.1);
+  color: $danger-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  flex-shrink: 0;
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+
+  &:hover {
+    background: $danger-color;
+    color: white;
+  }
+}
+
+.btn-add-activity {
+  padding: 10px;
+  border: 2px dashed #d1d5db;
+  background: $bg-light;
+  border-radius: 8px;
+  color: $text-light;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+
+  &:hover {
+    background: white;
+    border-color: $success-color;
+    color: $success-color;
+  }
+
+  i {
+    font-size: 1.125rem;
+  }
+}
+
+.btn-add-day {
+  width: 100%;
+  padding: 14px;
+  border: 2px dashed $primary-color;
+  background: rgba($primary-color, 0.05);
+  border-radius: $border-radius;
+  color: $primary-color;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  margin-top: 8px;
+
+  &:hover {
+    background: rgba($primary-color, 0.1);
+    border-color: $primary-dark;
+  }
+
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+.btn-add-batch {
+  width: 100%;
+  padding: 16px;
+  border: 2px dashed $primary-color;
+  background: white;
+  border-radius: $border-radius;
+  color: $primary-color;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+
+  &:hover {
+    background: rgba($primary-color, 0.05);
+    border-color: $primary-dark;
+    transform: translateY(-2px);
+  }
+
+  i {
+    font-size: 1.375rem;
+  }
+}
+
+// ===== IMAGE UPLOAD =====
+.image-upload-section {
+  margin-bottom: 32px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.upload-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-dark;
+  margin-bottom: 16px;
+
+  .required {
+    color: $danger-color;
+    margin-left: 2px;
+  }
+}
+
+.upload-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
+}
+
+.btn-upload {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  border: none;
+
+  i {
+    font-size: 1.125rem;
+  }
+
+  &.primary {
+    background: $primary-color;
+    color: white;
+
+    &:hover {
+      background: $primary-dark;
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+  }
+
+  &.secondary {
+    background: white;
+    color: $text-dark;
+    border: 2px solid $border-color;
+
+    &:hover {
+      border-color: $primary-color;
+      color: $primary-color;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.image-preview-card {
+  position: relative;
+  display: inline-block;
+  border-radius: $border-radius;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+
+  &.cover-preview {
+    max-width: 100%;
+
+    img {
+      width: 100%;
+      max-width: 500px;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+
+      @media (max-width: 768px) {
+        height: 200px;
+      }
+    }
+  }
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: $danger-color;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  box-shadow: $shadow-md;
+
+  &:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+  }
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: $border-radius;
+  overflow: hidden;
+  aspect-ratio: 1;
+  box-shadow: $shadow-sm;
+  transition: $transition;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-md;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .btn-remove-image {
+    opacity: 0;
+    transition: $transition;
+  }
+
+  &:hover .btn-remove-image {
+    opacity: 1;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: $text-light;
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+}
+
+.divider {
+  height: 2px;
+  background: linear-gradient(to right, transparent, $border-color, transparent);
+  margin: 32px 0;
+}
+
+// ===== SUBMIT SECTION =====
+.submit-section {
+  text-align: center;
+  padding: 32px 0;
+}
+
+.btn-publish {
+  background: linear-gradient(135deg, $success-color 0%, #059669 100%);
+  color: white;
+  padding: 16px 48px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.125rem;
+  border: none;
+  box-shadow: $shadow-md;
+  transition: $transition;
+  display: inline-flex;
+  align-items: center;
+
+  @media (max-width: 576px) {
+    width: 100%;
+    justify-content: center;
+  }
+
+  i {
+    font-size: 1.375rem;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ===== RESPONSIVE UTILITIES =====
+@media (max-width: 768px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .section-card {
+    border-radius: 8px;
+  }
+
+  .batch-card,
+  .itinerary-day-card {
+    border-radius: 8px;
+  }
+}
+
+// ===== ANIMATIONS =====
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-card,
+.batch-card,
+.itinerary-day-card {
+  animation: slideIn 0.3s ease-out;
+}
+
+.excel-upload-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin-bottom: 2rem;
+}
+
+.excel-upload-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.excel-upload-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.excel-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #1d976c 0%, #93f9b9 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.excel-text h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.excel-text p {
+  margin: 0.25rem 0 0 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.template-download-section {
+  margin-bottom: 2rem;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.template-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-template {
+  flex: 1;
+  min-width: 200px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  border: 2px solid;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-template.single {
+  background: white;
+  color: #667eea;
+  border-color: #667eea;
+}
+
+.btn-template.single:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-template.multiple {
+  background: linear-gradient(135deg, #1d976c 0%, #93f9b9 100%);
+  color: white;
+  border-color: #1d976c;
+}
+
+.btn-template.multiple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(29, 151, 108, 0.3);
+}
+
+.excel-upload-actions {
+  margin-bottom: 2rem;
+}
+
+.btn-excel-upload {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-excel-upload:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.excel-upload-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 2px solid #28a745;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-icon {
+  font-size: 2.5rem;
+  color: #28a745;
+  flex-shrink: 0;
+}
+
+.success-info strong {
+  display: block;
+  font-size: 1.1rem;
+  color: #155724;
+  margin-bottom: 0.25rem;
+}
+
+.success-info p {
+  margin: 0;
+  color: #155724;
+  font-weight: 500;
+}
+
+.excel-upload-instructions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.instruction-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.instruction-number {
+  width: 32px;
+  height: 32px;
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.instruction-content h5 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.instruction-content p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.multi-batch-info {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 8px;
+  color: #004085;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.multi-batch-info i {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.excel-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.excel-loading-content {
+  background: white;
+  padding: 3rem 4rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.excel-loading-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.excel-loading-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .excel-upload-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .template-buttons {
+    flex-direction: column;
+  }
+
+  .btn-template {
+    width: 100%;
+  }
+
+  .excel-upload-instructions {
+    grid-template-columns: 1fr;
+  }
+}

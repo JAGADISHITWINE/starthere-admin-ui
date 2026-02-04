@@ -1,0 +1,33 @@
+.editor-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+.title-input {
+  font-size: 1.75rem;
+  font-weight: 700;
+  --padding-start: 0;
+}
+
+.tags-section {
+  margin-top: 16px;
+
+  ion-label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .tag-item {
+    margin-bottom: 12px;
+  }
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 32px;
+  padding-bottom: 32px;
+}

@@ -1,0 +1,109 @@
+<ion-content>
+
+  <nav class="navbar navbar-expand navbar-dark bg-primary sticky-top px-3 w-100">
+
+    <!-- Back Button -->
+    <div class="d-flex align-items-center">
+      <a class="btn btn-outline-light btn-sm me-3" routerLink="/dashboard">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+    </div>
+
+    <!-- Title -->
+    <span class="navbar-brand mx-auto fw-semibold fs-6">
+      Revenue Reports
+    </span>
+
+    <!-- Actions -->
+    <div class="d-flex align-items-center">
+      <button class="btn btn-outline-light btn-sm" (click)="exportReport()" title="Download Report">
+        <i class="bi bi-download"></i>
+      </button>
+    </div>
+
+  </nav>
+
+
+  <!-- Revenue Summary -->
+  <div class="summary-section">
+    <ion-card class="revenue-card">
+      <ion-card-content>
+        <div class="revenue-header">
+          <h2>Total Revenue</h2>
+          <ion-badge color="success">
+            <ion-icon name="trending-up"></ion-icon>
+            {{ monthlyGrowth }}
+          </ion-badge>
+        </div>
+        <div class="revenue-amount">₹{{ totalRevenue | number }}</div>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="stats-grid">
+      <ion-card>
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="calendar" color="primary"></ion-icon>
+          </div>
+          <div class="stat-value">{{ totalBookings }}</div>
+          <div class="stat-label">Total Bookings</div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="bar-chart" color="warning"></ion-icon>
+          </div>
+          <div class="stat-value">₹{{ averageBookingValue }}</div>
+          <div class="stat-label">Avg Booking Value</div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Monthly Revenue -->
+  <div class="monthly-section">
+    <h2 class="section-title">Monthly Revenue</h2>
+    <ion-card *ngFor="let data of monthlyData" class="month-card">
+      <ion-card-content>
+        <div class="month-header">
+          <div class="month-name">{{ data.month }}</div>
+          <div class="month-amount">₹{{ data.amount | number }}</div>
+        </div>
+        <div class="month-details">
+          <span>
+            <ion-icon name="people-outline"></ion-icon>
+            {{ data.bookings }} bookings
+          </span>
+          <span>
+            <ion-icon name="calculator-outline"></ion-icon>
+            ₹{{ (data.amount / data.bookings) | number }} avg
+          </span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress" [style.width.%]="(data.amount / 165000) * 100"></div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Trek-wise Revenue -->
+  <div class="trek-revenue-section">
+    <h2 class="section-title">Revenue by Trek</h2>
+    <ion-card>
+      <ion-card-content>
+        <div class="trek-item" *ngFor="let trek of trekRevenue; let i = index">
+          <div class="trek-rank">{{ i + 1 }}</div>
+          <div class="trek-info">
+            <h4>{{ trek.name }}</h4>
+            <div class="trek-stats">
+              <span>{{ trek.bookings }} bookings</span>
+              <span class="revenue-value">₹{{ trek.revenue | number }}</span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
