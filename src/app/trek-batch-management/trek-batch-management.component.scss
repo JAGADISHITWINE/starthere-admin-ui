@@ -136,7 +136,7 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  padding: 1rem;
+  padding: 0.5rem;
   background: #f8f9fa;
   border-radius: 8px;
 
@@ -494,4 +494,45 @@
   --width: 95%;
   --max-width: 1200px;
   --height: 90%;
+}
+
+.admin-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.stats-summary {
+  display: flex;
+  gap: 15px;
+}
+
+.stat-badge {
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  
+  i {
+    margin-right: 5px;
+  }
+  
+  &.completed {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  &.needs-update {
+    background: #fff3cd;
+    color: #856404;
+  }
+}
+
+.badge-primary {
+  background-color: #007bff !important;
+  color: white !important;
 }

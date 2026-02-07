@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class TrekBatchManagement {
-    private apiUrl = `${environment.baseUrl}`;
+  private apiUrl = `${environment.baseUrl}`;
 
   constructor(private http: HttpClient) {}
 
@@ -110,5 +110,9 @@ export class TrekBatchManagement {
     link.download = fileName;
     link.click();
     window.URL.revokeObjectURL(url);
+  }
+
+  getCompletionStats(){
+    return this.http.get(`${this.apiUrl}/bookings/completion-stats`);
   }
 }

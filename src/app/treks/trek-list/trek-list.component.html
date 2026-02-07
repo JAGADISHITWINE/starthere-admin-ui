@@ -1,6 +1,5 @@
 <ion-content>
   <div class="container-fluid py-3">
-
     <ion-header>
       <ion-toolbar color="primary">
         <ion-buttons slot="start">
@@ -10,7 +9,11 @@
       </ion-toolbar>
 
       <ion-toolbar>
-        <ion-searchbar [(ngModel)]="searchQuery" placeholder="Search treks..." animated="true">
+        <ion-searchbar
+          [(ngModel)]="searchQuery"
+          placeholder="Search treks..."
+          animated="true"
+        >
         </ion-searchbar>
       </ion-toolbar>
     </ion-header>
@@ -30,16 +33,7 @@
         <div class="card">
           <div class="card-body">
             <h3>{{ activeCount }}</h3>
-            <p class="text-muted mb-0">Active</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col">
-        <div class="card">
-          <div class="card-body">
-            <h3>{{ draftCount }}</h3>
-            <p class="text-muted mb-0">Draft</p>
+            <p class="text-muted mb-0">Active Batches</p>
           </div>
         </div>
       </div>
@@ -48,44 +42,53 @@
     <!-- Treks List -->
     <div class="row">
       <div class="col-md-4 mb-4" *ngFor="let trek of filteredTreks">
-        <div class="card h-100 trek-card" (click)="viewTrek(trek.id)">
-
+        <div class="card h-100 trek-card">
           <!-- Image -->
           <div class="position-relative">
-            <img class="card-img-top" [src]="'http://localhost:4001/' + trek.cover_image" />
-            <span class="badge position-absolute top-0 end-0 m-2" [ngClass]="{
-              'bg-success': trek.status === 'active',
-              'bg-secondary': trek.status === 'draft'
-            }">
+            <img
+              class="card-img-top"
+              [src]="'http://localhost:4001/' + trek.cover_image"
+            />
+            <span
+              class="badge position-absolute top-0 end-0 m-2"
+              [ngClass]="{
+                'bg-success': trek.status === 'active',
+                'bg-secondary': trek.status === 'draft',
+              }"
+            >
               {{ trek.status | uppercase }}
             </span>
           </div>
 
           <!-- Content -->
           <div class="card-body">
-            <h5 class="card-title">{{ trek.name }}</h5>
+            <div class="d-flex align-items-center justify-content-between">
+              <h6 class="mb-0 fw-semibold text-truncate">
+                {{ trek.name }}
+              </h6>
 
-            <p class="text-muted mb-1">
-              📍 {{ trek.location }}
-            </p>
-
-            <div class="d-flex justify-content-between mb-2">
-              <span>⏱ {{ trek.duration }}</span>
-              <span>₹{{ trek.starting_price }}</span>
+              <button
+                class="btn btn-sm btn-light border-0 edit-btn"
+                (click)="editTrek(trek.id)"
+                aria-label="Edit trek"
+              >
+                <span class="emoji">✏️</span>
+              </button>
             </div>
 
-            <!-- Actions -->
-            <div class="d-flex gap-2" (click)="$event.stopPropagation()">
-              <button class="btn btn-outline-secondary btn-sm" (click)="editTrek(trek.id)">
-                ✏️ Edit
-              </button>
+            <p class="text-muted mb-1">📍 {{ trek.location }}</p>
 
-              <button class="btn btn-outline-primary btn-sm" (click)="viewTrek(trek.id)">
-                👁 View
-              </button>
+            <div *ngIf="trek?.batches?.length">
+              <span
+                *ngFor="let batch of trek.batches"
+                class="badge bg-primary rounded-pill me-1 small-badge"
+                (click)="viewTrek(batch.id)"
+              >
+                ⏱ {{ batch.duration }} · ₹{{ batch.price }} /
+                {{ batch.startDate | date: "dd MMM yyyy" }}
+              </span>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -95,6 +98,5 @@
       <h5>No treks found</h5>
       <p class="text-muted">Try a different search</p>
     </div>
-
   </div>
 </ion-content>

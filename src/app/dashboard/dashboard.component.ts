@@ -85,7 +85,7 @@ export class DashboardComponent implements OnInit {
       this.Total_active_users = res.data.totalactiveUsers;
       this.Total_trek = res.data.totaltrekCount;
       this.Total_bookings = res.data.totalbookingCount;
-      this.Total_Revenue = res.data.totalRevenue;
+      this.Total_Revenue = res.data.totalRevenue || 0;
       this.recentBooking = res.data.recentBookings;
       this.labels = this.recentBooking.map((r: any) => r.month);
       this.bookingsData = this.recentBooking.map((r: any) => r.bookings);

@@ -1,121 +1,3 @@
-// import { CommonModule } from '@angular/common';
-// import { AfterViewInit, Component, OnInit } from '@angular/core';
-// import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-// import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-// import { IonicModule } from '@ionic/angular';
-// import { TourDetails } from './tour-details';
-
-// @Component({
-//   selector: 'app-tour-details',
-//   templateUrl: './tour-details.component.html',
-//   styleUrls: ['./tour-details.component.scss'],
-//   standalone: true,
-//   imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, RouterLink],
-// })
-// export class TourDetailsComponent implements OnInit, AfterViewInit {
-
-//   tourId: number = 0;
-//   selectedSegment: string = 'overview';
-//   tour: any = null;
-//   isLoading = true;
-
-//   constructor(
-//     private route: ActivatedRoute,
-//     private router: Router,
-//     private tourDetailsService: TourDetails
-//   ) { }
-
-//   ngAfterViewInit(): void {
-
-//   }
-
-//   ngOnInit() {
-//     this.route.paramMap.subscribe(params => {
-//       const id = Number(params.get('id'));
-//       console.log(id)
-
-//       if (!id) return;
-
-//       this.tourId = +id;
-//       this.isLoading = true;
-//       this.tour = null;
-
-//       this.loadTrekDetails();
-//     });
-//   }
-
-
-//   loadTrekDetails() {
-//     this.isLoading = true;
-
-//     this.tourDetailsService.getTrekById(this.tourId).subscribe((res: any) => {
-//       if (res.success) {
-//         this.isLoading = false;
-//         this.mapTourData(res.data);
-//       }
-//     });
-//   }
-
-//   mapTourData(result: any) {
-//     this.tour = {
-//       id: result.id,
-//       name: result.name,
-//       location: result.location,
-//       duration: result.duration,
-//       difficulty: result.difficulty,
-//       price: Number(result.batches.price),
-
-//       rating: 4.8,
-//       reviewCount: 145,
-
-//       // 🔥 cover image (fix URL if needed)
-//       image: result.cover_image,
-
-//       // 🔥 gallery
-//       gallery: result.galleryImages || [],
-
-//       overview: result.description,
-
-//       highlights: result.highlights || [],
-//       inclusions: result.inclusions || [],
-//       exclusions: result.exclusions || [],
-
-//       itinerary: result.itinerary?.map((day: any) => ({
-//         day: day.day,
-//         title: day.title,
-//         description: day.description,
-//         distance: `${day.distance} km`,
-//         duration: `${day.duration} hours`
-//       })) || [],
-
-//       nextDates: result.batches?.map((b: any) =>
-//         new Date(b.start_date).toDateString()
-//       ) || []
-//     };
-//   }
-
-
-
-//   bookNow() {
-//     this.router.navigate(['/booking', this.tourId]);
-//   }
-
-//   getDifficultyColor(difficulty: string): string {
-//     switch (difficulty.toLowerCase()) {
-//       case 'easy': return 'success';
-//       case 'moderate': return 'warning';
-//       case 'challenging': return 'danger';
-//       default: return 'medium';
-//     }
-//   }
-
-//   getStars(rating: number): number[] {
-//     return Array(5).fill(0).map((_, i) => i < rating ? 1 : 0);
-//   }
-
-// }
-
-
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -219,8 +101,6 @@ export class TourDetailsComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
-      console.log(id)
-
       if (!id) return;
 
       this.tourId = +id;
@@ -244,7 +124,7 @@ export class TourDetailsComponent implements OnInit {
   }
 
   mapTourData(result: any) {
-    const firstBatch = result.batches && result.batches.length > 0 ? result.batches[0] : null;
+    const firstBatch = result.batch;
 
     this.tour = {
       id: result.id,
@@ -287,7 +167,7 @@ export class TourDetailsComponent implements OnInit {
       ) || [],
 
       // Additional info
-      availableSlots: firstBatch?.available_slots || 0,
+      availableSlots: firstBatch?.availableSlots || 0,
       minAge: firstBatch?.min_age || 0,
       maxAge: firstBatch?.max_age || 0
     };

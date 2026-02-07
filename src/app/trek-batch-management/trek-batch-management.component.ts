@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
 import { TrekBatchManagement } from './trek-batch-management';
+import { Subscription } from 'rxjs';
+import { WebSocketService } from '../services/websocket.service';
 
 @Component({
   selector: 'app-trek-batch-management',
@@ -11,7 +13,10 @@ import { TrekBatchManagement } from './trek-batch-management';
   standalone: true,
   imports: [CommonModule, IonicModule, RouterLink]
 })
-export class TrekBatchManagementComponent implements OnInit {
+export class TrekBatchManagementComponent implements OnInit, OnDestroy {
+
+  private updateSubscription = new Subscription(); 
+  
   treks: any[] = [];
   selectedTrek: any = null;
   batches: any[] = [];
@@ -24,11 +29,24 @@ export class TrekBatchManagementComponent implements OnInit {
 
   showBatchesModal = false;
   showBookingsModal = false;
+  completionStats: any = null;
 
-  constructor(private trekMgmtService: TrekBatchManagement) {}
+  constructor(private trekMgmtService: TrekBatchManagement, private wsService: WebSocketService) {}
 
   ngOnInit() {
     this.loadTreks();
+    this.loadCompletionStats();
+    
+    // Connect to WebSocket
+    this.wsService.connect();
+    this.wsService.joinAdminRoom();
+    
+    // Listen for real-time updates
+    this.updateSubscription = this.wsService.getBookingUpdates().subscribe({
+      next: (update) => {
+        this.handleRealTimeUpdate(update);
+      }
+    });
   }
 
   /**
@@ -45,7 +63,6 @@ export class TrekBatchManagementComponent implements OnInit {
         this.isLoadingTreks = false;
       },
       error: (error) => {
-        console.error('Load treks error:', error);
         this.isLoadingTreks = false;
         alert('Failed to load treks');
       }
@@ -250,5 +267,74 @@ export class TrekBatchManagementComponent implements OnInit {
       default:
         return 'badge-secondary';
     }
+  }
+
+   ngOnDestroy() {
+    // Cleanup
+    if (this.updateSubscription) {
+      this.updateSubscription.unsubscribe();
+    }
+    this.wsService.disconnect();
+  }
+
+  handleRealTimeUpdate(update: any) {
+    if (update.type === 'completed') {
+      // Show toast notification
+      this.showNotification(`Booking ${update.data.bookingReference} completed!`);
+
+      // Refresh current view
+      if (this.showBookingsModal && this.selectedBatch) {
+        this.viewBookings(this.selectedBatch);
+      } else if (this.showBatchesModal && this.selectedTrek) {
+        this.viewBatches(this.selectedTrek);
+      } else {
+        this.loadTreks();
+      }
+
+      // Update stats
+      this.loadCompletionStats();
+    } else if (update.type === 'created') {
+      // New booking created by a user
+      this.showNotification(`New booking: ${update.data.bookingReference} by ${update.data.customerName}`);
+
+      // Refresh current view to show new booking counts
+      if (this.showBookingsModal && this.selectedBatch) {
+        this.viewBookings(this.selectedBatch);
+      } else if (this.showBatchesModal && this.selectedTrek) {
+        this.viewBatches(this.selectedTrek);
+      } else {
+        this.loadTreks();
+      }
+
+      // Update stats
+      this.loadCompletionStats();
+    }
+  }
+
+  showNotification(message: string) {
+    // Simple alert - replace with toast notification
+    const toast = document.createElement('div');
+    toast.className = 'real-time-toast';
+    toast.innerHTML = `
+      <i class="bi bi-check-circle-fill"></i>
+      ${message}
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+    loadCompletionStats() {
+    this.trekMgmtService.getCompletionStats().subscribe( (response: any) => {
+        if (response.success) {
+          this.completionStats = response.data;
+          // Show notification if bookings need completion
+          if (this.completionStats.needs_completion > 0) {
+          }
+        }
+      },
+   );
   }
 }

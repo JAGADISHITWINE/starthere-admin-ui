@@ -36,11 +36,10 @@ export class TrekAddComponent implements OnInit {
   excelFileName = '';
   uploadedBatchCount = 0;
 
-  difficulties = ['Easy', 'Moderate', 'Challenging', 'Difficult'];
-  categories = ['Peak Trek', 'Hill Trek', 'Waterfall Trek'];
-  fitnessLevels = ['Beginner', 'Intermediate', 'Advanced'];
+  difficulties = ['Easy', 'Moderate', 'Difficult', 'Extreme', 'Challenging'];
+  categories = ['Peak Trek', 'Hill Trek', 'Waterfall Trek','Mountain Trek', 'Forest Trek', 'Desert Trek', 'Snow Trek'];
+  fitnessLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
   batchStatuses = ['active', 'inactive', 'cancelled', 'completed'];
-
   constructor(
     private fb: FormBuilder,
     private trekService: TrekAdd,
@@ -91,26 +90,18 @@ export class TrekAddComponent implements OnInit {
       const result = await this.excelService.readExcelFile(file);
 
       if (result.success && result.data.length > 0) {
-        console.log('Excel data read:', result.data);
 
         // Parse trek data
         const parsedData = this.excelService.parseTrekData(result.data);
-        console.log('Parsed data:', parsedData);
 
         // Convert to form data with multiple batches
         const formData = this.excelService.convertToFormData(parsedData);
-        console.log('Form data:', formData);
 
         // Populate form
         this.populateFormFromExcel(formData);
 
         this.uploadedBatchCount = formData.batches.length;
 
-        alert(
-          `Excel data loaded successfully!\n` +
-          `Trek: ${formData.trekInfo.name}\n` +
-          `Batches: ${formData.batches.length}`
-        );
       } else {
         alert('No data found in Excel file');
       }
@@ -244,14 +235,9 @@ export class TrekAddComponent implements OnInit {
         } else {
           itineraryArray.push(this.createDay(1));
         }
-
         this.batches.push(batchGroup);
       });
-
-      console.log(`✅ Populated ${data.batches.length} batches successfully`);
     }
-
-    console.log('Final form value:', this.addTrekForm.value);
   }
 
   /**
@@ -489,7 +475,6 @@ export class TrekAddComponent implements OnInit {
 
   saveTrek() {
     if (this.addTrekForm.invalid) {
-      alert('Please fill all required fields');
       this.addTrekForm.markAllAsTouched();
       return;
     }
@@ -515,11 +500,6 @@ export class TrekAddComponent implements OnInit {
 
     this.trekService.createTrek(formData).subscribe((response: any) => {
       if (response && response.success == true) {
-        alert(
-          `Trek created successfully!\n` +
-          `Name: ${this.addTrekForm.value.name}\n` +
-          `Batches: ${this.batches.length}`
-        );
         this.addTrekForm.reset();
         this.coverImage = null;
         this.coverPreview = null;

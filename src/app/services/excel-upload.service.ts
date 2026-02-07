@@ -514,19 +514,32 @@ export class ExcelUploadService {
       'Important Notes': 'No alcohol|Follow guide instructions|Subject to weather conditions',
       'Itinerary': JSON.stringify([
         {
-          day: 1,
+          dayNumber: 1,
           title: 'Arrival & Base Camp',
-          activities: ['Pickup', 'Travel', 'Check-in', 'Dinner']
+          activities: [
+              { activityTime: '06:00', activityText: 'Departure from Bangalore' },
+              { activityTime: '12:00', activityText: 'Lunch break at Chikmagalur' },
+              { activityTime: '18:00', activityText: 'Reach base camp and check-in' }
+            ]
         },
         {
-          day: 2,
+          dayNumber: 2,
           title: 'Summit Trek',
-          activities: ['Trek to peak', 'Summit view', 'Return', 'Campfire']
+          activities: [
+              { activityTime: '05:00', activityText: 'Wake up and breakfast' },
+              { activityTime: '06:00', activityText: 'Start trek to peak' },
+              { activityTime: '12:00', activityText: 'Reach summit and lunch' },
+              { activityTime: '16:00', activityText: 'Descend to base camp' }
+            ]
         },
         {
-          day: 3,
+          dayNumber: 3,
           title: 'Departure',
-          activities: ['Breakfast', 'Checkout', 'Drop']
+          activities: [
+              { activityTime: '07:00', activityText: 'Breakfast and pack up' },
+              { activityTime: '09:00', activityText: 'Depart for Bangalore' },
+              { activityTime: '18:00', activityText: 'Reach Bangalore' }
+            ]
         }
       ]),
 

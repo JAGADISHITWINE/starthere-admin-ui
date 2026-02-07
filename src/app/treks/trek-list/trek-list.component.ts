@@ -17,7 +17,6 @@ export class TrekListComponent implements OnInit {
   searchQuery: string = '';
   treks: any[] = [];
   activeCount = 0;
-  draftCount = 0;
 
   constructor(private router: Router, private trekService: TrekList) { }
 
@@ -45,8 +44,7 @@ export class TrekListComponent implements OnInit {
   loadTreks() {
     this.trekService.getAllTreks().subscribe((res: any) => {
       this.treks = res.data || [];
-      this.activeCount = this.treks.filter(t => t.status === 'active').length;
-      this.draftCount = this.treks.filter(t => t.status === 'draft').length;
+      this.activeCount = res.activeTrekCount;
     });
   }
 
