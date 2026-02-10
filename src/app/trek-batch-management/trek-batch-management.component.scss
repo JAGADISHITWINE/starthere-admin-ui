@@ -536,3 +536,257 @@
   background-color: #007bff !important;
   color: white !important;
 }
+
+// Existing styles...
+
+// Expandable row styles
+.expand-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  color: #667eea;
+  transition: transform 0.2s;
+  
+  &.expanded {
+    transform: rotate(0deg);
+  }
+  
+  &:hover {
+    color: #764ba2;
+  }
+  
+  i {
+    font-size: 14px;
+  }
+}
+
+.expanded-row {
+  background-color: #f8f9fa !important;
+}
+
+.participant-details-row {
+  background-color: #ffffff !important;
+  
+  td {
+    padding: 0 !important;
+  }
+}
+
+.participant-details-container {
+  padding: 20px;
+  background: #f8f9fa;
+  border-top: 2px solid #667eea;
+}
+
+.details-section {
+  background: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  i {
+    font-size: 16px;
+  }
+}
+
+// Participants grid
+.participants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.participant-card {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s;
+  
+  &.primary-contact {
+    border-left: 4px solid #667eea;
+    background: #f0f4ff;
+  }
+  
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.participant-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.participant-number {
+  background: #667eea;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.participant-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  
+  &.medical-info {
+    flex-direction: column;
+    background: #fff3cd;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    
+    .info-label {
+      color: #856404;
+      margin-bottom: 4px;
+    }
+    
+    .info-value {
+      color: #856404;
+    }
+  }
+}
+
+.info-label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #2c3e50;
+  font-weight: 400;
+}
+
+// Additional info section
+.additional-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.info-item {
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+  
+  .label {
+    display: block;
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .value {
+    display: block;
+    font-size: 14px;
+    color: #2c3e50;
+  }
+}
+
+// Add-ons list
+.addons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.addon-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.addon-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.addon-details {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+// Badges
+.badge-info {
+  background-color: #17a2b8;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.badge-primary {
+  background-color: #667eea;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+// Table adjustments
+.bookings-table {
+  .email-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .participants-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .additional-info {
+    grid-template-columns: 1fr;
+  }
+}

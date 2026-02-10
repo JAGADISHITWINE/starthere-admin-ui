@@ -90,8 +90,6 @@ export class DashboardComponent implements OnInit {
       this.labels = this.recentBooking.map((r: any) => r.month);
       this.bookingsData = this.recentBooking.map((r: any) => r.bookings);
       this.revenueData = this.recentBooking.map((r: any) => r.revenue);
-
-      // this.createChart();
       this.stats = [
         {
           title: 'Total Bookings',
@@ -206,46 +204,6 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['']);
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('currentUser');
-  }
-
-  createChart() {
-    const ctx = document.getElementById(
-      'bookingsRevenueChart',
-    ) as HTMLCanvasElement;
-
-    const recent = this.recentBooking;
-
-    this.labels = recent.map((r: any) => r.bookingDate); // '23 Jan 2026'
-    this.bookingsData = recent.map((r: any) => r.participants);
-    this.revenueData = recent.map((r: any) => r.amount);
-
-    this.chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: this.labels,
-        datasets: [
-          {
-            label: 'Bookings',
-            data: this.bookingsData,
-            borderColor: 'blue',
-            backgroundColor: 'transparent',
-            tension: 0.2,
-          },
-          {
-            label: 'Revenue',
-            data: this.revenueData,
-            borderColor: 'red',
-            backgroundColor: 'transparent',
-            tension: 0.2,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'top' } },
-        scales: { y: { beginAtZero: true } },
-      },
-    });
   }
 
   selectedBookingIndex: number | null = null;

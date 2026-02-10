@@ -15,8 +15,8 @@ import { WebSocketService } from '../services/websocket.service';
 })
 export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
-  private updateSubscription = new Subscription(); 
-  
+  private updateSubscription = new Subscription();
+
   treks: any[] = [];
   selectedTrek: any = null;
   batches: any[] = [];
@@ -31,16 +31,16 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
   showBookingsModal = false;
   completionStats: any = null;
 
-  constructor(private trekMgmtService: TrekBatchManagement, private wsService: WebSocketService) {}
+  constructor(private trekMgmtService: TrekBatchManagement, private wsService: WebSocketService) { }
 
   ngOnInit() {
     this.loadTreks();
     this.loadCompletionStats();
-    
+
     // Connect to WebSocket
     this.wsService.connect();
     this.wsService.joinAdminRoom();
-    
+
     // Listen for real-time updates
     this.updateSubscription = this.wsService.getBookingUpdates().subscribe({
       next: (update) => {
@@ -57,8 +57,8 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
     this.trekMgmtService.getTreks().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.treks = response.treks;
+        if (response.success == true) {
+          this.treks = response.data;
         }
         this.isLoadingTreks = false;
       },
@@ -79,8 +79,8 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
     this.trekMgmtService.getBatches(trek.id).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.batches = response.batches;
+        if (response.success == true) {
+          this.batches = response.data;
         }
         this.isLoadingBatches = false;
       },
@@ -102,8 +102,11 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
     this.trekMgmtService.getBatchBookings(batch.id).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.bookings = response.bookings;
+        if (response.success == true) {
+          this.bookings = response.data.map((booking: any) => ({
+            ...booking,
+            expanded: false // Initialize expanded state
+          }));
         }
         this.isLoadingBookings = false;
       },
@@ -116,6 +119,13 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Toggle booking row expansion to show/hide participant details
+   */
+  toggleBookingExpand(booking: any) {
+    booking.expanded = !booking.expanded;
+  }
+
+  /**
    * Stop booking for a batch
    */
   stopBooking(batch: any) {
@@ -125,11 +135,9 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
     this.trekMgmtService.stopBooking(batch.id).subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response.success == true) {
           alert('Booking stopped successfully!');
           batch.status = 'inactive';
-
-          // Reload batches
           this.viewBatches(this.selectedTrek);
         }
       },
@@ -150,11 +158,9 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
     this.trekMgmtService.resumeBooking(batch.id).subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response.success == true) {
           alert('Booking resumed successfully!');
           batch.status = 'active';
-
-          // Reload batches
           this.viewBatches(this.selectedTrek);
         }
       },
@@ -186,13 +192,13 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
    * Download all bookings for a trek
    */
   downloadAllTrekBookings(trek: any) {
-    this.trekMgmtService.downloadBatchBookings(trek.id).subscribe({
-      next: (blob) => {
+    this.trekMgmtService.downloadAllTrekBookings(trek.id).subscribe({
+      next: (blob:any) => {
         const fileName = `${trek.name}_All_Bookings.xlsx`;
         this.trekMgmtService.triggerDownload(blob, fileName);
         alert('Download started!');
       },
-      error: (error) => {
+      error: (error:any) => {
         console.error('Download error:', error);
         alert('Failed to download all bookings');
       }
@@ -246,6 +252,8 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
         return 'badge-warning';
       case 'cancelled':
         return 'badge-danger';
+      case 'completed':
+        return 'badge-info';
       default:
         return 'badge-secondary';
     }
@@ -269,8 +277,7 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-   ngOnDestroy() {
-    // Cleanup
+  ngOnDestroy() {
     if (this.updateSubscription) {
       this.updateSubscription.unsubscribe();
     }
@@ -279,10 +286,8 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
   handleRealTimeUpdate(update: any) {
     if (update.type === 'completed') {
-      // Show toast notification
       this.showNotification(`Booking ${update.data.bookingReference} completed!`);
 
-      // Refresh current view
       if (this.showBookingsModal && this.selectedBatch) {
         this.viewBookings(this.selectedBatch);
       } else if (this.showBatchesModal && this.selectedTrek) {
@@ -291,13 +296,10 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
         this.loadTreks();
       }
 
-      // Update stats
       this.loadCompletionStats();
     } else if (update.type === 'created') {
-      // New booking created by a user
       this.showNotification(`New booking: ${update.data.bookingReference} by ${update.data.customerName}`);
 
-      // Refresh current view to show new booking counts
       if (this.showBookingsModal && this.selectedBatch) {
         this.viewBookings(this.selectedBatch);
       } else if (this.showBatchesModal && this.selectedTrek) {
@@ -306,13 +308,11 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
         this.loadTreks();
       }
 
-      // Update stats
       this.loadCompletionStats();
     }
   }
 
   showNotification(message: string) {
-    // Simple alert - replace with toast notification
     const toast = document.createElement('div');
     toast.className = 'real-time-toast';
     toast.innerHTML = `
@@ -320,21 +320,70 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
       ${message}
     `;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
       toast.remove();
     }, 3000);
   }
 
-    loadCompletionStats() {
-    this.trekMgmtService.getCompletionStats().subscribe( (response: any) => {
+  loadCompletionStats() {
+    this.trekMgmtService.getCompletionStats().subscribe((response: any) => {
+      if (response.success) {
+        this.completionStats = response.data;
+      }
+    });
+  }
+
+  /**
+   * Check if batch has ended
+   */
+  isBatchEnded(batch: any): boolean {
+    if (!batch || !batch.end_date) {
+      return false;
+    }
+    
+    const endDate = new Date(batch.end_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+    
+    return endDate < today;
+  }
+
+  /**
+   * Mark batch as completed
+   */
+  markBatchCompleted(batch: any) {
+    if (!confirm(
+      `Mark this batch as COMPLETED?\n\n` +
+      `Trek: ${this.selectedTrek.name}\n` +
+      `Date: ${new Date(batch.start_date).toLocaleDateString()} - ${new Date(batch.end_date).toLocaleDateString()}\n` +
+      `Total Bookings: ${batch.total_bookings}\n\n` +
+      `This will:\n` +
+      `- Mark the batch as completed\n` +
+      `- Update all confirmed bookings to completed status\n\n` +
+      `Continue?`
+    )) {
+      return;
+    }
+
+    this.trekMgmtService.markBatchCompleted(batch.id).subscribe({
+      next: (response: any) => {
         if (response.success) {
-          this.completionStats = response.data;
-          // Show notification if bookings need completion
-          if (this.completionStats.needs_completion > 0) {
-          }
+          alert(
+            `Batch marked as completed!\n\n` +
+            `Updated bookings: ${response.updated_bookings || 0}`
+          );
+
+          batch.status = 'completed';
+          this.viewBatches(this.selectedTrek);
+          this.loadCompletionStats();
         }
       },
-   );
+      error: (error) => {
+        console.error('Mark completed error:', error);
+        alert('Failed to mark batch as completed');
+      }
+    });
   }
 }

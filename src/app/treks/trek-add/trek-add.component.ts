@@ -498,8 +498,14 @@ export class TrekAddComponent implements OnInit {
       formData.append('gallery', file);
     });
 
-    this.trekService.createTrek(formData).subscribe((response: any) => {
-      if (response && response.success == true) {
+   this.trekService
+  .createTrek(this.addTrekForm.value, {
+    coverImage: this.coverImage,
+    gallery: this.galleryFiles
+  })
+  .subscribe({
+    next: (response: any) => {
+      if (response?.success === true) {
         this.addTrekForm.reset();
         this.coverImage = null;
         this.coverPreview = null;
@@ -507,8 +513,14 @@ export class TrekAddComponent implements OnInit {
         this.galleryPreviews = [];
         this.router.navigate(['/admin/treks/list']);
       } else {
-        alert('Failed to create trek. Please try again.');
+        alert(response?.data?.message || 'Failed to create trek');
       }
-    });
+    },
+    error: (err) => {
+      console.error('Create trek error:', err);
+      alert('Server error. Please try again.');
+    }
+  });
+
   }
 }

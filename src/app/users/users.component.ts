@@ -41,7 +41,7 @@ export class UsersComponent implements OnInit {
 
   ngOnInit() {
     this.userService.getAllUsers().subscribe((res: any) => {
-      this.users = res.usersData;
+      this.users = res.data;
     })
   }
 
@@ -96,7 +96,4 @@ export class UsersComponent implements OnInit {
     user.status = 'active';
   }
 
-  exportToCSV() {
-    console.log('Exporting users to CSV');
-  }
 }

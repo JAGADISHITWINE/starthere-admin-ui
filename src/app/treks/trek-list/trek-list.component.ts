@@ -43,8 +43,9 @@ export class TrekListComponent implements OnInit {
 
   loadTreks() {
     this.trekService.getAllTreks().subscribe((res: any) => {
-      this.treks = res.data || [];
-      this.activeCount = res.activeTrekCount;
+      this.treks = res.data.result || [];
+      console.log(this.treks)
+      this.activeCount = res.data.activeTrekCount;
     });
   }
 

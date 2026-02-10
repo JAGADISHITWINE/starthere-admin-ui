@@ -30,7 +30,7 @@ export class TrekEditComponent implements OnInit {
 
   // Dropdown options
   difficulties = ['Easy', 'Moderate', 'Difficult', 'Extreme'];
-  categories = ['Hill Trek', 'Mountain Trek', 'Forest Trek', 'Desert Trek', 'Snow Trek'];
+  categories = ['Hill Trek', 'Mountain Trek', 'Forest Trek', 'Desert Trek', 'Snow Trek', 'Peak Trek'];
   fitnessLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
   batchStatuses = ['active', 'inactive', 'full', 'cancelled'];
 
@@ -122,6 +122,7 @@ export class TrekEditComponent implements OnInit {
       if (!res?.success) return;
 
       const trek = res.data;
+      console.log(trek)
 
       // Patch basic fields
       this.editTrekForm.patchValue({

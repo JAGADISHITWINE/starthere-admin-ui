@@ -1,18 +1,29 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { EncryptionService } from '../services/encryption.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Bookings {
 
-    constructor(private http: HttpClient){}
+  constructor(private http: HttpClient, private crypto: EncryptionService) { }
 
-    private API = environment.baseUrl;
+  private API = environment.baseUrl;
 
-    getBookingData() {
-      return this.http.get<any>(`${this.API}/bookingData`);
-    }
+
+  getBookingData() {
+    return this.http.get<{ payload: string }>(`${this.API}/bookingData`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    )
+  }
 
 }

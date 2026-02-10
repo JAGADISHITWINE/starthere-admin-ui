@@ -1,15 +1,16 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { EncryptionService } from '../services/encryption.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TrekBatchManagement {
-  private apiUrl = `${environment.baseUrl}`;
+  private API = `${environment.baseUrl}`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private crypto: EncryptionService) { }
 
   /**
    * Get auth headers
@@ -22,67 +23,68 @@ export class TrekBatchManagement {
     });
   }
 
-  /**
-   * Get all treks with batch summaries
-   */
-  getTreks(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/treks`);
+  getTreks() {
+    return this.http.get<{ payload: string }>(`${this.API}/treks`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    )
   }
 
-  /**
-   * Get all batches for a trek
-   */
-  getBatches(trekId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/treks/${trekId}/batches`)
+  getBatches(trekId: number) {
+    return this.http.get<{ payload: string }>(`${this.API}/treks/${trekId}/batches`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    )
   }
 
-  /**
-   * Get all bookings for a specific batch
-   */
-  getBatchBookings(batchId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/batches/${batchId}/bookings`, {
-      headers: this.getHeaders()
-    });
+
+   getBatchBookings(batchId: number) {
+    return this.http.get<{ payload: string }>(`${this.API}/batches/${batchId}/bookings`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    )
   }
 
-  /**
-   * Stop accepting bookings for a batch
-   */
+
+
   stopBooking(batchId: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/batches/${batchId}/stop-booking`, {}, {
-      headers: this.getHeaders()
-    });
+    return this.http.patch(`${this.API}/batches/${batchId}/stop-booking`, {});
   }
 
-  /**
-   * Resume accepting bookings for a batch
-   */
+
   resumeBooking(batchId: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/batches/${batchId}/resume-booking`, {}, {
-      headers: this.getHeaders()
-    });
+    return this.http.patch(`${this.API}/batches/${batchId}/resume-booking`, {});
   }
 
-  /**
-   * Export bookings for a specific batch
-   */
+
   exportBatchBookings(batchId: number): void {
     const token = localStorage.getItem('authToken');
-    const url = `${this.apiUrl}/batches/${batchId}/export-bookings`;
+    const url = `${this.API}/batches/${batchId}/export-bookings`;
 
-    // Create a temporary link to trigger download
     const link = document.createElement('a');
     link.href = `${url}?token=${token}`;
     link.download = 'bookings.xlsx';
     link.click();
   }
 
-  /**
-   * Export all bookings for all batches of a trek
-   */
   exportAllTrekBookings(trekId: number): void {
     const token = localStorage.getItem('authToken');
-    const url = `${this.apiUrl}/treks/${trekId}/export-all-bookings`;
+    const url = `${this.API}/treks/${trekId}/export-all-bookings`;
 
     const link = document.createElement('a');
     link.href = `${url}?token=${token}`;
@@ -90,19 +92,20 @@ export class TrekBatchManagement {
     link.click();
   }
 
-  /**
-   * Download batch bookings as Excel (alternative method using blob)
-   */
   downloadBatchBookings(batchId: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/batches/${batchId}/export-bookings`, {
+    return this.http.get(`${this.API}/batches/${batchId}/export-bookings`, {
       headers: this.getHeaders(),
       responseType: 'blob'
     });
   }
 
-  /**
-   * Trigger download from blob
-   */
+  downloadAllTrekBookings(trekId:any){
+    return this.http.get(`${this.API}/treks/${trekId}/export-all-bookings`, {
+      headers: this.getHeaders(),
+      responseType: 'blob'
+    });
+  }
+
   triggerDownload(blob: Blob, fileName: string): void {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -112,7 +115,11 @@ export class TrekBatchManagement {
     window.URL.revokeObjectURL(url);
   }
 
-  getCompletionStats(){
-    return this.http.get(`${this.apiUrl}/bookings/completion-stats`);
+  getCompletionStats() {
+    return this.http.get(`${this.API}/bookings/completion-stats`);
+  }
+
+  markBatchCompleted(batchId: number): Observable<any> {
+    return this.http.put(`${this.API}/batches/${batchId}/complete`, {});
   }
 }
