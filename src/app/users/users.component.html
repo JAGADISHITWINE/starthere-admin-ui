@@ -1,109 +1,291 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Manage Users</ion-title>
-  </ion-toolbar>
+<!-- ================= LIST VIEW ================= -->
+<ng-container *ngIf="!isDetailView">
 
-  <ion-toolbar>
-    <ion-searchbar
-      [(ngModel)]="searchQuery"
-      placeholder="Search users..."
-      animated="true"
-    ></ion-searchbar>
-  </ion-toolbar>
-</ion-header>
+  <ion-header class="ion-no-border">
+    <ion-toolbar class="main-toolbar">
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/dashboard" class="custom-back"></ion-back-button>
+      </ion-buttons>
+      <ion-title class="toolbar-title">Manage Users</ion-title>
+    </ion-toolbar>
 
-<ion-content>
-  <!-- Filters -->
-  <div class="filters-section">
-    <ion-grid>
-      <ion-row>
-        <ion-col size="12" size-md="6">
-          <div class="results-count">
-            <strong>{{ filteredUsers.length }}</strong> users found
+    <div class="search-row">
+      <div class="search-wrap">
+        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+        <ion-searchbar [(ngModel)]="searchQuery" placeholder="Search by name, email or phone…" class="custom-searchbar"
+          [debounce]="200">
+        </ion-searchbar>
+      </div>
+      <button class="filter-btn">
+        <ion-icon name="options-outline"></ion-icon>
+        <span>Filter</span>
+      </button>
+    </div>
+
+    <!-- Summary Strip -->
+    <div class="summary-strip">
+      <div class="summary-item">
+        <span class="summary-num">248</span>
+        <span class="summary-lbl">Total</span>
+      </div>
+      <div class="strip-div"></div>
+      <div class="summary-item">
+        <span class="summary-num active">189</span>
+        <span class="summary-lbl">Active</span>
+      </div>
+      <div class="strip-div"></div>
+      <div class="summary-item">
+        <span class="summary-num blocked">23</span>
+        <span class="summary-lbl">Blocked</span>
+      </div>
+      <div class="strip-div"></div>
+      <div class="summary-item">
+        <span class="summary-num pending">36</span>
+        <span class="summary-lbl">Pending</span>
+      </div>
+    </div>
+  </ion-header>
+
+  <ion-content class="page-content">
+    <div class="list-header">
+      <span class="list-label">All Users</span>
+      <span class="list-count">{{ filteredUsers.length }} results</span>
+    </div>
+
+    <div class="users-grid">
+      <div class="user-card" *ngFor="let user of filteredUsers">
+
+        <!-- Card Top -->
+        <div class="card-top">
+          <div class="avatar-wrap">
+            <img [src]="getAvatar(user)" [alt]="user.name" class="u-avatar" />
+            <span class="status-dot" [class]="'dot-' + user.status"></span>
           </div>
-        </ion-col>
-        <ion-col size="12" size-md="6">
-          <ion-item>
-            <ion-label>Status</ion-label>
-            <ion-select [(ngModel)]="selectedStatus" interface="popover">
-              <ion-select-option *ngFor="let opt of statusOptions" [value]="opt.value">
-                {{ opt.label }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
-
-  <!-- Users Grid -->
-  <div class="users-grid">
-    <ion-card *ngFor="let user of filteredUsers" class="user-card">
-      <ion-card-content>
-        <div class="user-header">
-          <img [src]="getAvatar(user)" [alt]="user.name" class="user-avatar" />
-          <div class="user-info">
-            <h3>{{ user.name }}</h3>
-            <p class="email">{{ user.email }}</p>
-            <p class="phone">{{ user.phone }}</p>
+          <div class="u-info">
+            <h3 class="u-name">{{ user.name }}</h3>
+            <p class="u-email">{{ user.email }}</p>
+            <p class="u-phone">{{ user.phone }}</p>
           </div>
-          <ion-badge [color]="getStatusColor(user.status)">
-            {{ user.status }}
-          </ion-badge>
+          <span class="u-badge" [class]="'badge-' + user.status">{{ user.status }}</span>
         </div>
 
-        <div class="user-stats">
-          <div class="stat">
-            <div class="stat-value">{{ user.totalBookings }}</div>
-            <div class="stat-label">Total Bookings</div>
+        <!-- Divider -->
+        <div class="card-rule"></div>
+
+        <!-- Stats Row -->
+        <div class="card-stats">
+          <div class="cs">
+            <span class="cs-val">{{ user.totalBookings }}</span>
+            <span class="cs-lbl">Bookings</span>
           </div>
-          <div class="stat">
-            <div class="stat-value">₹{{ user.totalSpent }}</div>
-            <div class="stat-label">Total Spent</div>
+          <div class="cs-sep"></div>
+          <div class="cs">
+            <span class="cs-val green">₹{{ user.totalSpent }}</span>
+            <span class="cs-lbl">Total Spent</span>
           </div>
-          <div class="stat">
-            <div class="stat-value">{{ user.joinDate }}</div>
-            <div class="stat-label">Member Since</div>
+          <div class="cs-sep"></div>
+          <div class="cs">
+            <span class="cs-val sm">{{ user.joinDate }}</span>
+            <span class="cs-lbl">Joined</span>
           </div>
         </div>
 
-        <div class="user-actions">
-          <ion-button size="small" fill="outline" (click)="viewUser(user.id)">
-            <i slot="start"></i>
+        <!-- Divider -->
+        <div class="card-rule"></div>
+
+        <!-- Actions -->
+        <div class="card-actions">
+          <button class="ca-btn outline" (click)="viewUser(user.id)">
+            <ion-icon name="eye-outline"></ion-icon>
             View
-          </ion-button>
-          <ion-button
-            size="small"
-            fill="outline"
-            color="success"
-            (click)="activateUser(user)"
-            *ngIf="user.status !== 'active'"
-          >
-            <i slot="start"></i>
+          </button>
+          <button class="ca-btn success" (click)="activateUser(user)" *ngIf="user.status !== 'active'">
+            <ion-icon name="checkmark-outline"></ion-icon>
             Activate
-          </ion-button>
-          <ion-button
-            size="small"
-            fill="outline"
-            color="danger"
-            (click)="blockUser(user)"
-            *ngIf="user.status !== 'blocked'"
-          >
-            <i slot="start"></i>
+          </button>
+          <button class="ca-btn danger" (click)="blockUser(user)" *ngIf="user.status !== 'blocked'">
+            <ion-icon name="ban-outline"></ion-icon>
             Block
-          </ion-button>
+          </button>
         </div>
-      </ion-card-content>
-    </ion-card>
-  </div>
 
-  <!-- No Results -->
-  <div *ngIf="filteredUsers.length === 0" class="no-results">
-    <i></i>
-    <h3>No users found</h3>
-    <p>Try adjusting your search</p>
-  </div>
-</ion-content>
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-results" *ngIf="filteredUsers.length === 0">
+      <ion-icon name="people-outline"></ion-icon>
+      <h3>No users found</h3>
+      <p>Try adjusting your search or filters.</p>
+    </div>
+
+  </ion-content>
+</ng-container>
+
+
+<!-- ================= DETAIL VIEW ================= -->
+<ng-container *ngIf="isDetailView">
+
+  <ion-header class="ion-no-border">
+    <ion-toolbar class="main-toolbar">
+      <ion-buttons slot="start">
+        <ion-back-button class="custom-back" (click)="goBack()"></ion-back-button>
+      </ion-buttons>
+      <ion-title class="toolbar-title">User Details</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="page-content">
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading user…</p>
+    </div>
+
+    <ng-container *ngIf="!isLoading && user">
+
+      <!-- Profile Hero -->
+      <div class="profile-hero">
+        <div class="hero-bg-pattern"></div>
+        <div class="hero-inner">
+          <div class="hero-avatar-wrap">
+            <img [src]="getAvatar(user)" class="hero-avatar" />
+            <span class="hero-status-ring" [class]="'ring-' + user.status"></span>
+          </div>
+          <div class="hero-text">
+            <h2 class="hero-name">{{ user.name }}</h2>
+            <p class="hero-email">{{ user.email }}</p>
+            <span class="hero-badge" [class]="'badge-' + user.status">{{ user.status }}</span>
+          </div>
+        </div>
+
+        <!-- Hero Stats -->
+        <div class="hero-stats">
+          <div class="hs">
+            <span class="hs-val">{{ user.totalBookings }}</span>
+            <span class="hs-lbl">Bookings</span>
+          </div>
+          <div class="hs-sep"></div>
+          <div class="hs">
+            <span class="hs-val">₹{{ user.totalSpent }}</span>
+            <span class="hs-lbl">Total Spent</span>
+          </div>
+          <div class="hs-sep"></div>
+          <div class="hs">
+            <span class="hs-val">{{ user.joinDate }}</span>
+            <span class="hs-lbl">Member Since</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segment Tabs -->
+      <ion-segment [(ngModel)]="selectedSegment" class="detail-segment">
+        <ion-segment-button value="details" class="seg-btn">
+          <ion-label>Details</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="bookings" class="seg-btn">
+          <ion-label>Bookings ({{ bookings.length }})</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <!-- ── DETAILS TAB ── -->
+      <div class="seg-content" *ngIf="selectedSegment === 'details'">
+
+        <div class="info-card">
+          <div class="info-row">
+            <div class="info-icon-wrap">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <div class="info-text">
+              <span class="info-lbl">Full Name</span>
+              <span class="info-val">{{ user.name }}</span>
+            </div>
+          </div>
+          <div class="info-divider"></div>
+          <div class="info-row">
+            <div class="info-icon-wrap">
+              <ion-icon name="mail-outline"></ion-icon>
+            </div>
+            <div class="info-text">
+              <span class="info-lbl">Email Address</span>
+              <span class="info-val">{{ user.email }}</span>
+            </div>
+          </div>
+          <div class="info-divider"></div>
+          <div class="info-row">
+            <div class="info-icon-wrap">
+              <ion-icon name="call-outline"></ion-icon>
+            </div>
+            <div class="info-text">
+              <span class="info-lbl">Phone Number</span>
+              <span class="info-val">{{ user.phone || "—" }}</span>
+            </div>
+          </div>
+          <div class="info-divider"></div>
+          <div class="info-row">
+            <div class="info-icon-wrap">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <div class="info-text">
+              <span class="info-lbl">Member Since</span>
+              <span class="info-val">{{ user.joinDate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="detail-actions">
+          <button class="da-btn success" *ngIf="user.status !== 'active'" (click)="activateUser(user)">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            Activate User
+          </button>
+          <button class="da-btn danger" *ngIf="user.status !== 'blocked'" (click)="confirmBlock(user)">
+            <ion-icon name="ban-outline"></ion-icon>
+            Block User
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ── BOOKINGS TAB ── -->
+      <div class="seg-content" *ngIf="selectedSegment === 'bookings'">
+
+        <!-- No Bookings -->
+        <div class="no-bookings" *ngIf="bookings.length === 0">
+          <ion-icon name="receipt-outline"></ion-icon>
+          <p>No bookings found for this user.</p>
+        </div>
+
+        <!-- Booking Cards -->
+        <div class="booking-card" *ngFor="let booking of bookings">
+          <div class="bc-top">
+            <div class="bc-left">
+              <span class="bc-ref">{{ booking.booking_reference }}</span>
+              <h3 class="bc-name">{{ booking.trek_name }}</h3>
+            </div>
+            <span class="u-badge" [class]="'badge-' + booking.booking_status">
+              {{ booking.booking_status }}
+            </span>
+          </div>
+          <div class="bc-pills">
+            <div class="bc-pill">
+              <ion-icon name="cash-outline"></ion-icon>
+              ₹{{ booking.total_amount }}
+            </div>
+            <div class="bc-pill">
+              <ion-icon name="people-outline"></ion-icon>
+              {{ booking.participants }} Participants
+            </div>
+            <div class="bc-pill">
+              <ion-icon name="card-outline"></ion-icon>
+              {{ booking.payment_status }}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </ng-container>
+  </ion-content>
+</ng-container>

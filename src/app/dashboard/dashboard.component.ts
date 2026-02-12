@@ -63,7 +63,7 @@ export class DashboardComponent implements OnInit {
     {
       label: 'Write Blog Post',
       icon: 'file-post',
-      route: '/posteditor',
+      route: '/admin/blog/posts',
       color: 'warning',
     },
     {
@@ -153,7 +153,7 @@ export class DashboardComponent implements OnInit {
           icon: 'file-post',
           color: 'medium',
           trend: 'up',
-          route: '/postlist',
+          route: '/admin/blog/editor',
           disabled: false,
           isCurrency: false,
         },

@@ -48,12 +48,12 @@ export const routes: Routes = [
     loadChildren: () => import('./settings/settings-module').then((m) => m.SettingsModule),
   },
   {
-    path: 'postlist',
+    path: 'admin/blog/posts',
     canActivate: [AuthGuard],
     loadChildren: () => import('./blog/posts-list/posts-list-module').then((m) => m.PostsListModule),
   },
   {
-    path: 'posteditor',
+    path: 'admin/blog/editor',
     canActivate: [AuthGuard],
     loadChildren: () => import('./blog/post-editor/post-editor-module').then((m) => m.PostEditorModule),
   },

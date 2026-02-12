@@ -14,8 +14,15 @@
       <ion-card>
         <ion-card-content>
           <ion-item lines="none">
-            <ion-input formControlName="title" name="title" placeholder="Post Title" class="title-input"></ion-input>
+            <ion-input 
+              formControlName="title" 
+              placeholder="Post Title" 
+              class="title-input">
+            </ion-input>
           </ion-item>
+          <ion-text color="danger" *ngIf="postForm.get('title')?.invalid && postForm.get('title')?.touched">
+            <small>Title is required</small>
+          </ion-text>
         </ion-card-content>
       </ion-card>
 
@@ -27,15 +34,27 @@
         <ion-card-content>
           <ion-item>
             <ion-label position="stacked">Excerpt</ion-label>
-            <ion-textarea formControlName="excerpt" name="excerpt" rows="3"
-              placeholder="Brief description of the post..."></ion-textarea>
+            <ion-textarea 
+              formControlName="excerpt" 
+              rows="3"
+              placeholder="Brief description of the post...">
+            </ion-textarea>
           </ion-item>
+          <ion-text color="danger" *ngIf="postForm.get('excerpt')?.invalid && postForm.get('excerpt')?.touched">
+            <small>Excerpt is required</small>
+          </ion-text>
 
           <ion-item>
             <ion-label position="stacked">Full Content</ion-label>
-            <ion-textarea formControlName="content" name="content" rows="15"
-              placeholder="Write your blog post content here..."></ion-textarea>
+            <ion-textarea 
+              formControlName="content" 
+              rows="15"
+              placeholder="Write your blog post content here...">
+            </ion-textarea>
           </ion-item>
+          <ion-text color="danger" *ngIf="postForm.get('content')?.invalid && postForm.get('content')?.touched">
+            <small>Content is required</small>
+          </ion-text>
         </ion-card-content>
       </ion-card>
 
@@ -47,27 +66,43 @@
         <ion-card-content>
           <ion-item>
             <ion-label position="stacked">Category</ion-label>
-            <ion-select name="category" placeholder="Select" formControlName="category">
+            <ion-select placeholder="Select" formControlName="category">
               <ion-select-option *ngFor="let cat of categories" [value]="cat">
                 {{ cat }}
               </ion-select-option>
             </ion-select>
           </ion-item>
+          <ion-text color="danger" *ngIf="postForm.get('category')?.invalid && postForm.get('category')?.touched">
+            <small>Category is required</small>
+          </ion-text>
 
           <ion-item>
             <ion-label position="stacked">Publish Date</ion-label>
-            <ion-datetime formControlName="publishDate" name="publishDate" presentation="date-time"></ion-datetime>
+            <ion-datetime 
+              formControlName="publishDate" 
+              presentation="date-time">
+            </ion-datetime>
           </ion-item>
 
           <div class="tags-section">
             <ion-label>Tags</ion-label>
-            <div *ngFor="let tag of post.tags; let i = index" class="tag-item">
-              <ion-item>
-                <ion-input formControlName="tags" [name]="'tag-' + i" placeholder="Enter tag"></ion-input>
-                <ion-button slot="end" fill="clear" color="danger" (click)="removeTag(i)" *ngIf="post.tags.length > 1">
-                  <ion-icon name="close-circle"></ion-icon>
-                </ion-button>
-              </ion-item>
+            <div formArrayName="tags">
+              <div *ngFor="let tag of tags.controls; let i = index" class="tag-item">
+                <ion-item>
+                  <ion-input 
+                    [formControlName]="i" 
+                    placeholder="Enter tag">
+                  </ion-input>
+                  <ion-button 
+                    slot="end" 
+                    fill="clear" 
+                    color="danger" 
+                    (click)="removeTag(i)" 
+                    *ngIf="tags.length > 1">
+                    <ion-icon name="close-circle"></ion-icon>
+                  </ion-button>
+                </ion-item>
+              </div>
             </div>
             <ion-button fill="outline" size="small" (click)="addTag()">
               <ion-icon name="add" slot="start"></ion-icon>
@@ -83,24 +118,57 @@
           <ion-card-title>Featured Image</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-button expand="block" fill="outline" (click)="fileInput.click()">
+          
+          <!-- Image Preview -->
+          <div *ngIf="imagePreview" class="image-preview-container">
+            <img [src]="'http://localhost:4001/' + imagePreview" alt="Preview" class="image-preview" />
+            <ion-button 
+              expand="block" 
+              fill="clear" 
+              color="danger" 
+              (click)="removeImage()"
+              class="remove-image-btn">
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Remove Image
+            </ion-button>
+          </div>
+
+          <!-- Upload Button (show when no preview) -->
+          <ion-button 
+            *ngIf="!imagePreview"
+            expand="block" 
+            fill="outline" 
+            (click)="fileInput.click()">
             <ion-icon name="image-outline" slot="start"></ion-icon>
             Upload Image
           </ion-button>
-          <input #fileInput type="file" accept="image/*" style="display: none" (change)="onImageSelect($event)" />
+
+          <!-- Change Image Button (show when preview exists) -->
+          <ion-button 
+            *ngIf="imagePreview"
+            expand="block" 
+            fill="outline" 
+            (click)="fileInput.click()">
+            <ion-icon name="image-outline" slot="start"></ion-icon>
+            Change Image
+          </ion-button>
+
+          <input 
+            #fileInput 
+            type="file" 
+            accept="image/*" 
+            style="display: none" 
+            (change)="onImageSelect($event)" 
+          />
+          
+          <ion-note class="ion-padding-top">
+            <small>Recommended size: 1200x630px. Max file size: 5MB</small>
+          </ion-note>
         </ion-card-content>
       </ion-card>
 
       <!-- Action Buttons -->
       <div class="action-buttons">
-        <ion-button expand="block" fill="outline" (click)="saveDraft()">
-          <ion-icon name="save-outline" slot="start"></ion-icon>
-          Save Draft
-        </ion-button>
-        <ion-button expand="block" fill="outline" color="primary" (click)="schedule()">
-          <ion-icon name="time-outline" slot="start"></ion-icon>
-          Schedule
-        </ion-button>
         <ion-button expand="block" color="success" (click)="publish()">
           <ion-icon name="paper-plane-outline" slot="start"></ion-icon>
           Publish Now

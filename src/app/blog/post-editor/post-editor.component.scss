@@ -31,3 +31,72 @@
   margin-top: 32px;
   padding-bottom: 32px;
 }
+
+.editor-container {
+  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+
+  .title-input {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .tags-section {
+    padding: 16px 0;
+
+    ion-label {
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .tag-item {
+      margin-bottom: 8px;
+    }
+  }
+
+  .image-preview-container {
+    margin-bottom: 16px;
+    position: relative;
+
+    .image-preview {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .remove-image-btn {
+      margin-top: 8px;
+    }
+  }
+
+  .action-buttons {
+    margin-top: 24px;
+    padding-bottom: 24px;
+
+    ion-button {
+      margin-bottom: 12px;
+      justify-content: end;
+    }
+  }
+
+  ion-card {
+    margin-bottom: 16px;
+  }
+
+  ion-text[color="danger"] {
+    display: block;
+    padding: 4px 16px;
+    font-size: 0.875rem;
+  }
+
+  ion-note {
+    display: block;
+    text-align: center;
+    color: var(--ion-color-medium);
+  }
+}

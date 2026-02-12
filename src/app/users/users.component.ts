@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { AlertController, IonicModule, LoadingController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Users } from './users';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 interface User {
   id: number;
@@ -22,11 +22,16 @@ interface User {
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterModule],
+  imports: [IonicModule, CommonModule, FormsModule, RouterModule]
 })
 export class UsersComponent implements OnInit {
   searchQuery: string = '';
   selectedStatus: string = 'all';
+  user: any = null;
+  bookings: any[] = [];
+  isLoading = true;
+  isDetailView = false;
+  selectedSegment = 'details';
 
   statusOptions = [
     { value: 'all', label: 'All Users' },
@@ -37,11 +42,19 @@ export class UsersComponent implements OnInit {
 
   users: User[] = [];
 
-  constructor(private userService: Users) { }
+  constructor(private userService: Users,     private route: ActivatedRoute,
+    private router:          Router,
+    private loadingCtrl:     LoadingController,
+    private alertCtrl:       AlertController) { }
 
   ngOnInit() {
     this.userService.getAllUsers().subscribe((res: any) => {
-      this.users = res.data;
+      if(res.success == true){
+        this.users = res.data;
+        this.isLoading = false;
+        this.isDetailView = false;
+      }
+      
     })
   }
 
@@ -60,40 +73,79 @@ export class UsersComponent implements OnInit {
         u.phone.includes(query)
       );
     }
-
     return filtered;
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'active': return 'success';
-      case 'inactive': return 'warning';
-      default: return 'medium';
-    }
+
+  async viewUser(id: any) {
+    const loading = await this.loadingCtrl.create({ message: 'Loading...' });
+    await loading.present();
+
+    this.userService.getUserById(id).subscribe({
+      next: (res: any) => {
+        loading.dismiss();
+        this.isLoading = false;
+        if (res.response == true) {
+          this.user     = res.data.user;
+          this.bookings = res.data.bookings || [];
+          this.isDetailView = true;
+        }
+      },
+      error: () => {
+        loading.dismiss();
+        this.isLoading = false;
+        this.isDetailView = false;
+      }
+    });
   }
 
-  getAvatar(user: User): string {
-    if (user.avatar) {
-      return user.avatar;
-    }
-
-    // fallback → initials avatar
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user.name
-    )}&background=random`;
+  async confirmBlock(user: any) {
+    const alert = await this.alertCtrl.create({
+      header:  'Block User',
+      message: `Are you sure you want to block ${user.name}?`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Block',
+          role: 'destructive',
+          handler: () => this.blockUser(user)
+        }
+      ]
+    });
+    await alert.present();
   }
 
-
-  async viewUser(id: number) {
-    console.log('View user:', id);
+  blockUser(user: any) {
+    this.userService.blockUser(user.id).subscribe((res: any) => {
+      if (res.response) {
+        this.user.status = 'blocked';
+      }
+    });
   }
 
-  async blockUser(user: User) {
-    user.status = 'blocked';
+  activateUser(user: any) {
+    this.userService.activateUser(user.id).subscribe((res: any) => {
+      if (res.response) {
+        this.user.status = 'active';
+      }
+    });
   }
 
-  async activateUser(user: User) {
-    user.status = 'active';
+  getAvatar(user: any) {
+    return user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=667eea&color=fff&size=128`;
+  }
+
+  getStatusColor(status: string) {
+    return status === 'active' ? 'success' : status === 'blocked' ? 'danger' : 'medium';
+  }
+
+  getBookingStatusColor(status: string) {
+    const map: any = { confirmed: 'success', pending: 'warning', cancelled: 'danger', completed: 'primary' };
+    return map[status] || 'medium';
+  }
+
+  goBack(){
+    this.router.navigateByUrl('/users')
   }
 
 }

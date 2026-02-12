@@ -9,14 +9,24 @@
 
     <div class="ms-auto">
       <button class="btn btn-light" (click)="createPost()">
-        ➕
+        ➕ New Post
       </button>
     </div>
   </nav>
 
+  <!-- PULL TO REFRESH -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshPosts($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <!-- SEARCH BAR -->
   <div class="bg-light p-3 border-bottom">
-    <input type="text" class="form-control" [(ngModel)]="searchQuery" placeholder="Search posts..." />
+    <input 
+      type="text" 
+      class="form-control" 
+      [(ngModel)]="searchQuery" 
+      placeholder="Search posts..." 
+    />
   </div>
 
   <!-- FILTERS -->
@@ -24,7 +34,7 @@
     <div class="row align-items-center g-3">
 
       <div class="col-12 col-md-4">
-        <strong>{{ filteredPosts.length }}</strong> posts found
+        <strong>{{ filteredPosts.length }}</strong> post{{ filteredPosts.length !== 1 ? 's' : '' }} found
       </div>
 
       <div class="col-12 col-md-4">
@@ -46,72 +56,116 @@
     </div>
   </div>
 
+  <!-- LOADING STATE -->
+  <div *ngIf="isLoading && posts.length === 0" class="text-center py-5">
+    <ion-spinner></ion-spinner>
+    <p class="mt-3">Loading posts...</p>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div *ngIf="!isLoading && filteredPosts.length === 0" class="text-center py-5">
+    <ion-icon name="document-text-outline" style="font-size: 64px; color: #ccc;"></ion-icon>
+    <h4 class="mt-3">No posts found</h4>
+    <p class="text-muted">
+      <span *ngIf="searchQuery || selectedStatus !== 'all' || selectedCategory !== 'all'">
+        Try adjusting your filters
+      </span>
+      <span *ngIf="!searchQuery && selectedStatus === 'all' && selectedCategory === 'all'">
+        Create your first post to get started
+      </span>
+    </p>
+    <button class="btn btn-primary mt-3" (click)="createPost()">
+      Create New Post
+    </button>
+  </div>
+
   <!-- POSTS GRID -->
-  <div class="container-fluid py-4">
+  <div class="container-fluid py-4" *ngIf="!isLoading && filteredPosts.length > 0">
     <div class="row g-4">
 
       <div class="col-12 col-md-6 col-lg-4" *ngFor="let post of filteredPosts">
-        <div class="card h-100">
+        <div class="card h-100 shadow-sm">
 
           <!-- IMAGE -->
-          <div class="position-relative">
-            <img [src]="post.image" [alt]="post.title" class="card-img-top" />
-            <span class="badge position-absolute top-0 end-0 m-2" [ngClass]="{
-              'bg-success': post.status === 'published',
-              'bg-warning': post.status === 'draft',
-              'bg-secondary': post.status === 'scheduled'
-            }">
-              {{ post.status }}
+          <div class="position-relative" style="height: 200px; overflow: hidden;">
+            <img 
+              [src]="post.image" 
+              [alt]="post.title" 
+              class="card-img-top" 
+              style="width: 100%; height: 100%; object-fit: cover;"
+              (error)="post.image = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'"
+            />
+            <span 
+              class="badge position-absolute top-0 end-0 m-2" 
+              [ngClass]="{
+                'bg-success': post.status === 'published',
+                'bg-warning text-dark': post.status === 'draft',
+                'bg-primary': post.status === 'scheduled'
+              }"
+            >
+              {{ post.status | titlecase }}
             </span>
           </div>
 
           <!-- CONTENT -->
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">{{ post.title }}</h5>
-            <p class="card-text">{{ post.excerpt }}</p>
+            <p class="card-text text-muted">{{ post.excerpt }}</p>
 
             <div class="mb-2 d-flex justify-content-between align-items-center">
-              <span class="badge bg-outline-secondary">
+              <span class="badge bg-secondary">
                 {{ post.category }}
               </span>
-              <small>
+              <small class="text-muted">
                 👤 {{ post.author }}
               </small>
             </div>
 
             <div class="small text-muted mb-3">
-              👁 {{ post.views }} views |
-              💬 {{ post.comments }} comments |
-              📅 {{ post.publishDate }}
+              👁 {{ post.views }} views
+              <span *ngIf="post.comments !== undefined">
+                | 💬 {{ post.comments }} comments
+              </span>
+              | 📅 {{ post.publishDate }}
             </div>
 
             <!-- ACTIONS -->
             <div class="mt-auto d-flex gap-2 flex-wrap">
-              <button class="btn btn-outline-primary btn-sm" (click)="editPost(post.id)">
+              <button 
+                class="btn btn-outline-primary btn-sm flex-fill" 
+                (click)="editPost(post.id)"
+              >
                 ✏️ Edit
               </button>
 
-              <button class="btn btn-outline-success btn-sm" *ngIf="post.status !== 'published'"
-                (click)="publishPost(post)">
+              <button 
+                class="btn btn-outline-success btn-sm flex-fill" 
+                *ngIf="post.status !== 'published'"
+                (click)="publishPost(post)"
+              >
                 ✅ Publish
               </button>
 
-              <button class="btn btn-outline-danger btn-sm" (click)="deletePost(post.id)">
-                🗑 Delete
+              <button 
+                class="btn btn-outline-danger btn-sm" 
+                (click)="deletePost(post.id)"
+              >
+                🗑️
               </button>
             </div>
-
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
   <!-- FLOATING ADD BUTTON -->
-  <button class="btn btn-success position-fixed bottom-0 end-0 m-4 rounded-circle" style="width: 56px; height: 56px;"
-    (click)="createPost()">
-    ➕
+  <button 
+    class="btn btn-success position-fixed bottom-0 end-0 m-4 rounded-circle shadow-lg" 
+    style="width: 56px; height: 56px; z-index: 1000;"
+    (click)="createPost()"
+  >
+    <ion-icon name="add" style="font-size: 24px;"></ion-icon>
   </button>
 
 </ion-content>

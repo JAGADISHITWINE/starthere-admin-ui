@@ -13,14 +13,51 @@ export class Users {
   private API = environment.baseUrl;
 
   getAllUsers() {
-      return this.http.get<{ payload: string }>(`${this.API}/getUsers`).pipe(
-        map((res: any) => {
-          const decrypted = this.crypto.decrypt(res.data);
-          return {
-            ...res,
-            data: decrypted
-          };
-        })
-      )
-    }
+    return this.http.get<{ payload: string }>(`${this.API}/getUsers`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    )
+  }
+
+  getUserById(userid: any) {
+    return this.http.get<{ payload: string }>(`${this.API}/user/${userid}/getUserById`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    )
+  }
+
+  blockUser(id: any) {
+    return this.http.get<{ payload: string }>(`${this.API}/${id}/blockUser`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    )
+  }
+
+  activateUser(id: any) {
+    return this.http.get<{ payload: string }>(`${this.API}/${id}/activateUser`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    )
+  }
+
 }
