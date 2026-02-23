@@ -63,7 +63,7 @@ export class DashboardComponent implements OnInit {
     {
       label: 'Write Blog Post',
       icon: 'file-post',
-      route: '/admin/blog/posts',
+      route: '/admin/blog/editor',
       color: 'warning',
     },
     {
@@ -73,6 +73,8 @@ export class DashboardComponent implements OnInit {
       color: 'secondary',
     },
   ];
+  Total_Blog: any;
+  Total_comments: any;
 
   constructor(
     private router: Router,
@@ -87,6 +89,8 @@ export class DashboardComponent implements OnInit {
       this.Total_bookings = res.data.totalbookingCount;
       this.Total_Revenue = res.data.totalRevenue || 0;
       this.recentBooking = res.data.recentBookings;
+      this.Total_Blog = res.data.totalBlog;
+      this.Total_comments = res.data.totalComments;
       this.labels = this.recentBooking.map((r: any) => r.month);
       this.bookingsData = this.recentBooking.map((r: any) => r.bookings);
       this.revenueData = this.recentBooking.map((r: any) => r.revenue);
@@ -137,7 +141,7 @@ export class DashboardComponent implements OnInit {
         },
         {
           title: 'Pending Reviews',
-          value: 18,
+          value: this.Total_comments,
           change: '-3',
           icon: 'star',
           color: 'secondary',
@@ -148,12 +152,12 @@ export class DashboardComponent implements OnInit {
         },
         {
           title: 'Blog Posts',
-          value: 42,
+          value: this.Total_Blog,
           change: '+8',
           icon: 'file-post',
           color: 'medium',
           trend: 'up',
-          route: '/admin/blog/editor',
+          route: '/admin/blog/posts',
           disabled: false,
           isCurrency: false,
         },
