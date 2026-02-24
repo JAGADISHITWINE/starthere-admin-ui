@@ -71,5 +71,10 @@ export const routes: Routes = [
     path: 'batchManagement',
     canActivate: [AuthGuard],
     loadChildren: () => import('./trek-batch-management/trek-batch-management-module').then((m) => m.TrekBatchManagementModule),
+  },
+    {
+    path: 'notifications',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./notifications/notifications.module').then((m) => m.NotificationsModule),
   }
 ];

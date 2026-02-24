@@ -5,15 +5,8 @@
 export const environment = {
   production: false,
   baseUrl: 'http://localhost:4001/api/auth',
-  encryptionKey: "JagguBoss_Secret_2025!",
-  encryptionSalt: 'start-here-salt'
+  // Do NOT store production secrets here. Use server-side secrets or a secure runtime config.
+  // We keep a non-sensitive salt for client-side derivations only.
+  encryptionKey: (window as any)?.__env?.ENCRYPTION_KEY || 'JagguBoss_Secret_2025!',
+  encryptionSalt: (window as any)?.__env?.ENCRYPTION_SALT || 'start-here-salt',
 };
-
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.

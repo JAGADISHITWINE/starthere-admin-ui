@@ -5,6 +5,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { Login } from './login';
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +18,7 @@ export class LoginComponent implements OnInit {
   credentials: any
   showPassword = false;
 
-  constructor(private router: Router, private loginService: Login) { }
+  constructor(private router: Router, private loginService: Login, private authService: AuthService) { }
   ngOnInit() {
     this.credentials = new FormGroup({
       email: new FormControl('', [Validators.required]),
@@ -27,9 +28,8 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.loginService.auth(this.credentials.value).subscribe((res: any) => {
-      if (res.response == true && res.token) {
-        sessionStorage.setItem('token', res.token);
-        sessionStorage.setItem('currentUser', JSON.stringify(res.currentUser));
+      if (res.response == true && res.user) {
+        this.authService.setUser(res.user);
         this.credentials.reset();
         this.router.navigate(['/dashboard', {
           replaceUrl: true,

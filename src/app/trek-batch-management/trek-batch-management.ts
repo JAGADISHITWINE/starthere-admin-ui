@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { EncryptionService } from '../services/encryption.service';
+import { AuthService } from '../core/services/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,17 +12,6 @@ export class TrekBatchManagement {
   private API = `${environment.baseUrl}`;
 
   constructor(private http: HttpClient, private crypto: EncryptionService) { }
-
-  /**
-   * Get auth headers
-   */
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('authToken');
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-  }
 
   getTreks() {
     return this.http.get<{ payload: string }>(`${this.API}/treks`).pipe(
@@ -72,37 +62,30 @@ export class TrekBatchManagement {
   }
 
 
+  // Use authorized request to fetch the file as blob and trigger download client-side.
   exportBatchBookings(batchId: number): void {
-    const token = localStorage.getItem('authToken');
-    const url = `${this.API}/batches/${batchId}/export-bookings`;
-
-    const link = document.createElement('a');
-    link.href = `${url}?token=${token}`;
-    link.download = 'bookings.xlsx';
-    link.click();
+    this.downloadBatchBookings(batchId).subscribe(blob => {
+      this.triggerDownload(blob, 'bookings.xlsx');
+    });
   }
 
   exportAllTrekBookings(trekId: number): void {
-    const token = localStorage.getItem('authToken');
-    const url = `${this.API}/treks/${trekId}/export-all-bookings`;
-
-    const link = document.createElement('a');
-    link.href = `${url}?token=${token}`;
-    link.download = 'all_bookings.xlsx';
-    link.click();
+    this.downloadAllTrekBookings(trekId).subscribe(blob => {
+      this.triggerDownload(blob, 'all_bookings.xlsx');
+    });
   }
 
   downloadBatchBookings(batchId: number): Observable<Blob> {
     return this.http.get(`${this.API}/batches/${batchId}/export-bookings`, {
-      headers: this.getHeaders(),
-      responseType: 'blob'
+      responseType: 'blob' as 'blob',
+      withCredentials: true
     });
   }
 
   downloadAllTrekBookings(trekId:any){
     return this.http.get(`${this.API}/treks/${trekId}/export-all-bookings`, {
-      headers: this.getHeaders(),
-      responseType: 'blob'
+      responseType: 'blob' as 'blob',
+      withCredentials: true
     });
   }
 

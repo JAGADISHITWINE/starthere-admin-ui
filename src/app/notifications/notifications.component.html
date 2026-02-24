@@ -1,0 +1,181 @@
+<ion-content>
+  <ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Notifications</ion-title>
+  </ion-toolbar>
+</ion-header>
+<section class="notif-panel mt-2 mb-2" role="region" aria-label="Notifications">
+
+  <!-- ── HEADER ── -->
+  <header class="notif-header">
+    <div class="header-brand">
+      @if (unreadCount() > 0) {
+        <span class="unread-badge" [attr.aria-label]="unreadCount() + ' unread'">
+          {{ unreadCount() }}
+        </span>
+      }
+    </div>
+    <button
+      class="mark-all-btn"
+      (click)="markAllRead()"
+      [disabled]="unreadCount() === 0"
+      aria-label="Mark all as read">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      All read
+    </button>
+  </header>
+
+  <!-- ── FILTER TABS ── -->
+  <nav class="notif-tabs" role="tablist" aria-label="Filter notifications">
+    @for (tab of tabs; track tab.key) {
+      <button
+        class="tab-btn"
+        role="tab"
+        [class.active]="activeTab() === tab.key"
+        [attr.aria-selected]="activeTab() === tab.key"
+        (click)="setTab(tab.key)">
+        {{ tab.label }}
+      </button>
+    }
+  </nav>
+
+  <!-- ── LOADING ── -->
+  @if (loading()) {
+    <div class="state-loading" aria-live="polite" role="status">
+      <div class="trail-loader">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p>Fetching trail updates…</p>
+    </div>
+  }
+
+  <!-- ── ERROR ── -->
+  @if (error()) {
+    <div class="state-error" role="alert" aria-live="assertive">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div>
+        <strong>Couldn't reach base camp</strong>
+        <p>{{ error() }}</p>
+      </div>
+      <button class="retry-btn" (click)="fetchNotifications()">Retry</button>
+    </div>
+  }
+
+  <!-- ── EMPTY STATE ── -->
+  @if (!loading() && !error() && notifications().length === 0) {
+    <div class="state-empty" aria-live="polite">
+      <div class="empty-illustration">
+        <svg viewBox="0 0 80 60" fill="none">
+          <path d="M10 50 L28 20 L40 35 L52 12 L70 50Z" fill="rgba(126,167,107,0.15)" stroke="rgba(126,167,107,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="64" cy="14" r="6" fill="rgba(255,178,80,0.2)" stroke="rgba(255,178,80,0.5)" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <p class="empty-title">All clear on the trail!</p>
+      <p class="empty-sub">No notifications here. Time to plan your next adventure.</p>
+    </div>
+  }
+
+  <!-- ── NOTIFICATIONS LIST ── -->
+  @if (!loading() && !error() && notifications().length > 0) {
+    <ul class="notif-list" role="list">
+      @for (notif of notifications(); track notif.id; let i = $index) {
+        <li
+          class="notif-item"
+          [class.unread]="!notif.read"
+          [class.type--booking]="notif.type === 'booking'"
+          [class.type--weather]="notif.type === 'weather'"
+          [class.type--trek]="notif.type === 'trek'"
+          [class.type--guide]="notif.type === 'guide'"
+          [class.type--offer]="notif.type === 'offer'"
+          [class.type--system]="notif.type === 'system'"
+          [style.animation-delay]="(i * 0.07) + 's'"
+          (click)="markRead(notif.id)"
+          role="listitem">
+
+          <!-- Accent strip -->
+          <div class="notif-strip" aria-hidden="true"></div>
+
+          <!-- Icon -->
+          <div class="notif-icon" aria-hidden="true">
+            <span>{{ getIcon(notif.type) }}</span>
+          </div>
+
+          <!-- Body -->
+          <div class="notif-body">
+            <div class="notif-top">
+              <span class="notif-title">{{ notif.title }}</span>
+              <span class="notif-type-tag">{{ getTypeLabel(notif.type) }}</span>
+            </div>
+            @if (notif.meta) {
+              <p class="notif-meta-label">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11">
+                  <path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5S12.5 9.5 12.5 6c0-2.5-2-4.5-4.5-4.5z"/>
+                  <circle cx="8" cy="6" r="1.5"/>
+                </svg>
+                {{ notif.meta }}
+              </p>
+            }
+            <p class="notif-message">{{ notif.message }}</p>
+            <div class="notif-footer">
+              <time class="notif-time" [attr.datetime]="notif.date.toISOString()">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11">
+                  <circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 2" stroke-linecap="round"/>
+                </svg>
+                {{ timeAgo(notif.date) }}
+              </time>
+              @if (notif.actionLabel) {
+                <button class="notif-action-btn" (click)="$event.stopPropagation()">
+                  {{ notif.actionLabel }}
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Dismiss -->
+          <button
+            class="notif-dismiss"
+            [attr.aria-label]="'Dismiss ' + notif.title"
+            (click)="$event.stopPropagation(); dismiss(notif.id)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+            </svg>
+          </button>
+
+          <!-- Unread pip -->
+          @if (!notif.read) {
+            <span class="unread-pip" aria-label="Unread"></span>
+          }
+
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- ── FOOTER ── -->
+  @if (!loading() && !error()) {
+    <footer class="notif-footer-bar">
+      <span class="footer-count">
+        {{ notifications().length }} update{{ notifications().length !== 1 ? 's' : '' }}
+      </span>
+      <button class="view-all-link">
+        Explore all
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </footer>
+  }
+
+</section>
+</ion-content>
