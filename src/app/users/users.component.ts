@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AlertController, IonicModule, LoadingController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Users } from './users';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 
 interface User {
   id: number;
@@ -22,7 +22,7 @@ interface User {
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterModule]
+  imports: [IonicModule, CommonModule, FormsModule, RouterModule, RouterLink]
 })
 export class UsersComponent implements OnInit {
   searchQuery: string = '';
@@ -145,7 +145,7 @@ export class UsersComponent implements OnInit {
   }
 
   goBack(){
-    this.router.navigateByUrl('/users')
+    this.router.navigateByUrl('/admin/users')
   }
 
 }

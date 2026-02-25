@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TrekList } from './trek-list';
 
 
@@ -11,7 +11,7 @@ import { TrekList } from './trek-list';
   templateUrl: './trek-list.component.html',
   styleUrls: ['./trek-list.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, RouterLink],
 })
 export class TrekListComponent implements OnInit {
   searchQuery: string = '';
@@ -59,11 +59,10 @@ export class TrekListComponent implements OnInit {
   }
 
   viewTrek(id: any) {
-    this.router.navigate(['/trekDetails', id]);
+    this.router.navigate(['/admin/trek-details', id]);
   }
 
   editTrek(id: number) {
     this.router.navigate(['/admin/treks/edit', id]);
   }
 }
-

@@ -25,6 +25,250 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+/* ---------------------------
+   Global Design System
+---------------------------- */
+:root {
+  --app-bg: #f6f1e9;
+  --app-bg-accent: #efe6da;
+  --app-surface: #ffffff;
+  --app-surface-2: #f4ede2;
+  --app-ink: #1d1b18;
+  --app-ink-muted: #5f5a52;
+  --app-accent: #1d7a6d;
+  --app-accent-2: #f1a64d;
+  --app-border: #e5dccf;
+  --app-shadow: 0 20px 60px rgba(23, 24, 20, 0.12);
+  --app-shadow-soft: 0 10px 30px rgba(23, 24, 20, 0.08);
+  --app-radius-lg: 24px;
+  --app-radius: 18px;
+  --app-radius-sm: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--app-ink);
+  background: radial-gradient(circle at top, #faf6f0 0%, #f1e8db 50%, #ece2d3 100%);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.display-font {
+  font-family: "Space Grotesk", "Manrope", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ion-content {
+  --background: transparent;
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+.page-header {
+  background: linear-gradient(120deg, rgba(29, 122, 109, 0.12), rgba(241, 166, 77, 0.18));
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--app-shadow-soft);
+  animation: floatIn 0.5s ease both;
+}
+
+.page-title {
+  font-size: clamp(1.5rem, 2vw, 2.1rem);
+  margin: 0;
+}
+
+.page-subtitle {
+  margin: 6px 0 0;
+  color: var(--app-ink-muted);
+}
+
+.surface-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.surface-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--app-shadow);
+}
+
+.soft-card {
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(29, 122, 109, 0.1);
+  color: var(--app-accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.btn-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: none;
+  padding: 10px 18px;
+  font-weight: 600;
+  background: var(--app-accent);
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 12px 24px rgba(29, 122, 109, 0.2);
+  cursor: pointer;
+}
+
+.btn-app:hover {
+  transform: translateY(-1px);
+}
+
+.btn-app:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(29, 122, 109, 0.18);
+}
+
+.btn-app:focus-visible {
+  outline: 2px solid rgba(29, 122, 109, 0.45);
+  outline-offset: 2px;
+}
+
+.btn-app.secondary {
+  background: var(--app-accent-2);
+  color: #2b2214;
+  box-shadow: 0 12px 24px rgba(241, 166, 77, 0.25);
+}
+
+.btn-app.ghost {
+  background: #0000004f;
+  border: 1px solid var(--app-border);
+  color: var(--app-ink);
+  box-shadow: none;
+}
+
+.form-control,
+.form-select,
+ion-input,
+ion-textarea {
+  border-radius: 14px !important;
+  border: 1px solid var(--app-border) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgba(29, 122, 109, 0.45) !important;
+  box-shadow: 0 0 0 3px rgba(29, 122, 109, 0.12) !important;
+}
+
+.table {
+  --bs-table-bg: #fff;
+  --bs-table-striped-bg: #faf6f1;
+  border-color: var(--app-border);
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 600;
+}
+
+.navbar {
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(120deg, rgba(29, 122, 109, 0.95), rgba(31, 89, 83, 0.95));
+  box-shadow: 0 12px 25px rgba(19, 48, 44, 0.22);
+}
+
+.navbar .btn,
+.navbar .btn-outline-light {
+  border-radius: 999px;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.float-in {
+  animation: floatIn 0.5s ease both;
+}
+
+@media (max-width: 992px) {
+  .app-shell {
+    padding: 20px 16px 52px;
+  }
+
+  .page-header {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .app-shell {
+    padding: 16px 12px 40px;
+  }
+
+  .page-header {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .page-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .btn-app {
+    width: 100%;
+    justify-content: center;
+  }
+}
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------

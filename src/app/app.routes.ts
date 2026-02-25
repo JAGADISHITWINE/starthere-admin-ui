@@ -1,4 +1,3 @@
-import { TrekBatchManagementModule } from './trek-batch-management/trek-batch-management-module';
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth-guard';
 
@@ -8,7 +7,7 @@ export const routes: Routes = [
     loadChildren: () => import('./login/login-module').then((m) => m.LoginModule),
   },
   {
-    path: 'dashboard',
+    path: 'admin/dashboard',
     canActivate: [AuthGuard],
     loadChildren: () => import('./dashboard/dashboard-module').then((m) => m.DashboardModule),
   },
@@ -28,22 +27,22 @@ export const routes: Routes = [
     loadChildren: () => import('./treks/trek-edit/trek-edit-module').then((m) => m.TrekEditModule),
   },
   {
-    path: 'bookings',
+    path: 'admin/bookings',
     canActivate: [AuthGuard],
     loadChildren: () => import('./bookings/bookings-module').then((m) => m.BookingsModule),
   },
   {
-    path: 'users',
+    path: 'admin/users',
     canActivate: [AuthGuard],
     loadChildren: () => import('./users/users-module').then((m) => m.UsersModule),
   },
   {
-    path: 'reviews',
+    path: 'admin/reviews',
     canActivate: [AuthGuard],
     loadChildren: () => import('./reviews/reviews-module').then((m) => m.ReviewsModule),
   },
   {
-    path: 'settings',
+    path: 'admin/settings',
     canActivate: [AuthGuard],
     loadChildren: () => import('./settings/settings-module').then((m) => m.SettingsModule),
   },
@@ -58,22 +57,22 @@ export const routes: Routes = [
     loadChildren: () => import('./blog/post-editor/post-editor-module').then((m) => m.PostEditorModule),
   },
   {
-    path: 'revenue',
+    path: 'admin/revenue',
     canActivate: [AuthGuard],
     loadChildren: () => import('./analytics/analytics-module').then((m) => m.AnalyticsModule),
   },
   {
-    path: 'trekDetails',
+    path: 'admin/trek-details',
     canActivate: [AuthGuard],
     loadChildren: () => import('./tour-details/tour-details-module').then((m) => m.TourDetailsModule),
   },
   {
-    path: 'batchManagement',
+    path: 'admin/batch-management',
     canActivate: [AuthGuard],
     loadChildren: () => import('./trek-batch-management/trek-batch-management-module').then((m) => m.TrekBatchManagementModule),
   },
-    {
-    path: 'notifications',
+  {
+    path: 'admin/notifications',
     canActivate: [AuthGuard],
     loadChildren: () => import('./notifications/notifications.module').then((m) => m.NotificationsModule),
   }

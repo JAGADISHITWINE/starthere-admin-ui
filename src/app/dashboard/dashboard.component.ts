@@ -50,31 +50,36 @@ export class DashboardComponent implements OnInit {
   quickActions = [
     {
       label: 'Add New Trek',
-      icon: 'plus',
+      icon: 'plus-circle',
       route: '/admin/treks/add',
       color: 'success',
     },
     {
       label: 'View Bookings',
-      icon: 'calendar',
-      route: '/bookings',
+      icon: 'calendar-event',
+      route: '/admin/bookings',
       color: 'primary',
     },
     {
       label: 'Write Blog Post',
-      icon: 'file-post',
+      icon: 'file-text',
       route: '/admin/blog/editor',
       color: 'warning',
     },
     {
       label: 'Trek & Batch Management',
-      icon: 'collection',
-      route: '/batchManagement',
+      icon: 'layers',
+      route: '/admin/batch-management',
       color: 'secondary',
     },
   ];
   Total_Blog: any;
   Total_comments: any;
+  showAllBookings = false;
+  searchQuery = '';
+  statusFilter = 'all';
+  pageSize = 8;
+  currentPage = 1;
 
   constructor(
     private router: Router,
@@ -89,6 +94,7 @@ export class DashboardComponent implements OnInit {
       this.Total_bookings = res.data.totalbookingCount;
       this.Total_Revenue = res.data.totalRevenue || 0;
       this.recentBooking = res.data.recentBookings;
+      this.currentPage = 1;
       this.Total_Blog = res.data.totalBlog;
       this.Total_comments = res.data.totalComments;
       this.labels = this.recentBooking.map((r: any) => r.month);
@@ -99,10 +105,10 @@ export class DashboardComponent implements OnInit {
           title: 'Total Bookings',
           value: this.Total_bookings,
           change: '+12%',
-          icon: 'calendar',
+          icon: 'calendar-event',
           color: 'primary',
           trend: 'up',
-          route: '/bookings',
+          route: '/admin/bookings',
           disabled: true,
           isCurrency: false,
         },
@@ -113,7 +119,7 @@ export class DashboardComponent implements OnInit {
           icon: 'cash',
           color: 'success',
           trend: 'up',
-          route: '/revenue',
+          route: '/admin/revenue',
           disabled: false,
           isCurrency: true,
         },
@@ -121,10 +127,10 @@ export class DashboardComponent implements OnInit {
           title: 'Active Treks',
           value: this.Total_active_users,
           change: '+5',
-          icon: 'person-walking',
+          icon: 'person',
           color: 'warning',
           trend: 'up',
-          route: '/treks',
+          route: '/admin/treks/list',
           disabled: true,
           isCurrency: false,
         },
@@ -135,7 +141,7 @@ export class DashboardComponent implements OnInit {
           icon: 'people-fill',
           color: 'tertiary',
           trend: 'up',
-          route: '/users',
+          route: '/admin/users',
           disabled: false,
           isCurrency: false,
         },
@@ -146,7 +152,7 @@ export class DashboardComponent implements OnInit {
           icon: 'star',
           color: 'secondary',
           trend: 'down',
-          route: '/reviews',
+          route: '/admin/reviews',
           disabled: false,
           isCurrency: false,
         },
@@ -154,7 +160,7 @@ export class DashboardComponent implements OnInit {
           title: 'Blog Posts',
           value: this.Total_Blog,
           change: '+8',
-          icon: 'file-post',
+          icon: 'file-text',
           color: 'medium',
           trend: 'up',
           route: '/admin/blog/posts',
@@ -165,7 +171,7 @@ export class DashboardComponent implements OnInit {
           title: 'View All Treks',
           value: this.Total_trek,
           change: '',
-          icon: 'eyeglasses',
+          icon: 'eye',
           color: 'medium',
           trend: 'up',
           route: '/admin/treks/list',
@@ -219,6 +225,56 @@ export class DashboardComponent implements OnInit {
 
   closeDetails() {
     this.selectedBookingIndex = null;
+  }
+
+  toggleViewAll() {
+    this.showAllBookings = !this.showAllBookings;
+    this.currentPage = 1;
+  }
+
+  get filteredBookings() {
+    const q = this.searchQuery.trim().toLowerCase();
+    const status = this.statusFilter;
+    return this.recentBooking.filter((b: any) => {
+      const matchesStatus = status === 'all' ? true : (b.status || '').toLowerCase() === status;
+      if (!q) return matchesStatus;
+      const haystack = [
+        b.id,
+        b.customerName,
+        b.trekName,
+        b.email,
+        b.phone,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return matchesStatus && haystack.includes(q);
+    });
+  }
+
+  get totalPages() {
+    return Math.max(1, Math.ceil(this.filteredBookings.length / this.pageSize));
+  }
+
+  get pagedBookings() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredBookings.slice(start, start + this.pageSize);
+  }
+
+  get pageNumbers() {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  setPage(page: number) {
+    this.currentPage = Math.min(Math.max(page, 1), this.totalPages);
+  }
+
+  prevPage() {
+    this.setPage(this.currentPage - 1);
+  }
+
+  nextPage() {
+    this.setPage(this.currentPage + 1);
   }
 
 

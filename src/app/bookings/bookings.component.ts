@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Bookings } from './bookings';
+import { RouterLink } from '@angular/router';
 
 interface Booking {
   id: number;
@@ -23,7 +24,7 @@ interface Booking {
   templateUrl: './bookings.component.html',
   styleUrls: ['./bookings.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, RouterLink]
 })
 export class BookingsComponent implements OnInit {
   searchQuery = '';

@@ -1,65 +1,52 @@
-<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
-  <div class="col-12 col-sm-10 col-md-6 col-lg-4">
-
-    <!-- Logo Section -->
-    <div class="text-center mb-4">
-      <div class="mb-2">
-        <img class='logo' src="../../../assets/assets/logo.png" alt="Logo" routerLink="" />
-
+<ion-content class="auth-page">
+  <div class="auth-shell">
+    <section class="brand-panel">
+      <div class="header-left">
+        <img class="logo" src="../../../assets/assets/logo.png" alt="Logo" routerLink="/" />
+        <a class="gw-logo logo-dark" href="#">
+          <div class="gw-words">
+            <div class="gw-top">
+              <span class="gw-go">go</span>
+              <span class="gw-wild">WILD</span>
+            </div>
+            <span class="gw-sub">Karunadu</span>
+          </div>
+        </a>
       </div>
-      <h1 class="fw-bold text-dark">Admin Panel</h1>
-      <!-- <img class='title' src="../../../assets/assets/titlename.png" alt="Logo" routerLink="" /> -->
-    </div>
+    </section>
 
-    <!-- Login Card -->
-    <div class="card shadow-sm border-0">
-      <div class="card-body p-4">
-        <h2 class="fw-semibold mb-1">Sign In</h2>
-        <p class="text-muted mb-4">
-          Enter your credentials to access the admin panel
-        </p>
+    <section class="auth-card">
+      <div class="card-head">
+        <h2>Sign in</h2>
+        <p>Use your admin credentials to continue.</p>
+      </div>
 
-        <form [formGroup]="credentials">
-          <!-- Email -->
-          <div class="mb-3">
-            <label class="form-label">Admin Email</label>
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="bi bi-envelope"></i>
-              </span>
-              <input type="email" class="form-control" placeholder="admin@email.com" required formControlName="email"/>
-            </div>
-          </div>
+      <form [formGroup]="credentials">
+        <label class="field-label">Admin Email</label>
+        <div class="field">
+          <i class="bi bi-envelope"></i>
+          <input type="email" placeholder="admin@email.com" required formControlName="email" />
+        </div>
 
-          <!-- Password -->
-          <div class="mb-3">
-            <label class="form-label">Password</label>
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="bi bi-lock"></i>
-              </span>
-              <input [type]="showPassword ? 'text' : 'password'" class="form-control" placeholder="Enter password" required formControlName="password"/>
-              <button class="btn btn-outline-secondary" type="button" (click)="togglePassword()">
-                {{ showPassword ? '🙈' : '👁️' }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Login Button -->
-          <button type="submit" class="btn btn-primary w-100 py-2" (click)="login()">
-            Sign In
-            <i class="bi bi-arrow-right ms-1"></i>
+        <label class="field-label">Password</label>
+        <div class="field">
+          <i class="bi bi-lock"></i>
+          <input [type]="showPassword ? 'text' : 'password'" placeholder="Enter password" required
+            formControlName="password" />
+          <button class="field-action" type="button" (click)="togglePassword()">
+            {{ showPassword ? 'Hide' : 'Show' }}
           </button>
-        </form>
-      </div>
-    </div>
+        </div>
 
-    <!-- Footer -->
-    <div class="text-center mt-4">
-      <small class="text-muted">
+        <button type="submit" class="btn-app auth-submit" (click)="login()">
+          Sign In
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="auth-foot">
         © 2026 Karnataka Adventures. All rights reserved.
-      </small>
-    </div>
-
+      </div>
+    </section>
   </div>
-</div>
+</ion-content>

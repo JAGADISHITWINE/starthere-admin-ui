@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PostEditor } from '../post-editor';
 
 @Component({
@@ -10,7 +10,7 @@ import { PostEditor } from '../post-editor';
   templateUrl: './post-editor.component.html',
   styleUrls: ['./post-editor.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
 })
 export class PostEditorComponent implements OnInit {
   postId: number | null = null;
@@ -20,6 +20,7 @@ export class PostEditorComponent implements OnInit {
   // Image handling
   selectedFile: File | null = null;
   imagePreview: string | null = null;
+  readonly imageBaseUrl = 'http://localhost:4001/';
   existingImageUrl: string | null = null;
 
   categories = [
@@ -176,6 +177,14 @@ export class PostEditorComponent implements OnInit {
     }
 
     this.showToast('Image removed', 'success');
+  }
+
+  getImageSrc(src: string | null): string {
+    if (!src) return '';
+    if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+      return src;
+    }
+    return `${this.imageBaseUrl}${src}`;
   }
 
   async publish() {

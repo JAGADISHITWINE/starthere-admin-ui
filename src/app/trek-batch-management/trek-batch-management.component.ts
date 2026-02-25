@@ -37,10 +37,6 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
     this.loadTreks();
     this.loadCompletionStats();
 
-    // Connect to WebSocket
-    this.wsService.connect();
-    this.wsService.joinAdminRoom();
-
     // Listen for real-time updates
     this.updateSubscription = this.wsService.getBookingUpdates().subscribe({
       next: (update) => {
@@ -281,13 +277,10 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
     if (this.updateSubscription) {
       this.updateSubscription.unsubscribe();
     }
-    this.wsService.disconnect();
   }
 
   handleRealTimeUpdate(update: any) {
     if (update.type === 'completed') {
-      this.showNotification(`Booking ${update.data.bookingReference} completed!`);
-
       if (this.showBookingsModal && this.selectedBatch) {
         this.viewBookings(this.selectedBatch);
       } else if (this.showBatchesModal && this.selectedTrek) {
@@ -298,8 +291,6 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
       this.loadCompletionStats();
     } else if (update.type === 'created') {
-      this.showNotification(`New booking: ${update.data.bookingReference} by ${update.data.customerName}`);
-
       if (this.showBookingsModal && this.selectedBatch) {
         this.viewBookings(this.selectedBatch);
       } else if (this.showBatchesModal && this.selectedTrek) {
@@ -310,20 +301,6 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
       this.loadCompletionStats();
     }
-  }
-
-  showNotification(message: string) {
-    const toast = document.createElement('div');
-    toast.className = 'real-time-toast';
-    toast.innerHTML = `
-      <i class="bi bi-check-circle-fill"></i>
-      ${message}
-    `;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
   }
 
   loadCompletionStats() {

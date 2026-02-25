@@ -4,11 +4,16 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NotificationsService } from './notifications.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
+import { WebSocketService } from '../services/websocket.service';
 
 /* ============================
    TYPES
@@ -35,6 +40,13 @@ export interface Notification {
 
 type FilterTab = 'all' | 'unread' | NotificationType;
 
+interface NotificationView extends Notification {
+  icon: string;
+  typeLabel: string;
+  timeAgo: string;
+  dateIso: string;
+}
+
 /* ============================
    COMPONENT
 ============================ */
@@ -42,7 +54,8 @@ type FilterTab = 'all' | 'unread' | NotificationType;
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, FormsModule, RouterLink],
+  providers: [NotificationsService],
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,9 +69,8 @@ export class NotificationsComponent implements OnInit {
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
   activeTab = signal<FilterTab>('all');
-  panelOpen = signal<boolean>(true);
 
-  private allNotifications = signal<Notification[]>([]);
+  private allNotifications = signal<NotificationView[]>([]);
 
   /* ============================
      TABS
@@ -94,10 +106,17 @@ export class NotificationsComponent implements OnInit {
      CONSTRUCTOR
   ============================ */
 
-  constructor(private notificationsService: NotificationsService) {}
+  private destroyRef = inject(DestroyRef);
+
+  constructor(
+    private notificationsService: NotificationsService,
+    private webSocket: WebSocketService
+  ) {}
 
   ngOnInit(): void {
     this.fetchNotifications();
+    this.listenToSocket();
+    this.destroyRef.onDestroy(() => this.webSocket.disconnect());
   }
 
   /* ============================
@@ -108,19 +127,29 @@ export class NotificationsComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.notificationsService.getNotifications().subscribe({
+    this.notificationsService.getNotifications()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (response: any) => {
 
-        const mapped: Notification[] = (response?.results || []).map((n: any) => ({
-          id: n.id,
-          type: n.type,
-          title: n.title,
-          message: n.message,
-          date: new Date(n.date),
-          read: !!n.read,
-          actionLabel: n.actionLabel,
-          meta: n.meta,
-        }));
+        const mapped: NotificationView[] = (response?.results || []).map((n: any) => {
+          const date = new Date(n.date);
+          const type = n.type as NotificationType;
+          return {
+            id: n.id,
+            type,
+            title: n.title,
+            message: n.message,
+            date,
+            read: !!n.read,
+            actionLabel: n.actionLabel,
+            meta: n.meta,
+            icon: this.getIcon(type),
+            typeLabel: this.getTypeLabel(type),
+            timeAgo: this.timeAgo(date),
+            dateIso: date.toISOString(),
+          };
+        });
 
         this.allNotifications.set(mapped);
         this.loading.set(false);
@@ -164,7 +193,7 @@ export class NotificationsComponent implements OnInit {
      HELPERS
   ============================ */
 
-  getIcon(type: NotificationType): string {
+  private getIcon(type: NotificationType): string {
     const icons: Record<NotificationType, string> = {
       booking: '🎫',
       trek: '🏔️',
@@ -176,7 +205,7 @@ export class NotificationsComponent implements OnInit {
     return icons[type];
   }
 
-  getTypeLabel(type: NotificationType): string {
+  private getTypeLabel(type: NotificationType): string {
     const labels: Record<NotificationType, string> = {
       booking: 'Booking',
       trek: 'Trek',
@@ -188,7 +217,7 @@ export class NotificationsComponent implements OnInit {
     return labels[type];
   }
 
-  timeAgo(date: Date): string {
+  private timeAgo(date: Date): string {
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
@@ -200,6 +229,75 @@ export class NotificationsComponent implements OnInit {
     if (days < 7) return `${days}d ago`;
 
     return new Date(date).toLocaleDateString();
+  }
+
+  private listenToSocket(): void {
+    this.webSocket.connect();
+    this.webSocket.getBookingUpdates()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((update) => {
+        const next = this.mapSocketUpdate(update);
+        if (!next) return;
+        this.allNotifications.update(ns => [next, ...ns]);
+      });
+  }
+
+  private mapSocketUpdate(update: any): NotificationView | null {
+    if (!update?.type) return null;
+
+    const data = update?.data || {};
+    const createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    if (update.type === 'created') {
+      const title = 'New booking created';
+      const ref = data.bookingReference || data.bookingId || 'Unknown booking';
+      const customer = data.customerName || 'Customer';
+      const trek = data.trekName ? ` for ${data.trekName}` : '';
+      const message = `${customer} placed ${ref}${trek}.`;
+      return this.buildNotification(id, 'booking', title, message, createdAt, false, 'View booking', data.trekName);
+    }
+
+    if (update.type === 'completed') {
+      const title = 'Booking completed';
+      const ref = data.bookingReference || data.bookingId || 'Unknown booking';
+      const message = `Booking ${ref} is marked completed.`;
+      return this.buildNotification(id, 'booking', title, message, createdAt, false, 'View booking', data.trekName);
+    }
+
+    if (update.type === 'batch-completed') {
+      const title = 'Batch processed';
+      const message = data.message || 'A booking batch finished processing.';
+      return this.buildNotification(id, 'system', title, message, createdAt, false);
+    }
+
+    return null;
+  }
+
+  private buildNotification(
+    id: string,
+    type: NotificationType,
+    title: string,
+    message: string,
+    date: Date,
+    read: boolean,
+    actionLabel?: string,
+    meta?: string
+  ): NotificationView {
+    return {
+      id,
+      type,
+      title,
+      message,
+      date,
+      read,
+      actionLabel,
+      meta,
+      icon: this.getIcon(type),
+      typeLabel: this.getTypeLabel(type),
+      timeAgo: this.timeAgo(date),
+      dateIso: date.toISOString(),
+    };
   }
 
   trackById(_: number, n: Notification): string {

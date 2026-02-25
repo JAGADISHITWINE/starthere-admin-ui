@@ -1,179 +1,115 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{ isEditMode ? 'Edit Post' : 'Create New Post' }}</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="editor-page">
+  <div class="app-shell">
+    <header class="editor-hero">
+      <div>
+        <span class="pill">Blog Studio</span>
+        <h1 class="page-title">{{ isEditMode ? 'Edit Post' : 'Create New Post' }}</h1>
+        <p class="page-subtitle">Draft rich updates, schedule releases, and keep your stories consistent.</p>
+      </div>
+      <div class="editor-actions">
+        <button class="btn-app ghost" routerLink="/admin/blog/posts">
+          <i class="bi bi-arrow-left text-dark"></i>
+          Back to posts
+        </button>
+      </div>
+    </header>
 
-<ion-content>
-  <div class="editor-container">
-    <form [formGroup]="postForm">
-      <!-- Title -->
-      <ion-card>
-        <ion-card-content>
-          <ion-item lines="none">
-            <ion-input 
-              formControlName="title" 
-              placeholder="Post Title" 
-              class="title-input">
-            </ion-input>
-          </ion-item>
+    <form [formGroup]="postForm" class="editor-layout">
+      <section class="editor-main">
+        <div class="surface-card editor-card">
+          <label class="field-title">Post Title</label>
+          <ion-input formControlName="title" placeholder="A compelling title..." class="title-input"></ion-input>
           <ion-text color="danger" *ngIf="postForm.get('title')?.invalid && postForm.get('title')?.touched">
             <small>Title is required</small>
           </ion-text>
-        </ion-card-content>
-      </ion-card>
+        </div>
 
-      <!-- Content -->
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Content</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Excerpt</ion-label>
-            <ion-textarea 
-              formControlName="excerpt" 
-              rows="3"
-              placeholder="Brief description of the post...">
-            </ion-textarea>
-          </ion-item>
+        <div class="surface-card editor-card">
+          <label class="field-title">Excerpt</label>
+          <ion-textarea formControlName="excerpt" rows="4" placeholder="Short intro to hook readers..."></ion-textarea>
           <ion-text color="danger" *ngIf="postForm.get('excerpt')?.invalid && postForm.get('excerpt')?.touched">
             <small>Excerpt is required</small>
           </ion-text>
+        </div>
 
-          <ion-item>
-            <ion-label position="stacked">Full Content</ion-label>
-            <ion-textarea 
-              formControlName="content" 
-              rows="15"
-              placeholder="Write your blog post content here...">
-            </ion-textarea>
-          </ion-item>
+        <div class="surface-card editor-card">
+          <label class="field-title">Full Content</label>
+          <ion-textarea formControlName="content" rows="16" placeholder="Write your story here..."></ion-textarea>
           <ion-text color="danger" *ngIf="postForm.get('content')?.invalid && postForm.get('content')?.touched">
             <small>Content is required</small>
           </ion-text>
-        </ion-card-content>
-      </ion-card>
+        </div>
+      </section>
 
-      <!-- Settings -->
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Post Settings</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Category</ion-label>
+      <aside class="editor-side">
+        <div class="surface-card editor-card">
+          <h3>Publish Settings</h3>
+          <div class="field-group">
+            <label>Category</label>
             <ion-select placeholder="Select" formControlName="category">
-              <ion-select-option *ngFor="let cat of categories" [value]="cat">
-                {{ cat }}
-              </ion-select-option>
+              <ion-select-option *ngFor="let cat of categories" [value]="cat">{{ cat }}</ion-select-option>
             </ion-select>
-          </ion-item>
-          <ion-text color="danger" *ngIf="postForm.get('category')?.invalid && postForm.get('category')?.touched">
-            <small>Category is required</small>
-          </ion-text>
+            <ion-text color="danger" *ngIf="postForm.get('category')?.invalid && postForm.get('category')?.touched">
+              <small>Category is required</small>
+            </ion-text>
+          </div>
 
-          <ion-item>
-            <ion-label position="stacked">Publish Date</ion-label>
-            <ion-datetime 
-              formControlName="publishDate" 
-              presentation="date-time">
-            </ion-datetime>
-          </ion-item>
+          <div class="field-group">
+            <label>Publish Date</label>
+            <ion-datetime formControlName="publishDate" presentation="date-time"></ion-datetime>
+          </div>
+        </div>
 
-          <div class="tags-section">
-            <ion-label>Tags</ion-label>
-            <div formArrayName="tags">
-              <div *ngFor="let tag of tags.controls; let i = index" class="tag-item">
-                <ion-item>
-                  <ion-input 
-                    [formControlName]="i" 
-                    placeholder="Enter tag">
-                  </ion-input>
-                  <ion-button 
-                    slot="end" 
-                    fill="clear" 
-                    color="danger" 
-                    (click)="removeTag(i)" 
-                    *ngIf="tags.length > 1">
-                    <ion-icon name="close-circle"></ion-icon>
-                  </ion-button>
-                </ion-item>
-              </div>
+        <div class="surface-card editor-card">
+          <h3>Tags</h3>
+          <div formArrayName="tags" class="tags-list">
+            <div *ngFor="let tag of tags.controls; let i = index" class="tag-item">
+              <ion-item>
+                <ion-input [formControlName]="i" placeholder="Enter tag"></ion-input>
+                <ion-button slot="end" fill="clear" color="danger" (click)="removeTag(i)" *ngIf="tags.length > 1">
+                  <i class="bi bi-x-circle"></i>
+                </ion-button>
+              </ion-item>
             </div>
-            <ion-button fill="outline" size="small" (click)="addTag()">
-              <ion-icon name="add" slot="start"></ion-icon>
-              Add Tag
-            </ion-button>
           </div>
-        </ion-card-content>
-      </ion-card>
+          <ion-button fill="outline" size="small" (click)="addTag()">
+            <i class="bi bi-plus"></i>
+            Add Tag
+          </ion-button>
+        </div>
 
-      <!-- Featured Image -->
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Featured Image</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          
-          <!-- Image Preview -->
-          <div *ngIf="imagePreview" class="image-preview-container">
-            <img [src]="'http://localhost:4001/' + imagePreview" alt="Preview" class="image-preview" />
-            <ion-button 
-              expand="block" 
-              fill="clear" 
-              color="danger" 
-              (click)="removeImage()"
-              class="remove-image-btn">
-              <ion-icon name="trash-outline" slot="start"></ion-icon>
+        <div class="surface-card editor-card">
+          <h3>Featured Image</h3>
+          <div *ngIf="imagePreview" class="image-preview">
+            <img [src]="getImageSrc(imagePreview)" alt="Preview" />
+            <button class="btn-app ghost" type="button" (click)="removeImage()">
+              <i class="bi bi-trash"></i>
               Remove Image
-            </ion-button>
+            </button>
           </div>
 
-          <!-- Upload Button (show when no preview) -->
-          <ion-button 
-            *ngIf="!imagePreview"
-            expand="block" 
-            fill="outline" 
-            (click)="fileInput.click()">
-            <ion-icon name="image-outline" slot="start"></ion-icon>
+          <button *ngIf="!imagePreview" class="btn-app ghost" type="button" (click)="fileInput.click()">
+            <i class="bi bi-image"></i>
             Upload Image
-          </ion-button>
+          </button>
 
-          <!-- Change Image Button (show when preview exists) -->
-          <ion-button 
-            *ngIf="imagePreview"
-            expand="block" 
-            fill="outline" 
-            (click)="fileInput.click()">
-            <ion-icon name="image-outline" slot="start"></ion-icon>
+          <button *ngIf="imagePreview" class="btn-app ghost" type="button" (click)="fileInput.click()">
+            <i class="bi bi-image"></i>
             Change Image
-          </ion-button>
+          </button>
 
-          <input 
-            #fileInput 
-            type="file" 
-            accept="image/*" 
-            style="display: none" 
-            (change)="onImageSelect($event)" 
-          />
-          
+          <input #fileInput type="file" accept="image/*" hidden (change)="onImageSelect($event)" />
+
           <ion-note class="ion-padding-top">
             <small>Recommended size: 1200x630px. Max file size: 5MB</small>
           </ion-note>
-        </ion-card-content>
-      </ion-card>
+        </div>
 
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <ion-button expand="block" color="success" (click)="publish()">
-          <ion-icon name="paper-plane-outline" slot="start"></ion-icon>
+        <button class="btn-app publish-btn" type="button" (click)="publish()">
+          <i class="bi bi-send"></i>
           Publish Now
-        </ion-button>
-      </div>
+        </button>
+      </aside>
     </form>
   </div>
 </ion-content>

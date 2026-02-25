@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PostEditor } from '../post-editor';
 
 interface BlogPost {
@@ -27,7 +27,7 @@ interface BlogPost {
   templateUrl: './posts-list.component.html',
   styleUrls: ['./posts-list.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, RouterLink],
 })
 export class PostsListComponent implements OnInit {
   searchQuery: string = '';

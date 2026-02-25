@@ -1,72 +1,68 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Manage Booking</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Bookings</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="bookings-page">
+  <div class="app-shell">
+    <div class="page-header bookings-header">
+      <div>
+        <div class="crumb">
+          <button class="icon-btn" routerLink="/admin/dashboard" aria-label="Back">
+            <i class="bi bi-arrow-left text-dark"></i>
+          </button>
+          <span>Bookings</span>
+        </div>
+        <h1 class="page-title">Manage Bookings</h1>
+        <p class="page-subtitle">Track trek reservations, payments, and status updates.</p>
+      </div>
+    </div>
 
-<ion-content class="ion-padding">
+    <div class="filters">
+      <div class="filter-group">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search by name, trek, or booking id" [(ngModel)]="searchQuery" />
+      </div>
+      <select [(ngModel)]="selectedStatus">
+        <option *ngFor="let s of statusOptions" [value]="s.value">
+          {{ s.label }}
+        </option>
+      </select>
+      <input type="date" [(ngModel)]="startDate" />
+      <input type="date" [(ngModel)]="endDate" />
+    </div>
 
-  <div class="filters d-flex gap-2 mb-2 align-items-center justify-content-end">
-    <input type="text" placeholder="Search..." [(ngModel)]="searchQuery" class="filter-input" />
+    <div class="booking-grid">
+      <div class="booking-card" *ngFor="let booking of filteredBookings">
+        <div class="booking-top">
+          <div>
+            <h3>#{{ booking.id }}</h3>
+            <span>Booked on {{ booking.bookingDate }}</span>
+          </div>
+          <span class="status-pill" [ngClass]="'status-' + getStatusColor(booking.status)">
+            {{ booking.status | titlecase }}
+          </span>
+        </div>
 
-    <select [(ngModel)]="selectedStatus" class="filter-select">
-      <option *ngFor="let s of statusOptions" [value]="s.value">
-        {{ s.label }}
-      </option>
-    </select>
+        <div class="booking-body">
+          <div>
+            <p><strong>Customer:</strong> {{ booking.customerName }}</p>
+            <p><strong>Email:</strong> {{ booking.email }}</p>
+            <p><strong>Phone:</strong> {{ booking.phone }}</p>
+          </div>
+          <div>
+            <p><strong>Trek:</strong> {{ booking.trekName }}</p>
+            <p><strong>Date:</strong> {{ booking.date }}</p>
+            <p><strong>Participants:</strong> {{ booking.participants }}</p>
+          </div>
+        </div>
 
-    <input type="date" [(ngModel)]="startDate" class="filter-input" placeholder="Start" />
+        <div class="booking-footer">
+          <strong>₹{{ booking.amount }}</strong>
+          <span class="payment-pill" [ngClass]="'status-' + getPaymentColor(booking.paymentStatus)">
+            {{ booking.paymentStatus | titlecase }}
+          </span>
+        </div>
+      </div>
+    </div>
 
-    <input type="date" [(ngModel)]="endDate" class="filter-input" placeholder="End" />
+    <p *ngIf="filteredBookings.length === 0" class="empty">
+      No bookings found. Try adjusting your filters.
+    </p>
   </div>
-
-
-  <!-- Booking Cards -->
-  <ion-card *ngFor="let booking of filteredBookings" class="booking-card">
-
-    <ion-card-header>
-      <div class="header-row">
-        <ion-card-title>#{{ booking.id }}</ion-card-title>
-        <ion-badge [color]="getStatusColor(booking.status)">
-          {{ booking.status | titlecase }}
-        </ion-badge>
-      </div>
-      <ion-card-subtitle>
-        Booked on {{ booking.bookingDate }}
-      </ion-card-subtitle>
-    </ion-card-header>
-
-    <ion-card-content>
-      <p><strong>Customer:</strong> {{ booking.customerName }}</p>
-      <p><strong>Email:</strong> {{ booking.email }}</p>
-      <p><strong>Phone:</strong> {{ booking.phone }}</p>
-
-      <hr />
-
-      <p><strong>Trek:</strong> {{ booking.trekName }}</p>
-      <p><strong>Date:</strong> {{ booking.date }}</p>
-      <p><strong>Participants:</strong> {{ booking.participants }}</p>
-
-      <div class="amount-row">
-        <strong>₹{{ booking.amount }}</strong>
-        <ion-badge [color]="getPaymentColor(booking.paymentStatus)">
-          {{ booking.paymentStatus | titlecase }}
-        </ion-badge>
-      </div>
-    </ion-card-content>
-
-  </ion-card>
-
-  <p *ngIf="filteredBookings.length === 0" class="empty">
-    No bookings found 😕
-  </p>
-
 </ion-content>

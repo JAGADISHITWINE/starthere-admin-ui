@@ -1,103 +1,87 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Trek & Batch Management</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="trek-batch-page">
+  <div class="app-shell">
+    <header class="ops-hero">
+      <div>
+        <span class="pill">Operations</span>
+        <h1 class="page-title">Trek & Batch Management</h1>
+        <p class="page-subtitle">Control inventory, booking flows, and batch status from one command center.</p>
+      </div>
+      <div class="ops-actions">
+        <button class="btn-app ghost" routerLink="/admin/treks/add">
+          <i class="bi bi-plus-circle"></i>
+          Add Trek
+        </button>
+      </div>
+    </header>
 
-<ion-content>
-
-  <div class="container py-4">
-
-    <!-- Header Section -->
-    <div class="management-header">
-      <h1>Trek & Batch Management</h1>
-      <p>Manage bookings, stop/resume batch booking, and download customer details</p>
-    </div>
-
-    <!-- Loading State -->
-    <div *ngIf="isLoadingTreks" class="loading-container">
+    <section *ngIf="isLoadingTreks" class="state-center">
       <ion-spinner></ion-spinner>
       <p>Loading treks...</p>
-    </div>
+    </section>
 
-    <!-- Treks List -->
-    <div *ngIf="!isLoadingTreks" class="treks-grid">
-      <div class="trek-card" *ngFor="let trek of treks">
-        <!-- Trek Header -->
-        <div class="trek-header">
-          <div class="trek-info">
+    <section *ngIf="!isLoadingTreks" class="treks-deck">
+      <article class="trek-card" *ngFor="let trek of treks">
+        <div class="trek-cover">
+          <div class="trek-cover-overlay"></div>
+          <div class="trek-cover-badges">
+            <span class="trek-difficulty" [ngClass]="'difficulty-' + trek.difficulty.toLowerCase()">
+              {{ trek.difficulty }}
+            </span>
+            <span class="pill">{{ trek.location }}</span>
+          </div>
+        </div>
+
+        <div class="trek-content">
+          <div class="trek-head">
             <h3>{{ trek.name }}</h3>
-            <p class="trek-location">
-              <i class="bi bi-geo-alt-fill"></i>
-              {{ trek.location }}
-            </p>
+            <button class="icon-btn" (click)="viewBatches(trek)" aria-label="View batches">
+              <i class="bi bi-arrow-up-right text-dark"></i>
+            </button>
           </div>
-          <span class="trek-difficulty" [class]="'difficulty-' + trek.difficulty.toLowerCase()">
-            {{ trek.difficulty }}
-          </span>
-        </div>
 
-        <!-- Trek Stats -->
-        <div class="trek-stats">
-          <div class="stat-item">
-            <i class="bi bi-calendar-event"></i>
-            <div class="stat-content">
-              <span class="stat-label">Batches</span>
-              <span class="stat-value">{{ trek.total_batches || 0 }}</span>
+          <div class="trek-stats">
+            <div class="stat-tile">
+              <span>Batches</span>
+              <strong>{{ trek.total_batches || 0 }}</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Bookings</span>
+              <strong>{{ trek.total_bookings || 0 }}</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Active</span>
+              <strong>{{ trek.active_batches || 0 }}</strong>
             </div>
           </div>
 
-          <div class="stat-item">
-            <i class="bi bi-people-fill"></i>
-            <div class="stat-content">
-              <span class="stat-label">Bookings</span>
-              <span class="stat-value">{{ trek.total_bookings || 0 }}</span>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <i class="bi bi-check-circle-fill"></i>
-            <div class="stat-content">
-              <span class="stat-label">Active Batches</span>
-              <span class="stat-value">{{ trek.active_batches || 0 }}</span>
-            </div>
+          <div class="trek-actions">
+            <button class="btn-app" (click)="viewBatches(trek)">
+              <i class="bi bi-list-ul"></i>
+              Manage Batches
+            </button>
+            <button class="btn-app ghost" (click)="downloadAllTrekBookings(trek)" [disabled]="trek.total_bookings === 0">
+              <i class="bi bi-download"></i>
+              Download All
+            </button>
           </div>
         </div>
+      </article>
+    </section>
 
-        <!-- Trek Actions -->
-        <div class="trek-actions">
-          <button class="btn btn-primary" (click)="viewBatches(trek)">
-            <i class="bi bi-list-ul me-2"></i>
-            View Batches
-          </button>
-
-          <button class="btn btn-outline-primary" (click)="downloadAllTrekBookings(trek)"
-            [disabled]="trek.total_bookings === 0">
-            <i class="bi bi-download me-2"></i>
-            Download All
-          </button>
-        </div>
+    <section *ngIf="!isLoadingTreks && treks.length === 0" class="state-center">
+      <div class="empty-card">
+        <i class="bi bi-inbox"></i>
+        <h3>No Treks Found</h3>
+        <p>Create your first trek to get started</p>
+        <button class="btn-app" routerLink="/admin/treks/add">
+          <i class="bi bi-plus-circle"></i>
+          Add Trek
+        </button>
       </div>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="!isLoadingTreks && treks.length === 0" class="empty-state">
-      <i class="bi bi-inbox"></i>
-      <h3>No Treks Found</h3>
-      <p>Create your first trek to get started</p>
-      <button class="btn btn-primary" routerLink="/admin/treks/add">
-        <i class="bi bi-plus-circle me-2"></i>
-        Add Trek
-      </button>
-    </div>
-
+    </section>
   </div>
 </ion-content>
 
-<!-- Batches Modal -->
 <ion-modal [isOpen]="showBatchesModal" (didDismiss)="closeBatchesModal()">
   <ng-template>
     <ion-header>
@@ -113,17 +97,13 @@
 
     <ion-content>
       <div class="modal-content">
-
-        <!-- Loading -->
-        <div *ngIf="isLoadingBatches" class="loading-container">
+        <div *ngIf="isLoadingBatches" class="state-center">
           <ion-spinner></ion-spinner>
           <p>Loading batches...</p>
         </div>
 
-        <!-- Batches List -->
         <div *ngIf="!isLoadingBatches" class="batches-list">
           <div class="batch-card" *ngFor="let batch of batches">
-            <!-- Batch Header -->
             <div class="batch-header">
               <div class="batch-dates">
                 <i class="bi bi-calendar3"></i>
@@ -137,90 +117,70 @@
               </span>
             </div>
 
-            <!-- Batch Info -->
             <div class="batch-info-grid">
               <div class="info-item">
                 <span class="label">Price</span>
                 <span class="value">₹{{ batch.price }}</span>
               </div>
-
               <div class="info-item">
                 <span class="label">Available Slots</span>
                 <span class="value">{{ batch.available_slots }}</span>
               </div>
-
               <div class="info-item">
                 <span class="label">Booked</span>
                 <span class="value">{{ batch.booked_slots || 0 }}</span>
               </div>
-
               <div class="info-item">
                 <span class="label">Total Bookings</span>
                 <span class="value">{{ batch.total_bookings || 0 }}</span>
               </div>
-
               <div class="info-item">
-                <span class="label">Total Participants</span>
+                <span class="label">Participants</span>
                 <span class="value">{{ batch.total_participants || 0 }}</span>
               </div>
-
               <div class="info-item">
                 <span class="label">Confirmed</span>
                 <span class="value">{{ batch.confirmed_participants || 0 }}</span>
               </div>
             </div>
 
-            <!-- Batch Actions -->
             <div class="batch-actions">
-              <button class="btn btn-sm btn-primary" (click)="viewBookings(batch)"
-                [disabled]="batch.total_bookings === 0">
-                <i class="bi bi-eye me-1"></i>
+              <button class="btn-app ghost" (click)="viewBookings(batch)" [disabled]="batch.total_bookings === 0">
+                <i class="bi bi-eye"></i>
                 View Bookings ({{ batch.total_bookings || 0 }})
               </button>
-
-              <button class="btn btn-sm btn-success" (click)="downloadBatchBookings(batch)"
-                [disabled]="batch.total_bookings === 0">
-                <i class="bi bi-download me-1"></i>
+              <button class="btn-app" (click)="downloadBatchBookings(batch)" [disabled]="batch.total_bookings === 0">
+                <i class="bi bi-download"></i>
                 Download
               </button>
-
-              <button *ngIf="batch.status === 'active' && !isBatchEnded(batch)" 
-                class="btn btn-sm btn-danger" 
-                (click)="stopBooking(batch)">
-                <i class="bi bi-stop-circle me-1"></i>
+              <button *ngIf="batch.status === 'active' && !isBatchEnded(batch)" class="btn-app ghost" (click)="stopBooking(batch)">
+                <i class="bi bi-stop-circle"></i>
                 Stop Booking
               </button>
-
-              <button *ngIf="batch.status === 'inactive'" 
-                class="btn btn-sm btn-warning" 
-                (click)="resumeBooking(batch)">
-                <i class="bi bi-play-circle me-1"></i>
+              <button *ngIf="batch.status === 'inactive'" class="btn-app secondary" (click)="resumeBooking(batch)">
+                <i class="bi bi-play-circle"></i>
                 Resume Booking
               </button>
-
-              <button *ngIf="batch.status === 'active' && isBatchEnded(batch)" 
-                class="btn btn-sm btn-info"
-                (click)="markBatchCompleted(batch)">
-                <i class="bi bi-check-circle me-1"></i>
+              <button *ngIf="batch.status === 'active' && isBatchEnded(batch)" class="btn-app secondary" (click)="markBatchCompleted(batch)">
+                <i class="bi bi-check-circle"></i>
                 Mark as Completed
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Empty State -->
-        <div *ngIf="!isLoadingBatches && batches.length === 0" class="empty-state">
-          <i class="bi bi-calendar-x"></i>
-          <h3>No Batches Found</h3>
-          <p>No batches have been created for this trek yet</p>
+        <div *ngIf="!isLoadingBatches && batches.length === 0" class="state-center">
+          <div class="empty-card">
+            <i class="bi bi-calendar-x"></i>
+            <h3>No Batches Found</h3>
+            <p>No batches have been created for this trek yet</p>
+          </div>
         </div>
-
       </div>
     </ion-content>
   </ng-template>
 </ion-modal>
 
-<!-- Bookings Modal (UPDATED WITH EXPANDABLE PARTICIPANT DETAILS) -->
 <ion-modal [isOpen]="showBookingsModal" (didDismiss)="closeBookingsModal()" cssClass="bookings-modal-large">
   <ng-template>
     <ion-header>
@@ -240,14 +200,11 @@
 
     <ion-content>
       <div class="modal-content">
-
-        <!-- Loading -->
-        <div *ngIf="isLoadingBookings" class="loading-container">
+        <div *ngIf="isLoadingBookings" class="state-center">
           <ion-spinner></ion-spinner>
           <p>Loading bookings...</p>
         </div>
 
-        <!-- Bookings Table -->
         <div *ngIf="!isLoadingBookings" class="bookings-table-container">
           <table class="bookings-table">
             <thead>
@@ -261,146 +218,39 @@
                 <th>Participants</th>
                 <th>Total Amount</th>
                 <th>Payment Status</th>
-                <th>Booking Status</th>
-                <th>Date</th>
               </tr>
             </thead>
             <tbody>
               <ng-container *ngFor="let booking of bookings; let i = index">
-                <!-- Main Booking Row -->
-                <tr [class.expanded-row]="booking.expanded">
+                <tr class="summary-row">
                   <td>
-                    <button 
-                      class="expand-btn" 
-                      (click)="toggleBookingExpand(booking)"
-                      [class.expanded]="booking.expanded">
+                    <button class="expand-btn" (click)="toggleBookingExpand(booking)">
                       <i class="bi" [ngClass]="booking.expanded ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
                     </button>
                   </td>
                   <td>{{ i + 1 }}</td>
-                  <td>
-                    <span class="booking-ref">{{ booking.booking_reference }}</span>
-                  </td>
-                  <td>{{ booking.customer_name }}</td>
-                  <td class="email-cell">{{ booking.customer_email }}</td>
-                  <td>{{ booking.customer_phone }}</td>
-                  <td class="text-center">
-                    <span class="badge badge-info">{{ booking.participants }}</span>
-                  </td>
-                  <td class="text-right">₹{{ booking.total_amount | number:'1.2-2' }}</td>
+                  <td>{{ booking.booking_id }}</td>
+                  <td>{{ booking.name }}</td>
+                  <td>{{ booking.email }}</td>
+                  <td>{{ booking.phone }}</td>
+                  <td>{{ booking.total_participants }}</td>
+                  <td>₹{{ booking.total_amount }}</td>
                   <td>
                     <span class="badge" [ngClass]="getPaymentStatusClass(booking.payment_status)">
                       {{ booking.payment_status }}
                     </span>
                   </td>
-                  <td>
-                    <span class="badge" [ngClass]="getBookingStatusClass(booking.booking_status)">
-                      {{ booking.booking_status }}
-                    </span>
-                  </td>
-                  <td>{{ booking.created_at | date:'MMM dd, yyyy' }}</td>
                 </tr>
 
-                <!-- Expanded Participant Details Row -->
-                <tr *ngIf="booking.expanded" class="participant-details-row">
-                  <td colspan="11">
-                    <div class="participant-details-container">
-                      
-                      <!-- Participants Section -->
-                      <div class="details-section" *ngIf="booking.participants_details && booking.participants_details.length > 0">
-                        <h6 class="section-title">
-                          <i class="bi bi-people-fill"></i>
-                          Participant Details ({{ booking.participants_details.length }})
-                        </h6>
-                        
-                        <div class="participants-grid">
-                          <div 
-                            class="participant-card" 
-                            *ngFor="let participant of booking.participants_details; let idx = index"
-                            [class.primary-contact]="participant.is_primary_contact">
-                            
-                            <div class="participant-header">
-                              <span class="participant-number">#{{ idx + 1 }}</span>
-                              <span class="participant-name">{{ participant.name }}</span>
-                              <span class="badge badge-primary" *ngIf="participant.is_primary_contact">Primary</span>
-                            </div>
-
-                            <div class="participant-info">
-                              <div class="info-row">
-                                <span class="info-label">Age:</span>
-                                <span class="info-value">{{ participant.age || '-' }}</span>
-                              </div>
-                              <div class="info-row">
-                                <span class="info-label">Gender:</span>
-                                <span class="info-value">{{ participant.gender || '-' }}</span>
-                              </div>
-                              <div class="info-row">
-                                <span class="info-label">ID Type:</span>
-                                <span class="info-value">{{ participant.id_type || '-' }}</span>
-                              </div>
-                              <div class="info-row">
-                                <span class="info-label">ID Number:</span>
-                                <span class="info-value">{{ participant.id_number || '-' }}</span>
-                              </div>
-                              <div class="info-row" *ngIf="participant.phone">
-                                <span class="info-label">Phone:</span>
-                                <span class="info-value">{{ participant.phone }}</span>
-                              </div>
-                              <div class="info-row medical-info" *ngIf="participant.medical_info">
-                                <span class="info-label">
-                                  <i class="bi bi-heart-pulse"></i> Medical Info:
-                                </span>
-                                <span class="info-value">{{ participant.medical_info }}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Additional Booking Info -->
-                      <div class="details-section">
-                        <h6 class="section-title">
-                          <i class="bi bi-info-circle"></i>
-                          Additional Information
-                        </h6>
-                        
-                        <div class="additional-info">
-                          <div class="info-item">
-                            <span class="label">Emergency Contact:</span>
-                            <span class="value">{{ booking.emergency_contact }}</span>
-                          </div>
-                          <div class="info-item">
-                            <span class="label">Amount Paid:</span>
-                            <span class="value">₹{{ booking.amount_paid | number:'1.2-2' }}</span>
-                          </div>
-                          <div class="info-item">
-                            <span class="label">Balance Due:</span>
-                            <span class="value">₹{{ booking.balance_due | number:'1.2-2' }}</span>
-                          </div>
-                          <div class="info-item full-width" *ngIf="booking.special_requests">
-                            <span class="label">Special Requests:</span>
-                            <span class="value">{{ booking.special_requests }}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Add-ons Section -->
-                      <div class="details-section" *ngIf="booking.addons && booking.addons.length > 0">
-                        <h6 class="section-title">
-                          <i class="bi bi-plus-circle"></i>
-                          Add-ons ({{ booking.addons.length }})
-                        </h6>
-                        
-                        <div class="addons-list">
-                          <div class="addon-item" *ngFor="let addon of booking.addons">
-                            <span class="addon-name">{{ addon.addon_name }}</span>
-                            <span class="addon-details">
-                              {{ addon.quantity }} × ₹{{ addon.unit_price }} = ₹{{ addon.total_price }}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
+                <tr class="detail-row" *ngIf="booking.expanded">
+                  <td colspan="9">
+                    <div class="detail-box">
+                      <h6>Participants</h6>
+                      <ul>
+                        <li *ngFor="let p of booking.participants">
+                          {{ p.name }} - {{ p.age }} years - {{ p.gender }}
+                        </li>
+                      </ul>
                     </div>
                   </td>
                 </tr>
@@ -408,14 +258,6 @@
             </tbody>
           </table>
         </div>
-
-        <!-- Empty State -->
-        <div *ngIf="!isLoadingBookings && bookings.length === 0" class="empty-state">
-          <i class="bi bi-inbox"></i>
-          <h3>No Bookings Found</h3>
-          <p>No bookings have been made for this batch yet</p>
-        </div>
-
       </div>
     </ion-content>
   </ng-template>

@@ -370,7 +370,7 @@ export class TrekEditComponent implements OnInit {
 
     this.trekService.updateTrek(this.trekId, formData).subscribe((res: any) => {
       if (res?.success) {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/admin/dashboard']);
       }
     });
   }

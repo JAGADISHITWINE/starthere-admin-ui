@@ -1,91 +1,331 @@
-.admin-login-content {
-  --background: linear-gradient(135deg, #059669 0%, #047857 100%);
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap");
+
+:host {
+  display: block;
 }
 
-.login-container {
+.auth-page {
+  --background: transparent;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 520px);
+  gap: 32px;
+  align-items: stretch;
+  padding: 40px 24px;
+}
+
+.brand-panel {
+  background: linear-gradient(140deg, rgba(29, 122, 109, 0.12), rgba(241, 166, 77, 0.15));
+  border: 1px solid var(--app-border);
+  border-radius: 28px;
+  padding: 36px 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
+  box-shadow: var(--app-shadow);
 }
 
-.logo-section {
-  text-align: center;
-  margin-bottom: 32px;
-  color: white;
-
-  ion-icon {
-    font-size: 80px;
-    margin-bottom: 16px;
-  }
-
-  h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-
-  p {
-    font-size: 1.125rem;
-    opacity: 0.9;
-  }
+.brand-logo {
+  height: 300px;
+  width: auto;
 }
 
-.login-card {
-  width: 100%;
-  max-width: 450px;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-
-  ion-card-content {
-    padding: 40px 32px;
-
-    h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #6b7280;
-      margin-bottom: 32px;
-    }
-  }
+.brand-subtitle {
+  color: var(--app-ink-muted);
+  margin-bottom: 20px;
 }
 
-ion-item {
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  margin-bottom: 16px;
-  border-radius: 8px;
-  --background: #f9fafb;
+.brand-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
 
-.forgot-password {
-  text-align: right;
-  margin: -8px 0 24px;
-}
-
-.login-button {
-  margin-top: 24px;
-  --border-radius: 8px;
+.meta-card {
+  background: #fff;
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   font-weight: 600;
 }
 
-.footer-text {
-  margin-top: 32px;
-  text-align: center;
-  color: white;
+.meta-card span {
+  font-size: 1.4rem;
 }
 
-.logo {
-  height: 60px;
-  margin-right: 10px;
+.meta-card small {
+  color: var(--app-ink-muted);
+  font-weight: 500;
 }
-.title {
-  height: 28px;
+
+.brand-footer {
+  color: var(--app-ink-muted);
+  font-size: 0.95rem;
+}
+
+.auth-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow: var(--app-shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card-head h2 {
+  margin: 0 0 6px;
+  font-size: 1.8rem;
+}
+
+.card-head p {
+  color: var(--app-ink-muted);
+  margin: 0;
+}
+
+.field-label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--app-ink);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.field input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 1rem;
+  background: transparent;
+}
+
+.field i {
+  color: var(--app-accent);
+}
+
+.field-action {
+  border: none;
+  background: transparent;
+  color: var(--app-ink-muted);
+  font-weight: 600;
+  padding: 0 6px;
+}
+
+.auth-submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 10px;
+}
+
+.auth-foot {
+  text-align: center;
+  color: var(--app-ink-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-panel {
+    order: 2;
+  }
+
+  .header-left .logo {
+    height: 130px;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-shell {
+    gap: 20px;
+    padding: 20px 12px;
+  }
+
+  .brand-panel,
+  .auth-card {
+    padding: 20px;
+  }
+
+  .header-left .logo {
+    height: 110px;
+  }
+
+  .gw-wild {
+    font-size: 52px;
+  }
+}
+
+/* ─── Logo Section ───────────────────────────────────────────────────── */
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  width: 100%;
+  text-align: center;
+
+  .logo {
+    height: 170px;
+    width: auto;
+    cursor: pointer;
+    filter: brightness(1.1) drop-shadow(0 0 8px var(--hdr-glow));
+    transition:
+      transform var(--transition),
+      filter var(--transition);
+  }
+
+  .title {
+    height: 28px;
+    width: auto;
+    cursor: pointer;
+    opacity: 0.9;
+  }
+
+  /* Optional brand text fallback */
+  .brand-text {
+    font-family: "Syne", sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    cursor: pointer;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.logo-dark {
+  --bg: transparent;
+  --text1: #1a2e1b;
+  --text2: #3a6b2a;
+  --mark: #3a6b2a;
+  --mark2: #1a2e1b;
+}
+
+.gw-logo {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--bg);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+  text-align: center;
+}
+
+/* ─────────────────── SVG MARK ─────────────────── */
+.gw-mark {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  animation: markPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes markPop {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(-8deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ─────────────────── TEXT BLOCK ─────────────────── */
+.gw-words {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 2px;
+  animation: wordsIn 0.5s 0.15s ease both;
+}
+
+@keyframes wordsIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.gw-top {
+  display: flex;
+  align-items: baseline;
+  gap: 0px;
+}
+
+.gw-go {
+  font-family: "Covered By Your Grace", cursive;
+  font-size: 30px;
+  color: var(--text2);
+  letter-spacing: 1px;
+  margin-right: 4px;
+  transform: rotate(-2deg);
+  display: inline-block;
+}
+
+.gw-wild {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 64px;
+  color: var(--text1);
+  letter-spacing: 3px;
+  line-height: 0.9;
+}
+
+.gw-sub {
+  font-family: "Outfit", sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--text2);
+  padding-left: 2px;
+}
+
+/* ─────────────────── SEPARATOR LABEL ─────────────────── */
+.label {
+  font-family: "Outfit", sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #3a5c3b;
 }

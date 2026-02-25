@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Reviews } from './reviews';
+import { RouterLink } from '@angular/router';
 
 interface Review {
   id: number;
@@ -19,7 +20,7 @@ interface Review {
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, RouterLink],
 })
 export class ReviewsComponent implements OnInit {
 

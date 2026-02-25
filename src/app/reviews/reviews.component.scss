@@ -1,16 +1,133 @@
-.filters-section {
-  background: white;
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
+:host {
+  display: block;
+}
 
-  .results-count {
-    padding: 8px 0;
-    font-size: 0.95rem;
-    color: #4b5563;
+.reviews-page {
+  --background: transparent;
+}
+
+.reviews-header {
+  margin-bottom: 20px;
+}
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--app-ink-muted);
+  margin-bottom: 8px;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid var(--app-border);
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.review-summary {
+  color: var(--app-ink-muted);
+  margin: 10px 0 20px;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.review-card {
+  background: #fff;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 18px;
+  box-shadow: var(--app-shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--app-shadow);
+}
+
+.review-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.customer-info h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.trek-name {
+  margin: 2px 0 0;
+  color: var(--app-ink-muted);
+}
+
+.likes-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(224, 106, 91, 0.1);
+  color: var(--ion-color-danger);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.comment {
+  color: var(--app-ink);
+  margin: 0;
+}
+
+.review-footer {
+  color: var(--app-ink-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .review-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .likes-display {
+    align-self: flex-start;
   }
 }
 
-.reviews-list {
-  padding: 16px;
-}
+@media (max-width: 480px) {
+  .reviews-grid {
+    grid-template-columns: 1fr;
+  }
 
+  .review-card {
+    padding: 14px;
+  }
+
+  .customer-info {
+    width: 100%;
+  }
+}

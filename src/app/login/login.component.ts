@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit {
       if (res.response == true && res.user) {
         this.authService.setUser(res.user);
         this.credentials.reset();
-        this.router.navigate(['/dashboard', {
+        this.router.navigate(['/admin/dashboard', {
           replaceUrl: true,
           skipLocationChange: true
         }]);

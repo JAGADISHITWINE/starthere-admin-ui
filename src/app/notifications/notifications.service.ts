@@ -1,12 +1,27 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { EncryptionService } from '../services/encryption.service';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
-  constructor(private http: HttpClient) {}
+  private API = `${environment.baseUrl}`;
+
+  constructor(private http: HttpClient, private crypto: EncryptionService) {}
 
   getNotifications(): Observable<any> {
-    return this.http.get('/api/user/notifications');
+    return this.http.get<{ payload: string }>(`${this.API}/notifications`).pipe(
+      map((res: any) => {
+        if (res?.data && typeof res.data === 'string') {
+          const decrypted = this.crypto.decrypt(res.data);
+          return {
+            ...res,
+            data: decrypted
+          };
+        }
+        return res;
+      })
+    );
   }
 }

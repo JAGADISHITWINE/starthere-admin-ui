@@ -1,0 +1,79 @@
+:host {
+  display: block;
+}
+
+.settings-page {
+  --background: transparent;
+}
+
+.settings-header {
+  margin-bottom: 20px;
+}
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--app-ink-muted);
+  margin-bottom: 8px;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid var(--app-border);
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.settings-card {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.toggle-row:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-card {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .crumb {
+    gap: 8px;
+  }
+
+  .toggle-row {
+    gap: 10px;
+  }
+}
