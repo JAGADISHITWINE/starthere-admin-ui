@@ -8,27 +8,28 @@ import {
   Router
 } from '@angular/router';
 
-
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(
-    _next: ActivatedRouteSnapshot,
+    next: ActivatedRouteSnapshot,
     _state: RouterStateSnapshot
   ): boolean | UrlTree {
-    if (this.authService.isAuthenticated()) {
-      return true;
+    if (!this.authService.isAuthenticated()) {
+      return this.router.parseUrl('/');
     }
 
-    // No valid session -> redirect to login
-    this.router.navigate(['']);
-    return false;
+    const requiredPermission = next.data?.['permission'] as string | undefined;
+    if (requiredPermission && !this.authService.hasPermission(requiredPermission)) {
+      return this.authService.getDefaultAuthorizedUrlTree(this.router);
+    }
+
+    return true;
   }
 
-  forceLogout() {
-    sessionStorage.clear();
+  forceLogout(): void {
+    this.authService.clearSession();
     this.router.navigate(['']);
   }
 }
-

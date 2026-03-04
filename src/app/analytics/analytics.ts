@@ -16,11 +16,18 @@ export class Analytics {
   getRevenueData() {
     return this.http.get<{ payload: string }>(`${this.API}/revenue`).pipe(
       map((res: any) => {
-        const decrypted = this.crypto.decrypt(res.data);
-        return {
-          ...res,
-          data: decrypted
-        };
+        const encrypted = typeof res?.data === 'string'
+          ? res.data
+          : (typeof res?.payload === 'string' ? res.payload : null);
+
+        if (encrypted) {
+          const decrypted = this.crypto.decrypt(encrypted);
+          return {
+            ...res,
+            data: decrypted
+          };
+        }
+        return res;
       })
     )
   }

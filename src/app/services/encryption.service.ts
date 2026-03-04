@@ -27,17 +27,31 @@ export class EncryptionService {
 
   decrypt(encryptedText: any){
     try {
-      if (!this.secretKey) {
-        // If no secret configured, we assume the server returned plaintext JSON.
+      if (encryptedText == null) return null;
+
+      if (typeof encryptedText === 'object') {
+        return encryptedText;
+      }
+
+      if (typeof encryptedText !== 'string') {
+        return null;
+      }
+
+      // Try AES first when key is available.
+      if (this.secretKey) {
         try {
-          return JSON.parse(encryptedText);
+          const bytes = CryptoJS.AES.decrypt(encryptedText, this.secretKey);
+          const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+          if (decrypted) {
+            return JSON.parse(decrypted);
+          }
         } catch {
-          return null;
+          // Fall through to plaintext JSON parse.
         }
       }
-      const bytes = CryptoJS.AES.decrypt(encryptedText, this.secretKey);
-      const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-      return JSON.parse(decrypted);
+
+      // Fallback: backend may return plaintext JSON string when encryption is disabled.
+      return JSON.parse(encryptedText);
     } catch (e) {
       console.error('Decrypt error:', e);
       return null;

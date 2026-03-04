@@ -41,11 +41,14 @@ export class TrekBatchManagement {
    getBatchBookings(batchId: number) {
     return this.http.get<{ payload: string }>(`${this.API}/batches/${batchId}/bookings`).pipe(
       map((res: any) => {
-        const decrypted = this.crypto.decrypt(res.data);
-        return {
-          ...res,
-          data: decrypted
-        };
+        if (res?.data && typeof res.data === 'string') {
+          const decrypted = this.crypto.decrypt(res.data);
+          return {
+            ...res,
+            data: decrypted
+          };
+        }
+        return res;
       })
     )
   }

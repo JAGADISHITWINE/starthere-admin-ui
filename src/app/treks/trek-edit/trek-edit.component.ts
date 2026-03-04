@@ -8,15 +8,18 @@ import {
   Validators,
   ReactiveFormsModule
 } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TrekEdit } from './trek-edit';
+import { DropdownManagerService } from 'src/app/dropdown-manager/dropdown-manager.service';
+import { take } from 'rxjs';
+import { AdminShellComponent } from 'src/app/shared/admin-shell/admin-shell.component';
 
 @Component({
   standalone: true,
   selector: 'app-trek-edit',
   templateUrl: './trek-edit.component.html',
   styleUrls: ['./trek-edit.component.scss'],
-  imports: [IonicModule, CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [IonicModule, CommonModule, ReactiveFormsModule, AdminShellComponent],
 })
 export class TrekEditComponent implements OnInit {
   @ViewChild('coverGalleryInput') coverGalleryInput!: any;
@@ -29,10 +32,11 @@ export class TrekEditComponent implements OnInit {
   isLoading = true;
 
   // Dropdown options
-  difficulties = ['Easy', 'Moderate', 'Difficult', 'Extreme'];
-  categories = ['Hill Trek', 'Mountain Trek', 'Forest Trek', 'Desert Trek', 'Snow Trek', 'Peak Trek'];
-  fitnessLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
-  batchStatuses = ['active', 'inactive', 'full', 'cancelled'];
+  difficulties: string[] = [];
+  categories: string[] = [];
+  collections: string[] = [];
+  fitnessLevels: string[] = [];
+  batchStatuses: string[] = [];
 
   // Image previews
   coverPreview: string | null = null;
@@ -52,17 +56,44 @@ export class TrekEditComponent implements OnInit {
     private fb: FormBuilder,
     private trekService: TrekEdit,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private dropdownService: DropdownManagerService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
+    this.loadDropdownOptions();
 
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = Number(params.get('id'));
-      if (!id) return;
+      if (!Number.isFinite(id) || id <= 0) {
+        this.isLoading = false;
+        return;
+      }
       this.trekId = id;
       this.fetchTrek();
+    });
+  }
+
+  private loadDropdownOptions() {
+    this.dropdownService.getGroupOptions('trekDifficulty').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.difficulties = opts.map((o) => o.label);
+    });
+
+    this.dropdownService.getGroupOptions('trekCategory').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.categories = opts.map((o) => o.label);
+    });
+
+    this.dropdownService.getGroupOptions('trekCollection').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.collections = opts.map((o) => o.label);
+    });
+
+    this.dropdownService.getGroupOptions('trekFitnessLevel').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.fitnessLevels = opts.map((o) => o.label);
+    });
+
+    this.dropdownService.getGroupOptions('batchStatus').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.batchStatuses = opts.map((o) => o.label);
     });
   }
 
@@ -71,6 +102,7 @@ export class TrekEditComponent implements OnInit {
       name: ['', Validators.required],
       location: ['', Validators.required],
       category: ['', Validators.required],
+      collection: [''],
       difficulty: ['', Validators.required],
       fitnessLevel: [''],
       description: [''],
@@ -118,46 +150,54 @@ export class TrekEditComponent implements OnInit {
   fetchTrek() {
     this.isLoading = true;
 
-    this.trekService.editTrek(this.trekId).subscribe((res: any) => {
-      if (!res?.success) return;
+    this.trekService.editTrek(this.trekId).subscribe({
+      next: (res: any) => {
+        if (!res?.success || !res?.data) {
+          this.isLoading = false;
+          return;
+        }
 
-      const trek = res.data;
-      console.log(trek)
+        const trek = res.data;
 
-      // Patch basic fields
-      this.editTrekForm.patchValue({
-        name: trek.name,
-        location: trek.location,
-        category: trek.category,
-        difficulty: trek.difficulty,
-        fitnessLevel: trek.fitnessLevel,
-        description: trek.description
-      });
+        // Patch basic fields
+        this.editTrekForm.patchValue({
+          name: trek.name,
+          location: trek.location,
+          category: trek.category,
+          collection: trek.collection || '',
+          difficulty: trek.difficulty,
+          fitnessLevel: trek.fitnessLevel,
+          description: trek.description
+        });
 
-      // Set highlights
-      this.setFormArray(this.highlights, trek.highlights || []);
+        // Set highlights
+        this.setFormArray(this.highlights, trek.highlights || []);
 
-      // Set things to carry
-      this.setFormArray(this.thingsToCarry, trek.thingsToCarry || []);
+        // Set things to carry
+        this.setFormArray(this.thingsToCarry, trek.thingsToCarry || []);
 
-      // Set important notes
-      this.setFormArray(this.importantNotes, trek.importantNotes || []);
+        // Set important notes
+        this.setFormArray(this.importantNotes, trek.importantNotes || []);
 
-      // Set batches
-      this.setBatches(trek.batches || []);
+        // Set batches
+        this.setBatches(trek.batches || []);
 
-      // Set cover image
-      if (trek.coverImage) {
-        this.existingCoverFilename = trek.coverImage;
-        this.coverPreview = this.getImageUrl(trek.coverImage);
+        // Set cover image
+        if (trek.coverImage) {
+          this.existingCoverFilename = trek.coverImage;
+          this.coverPreview = this.getImageUrl(trek.coverImage);
+        }
+
+        // Set gallery images
+        if (trek.galleryImages && Array.isArray(trek.galleryImages)) {
+          this.existingGalleryFilenames = trek.galleryImages;
+        }
+
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
       }
-
-      // Set gallery images
-      if (trek.galleryImages && Array.isArray(trek.galleryImages)) {
-        this.existingGalleryFilenames = trek.galleryImages;
-      }
-
-      this.isLoading = false;
     });
   }
 
@@ -173,7 +213,7 @@ export class TrekEditComponent implements OnInit {
       minParticipants: [data?.minParticipants || ''],
       maxParticipants: [data?.maxParticipants || ''],
       duration: [data?.duration || ''],
-      batchStatus: [data?.batchStatus || 'active'],
+      batchStatus: [data?.batchStatus || ''],
       inclusions: this.fb.array(data?.inclusions?.map((inc: string) => this.fb.control(inc)) || []),
       exclusions: this.fb.array(data?.exclusions?.map((exc: string) => this.fb.control(exc)) || []),
       itineraryDays: this.fb.array(data?.itineraryDays?.map((day: any) => this.createDay(day)) || [])
@@ -197,8 +237,13 @@ export class TrekEditComponent implements OnInit {
 
   setBatches(batches: any[]) {
     this.batches.clear();
-    if (batches && batches.length > 0) {
-      batches.forEach(batch => this.batches.push(this.createBatch(batch)));
+    const filtered = (Array.isArray(batches) ? batches : []).filter((batch: any) => {
+      const status = String(batch?.batchStatus || batch?.status || '').toLowerCase();
+      return status !== 'completed';
+    });
+
+    if (filtered.length > 0) {
+      filtered.forEach((batch: any) => this.batches.push(this.createBatch(batch)));
     } else {
       this.batches.push(this.createBatch());
     }
@@ -338,7 +383,6 @@ export class TrekEditComponent implements OnInit {
   // ===== UPDATE TREK =====
   updateTrek() {
     if (this.editTrekForm.invalid) {
-      console.log('Form is invalid');
       return;
     }
 
@@ -370,7 +414,8 @@ export class TrekEditComponent implements OnInit {
 
     this.trekService.updateTrek(this.trekId, formData).subscribe((res: any) => {
       if (res?.success) {
-        this.router.navigate(['/admin/dashboard']);
+        alert('Trek updated successfully');
+        this.router.navigate(['/admin/treks/list'], { queryParams: { refresh: Date.now() } });
       }
     });
   }

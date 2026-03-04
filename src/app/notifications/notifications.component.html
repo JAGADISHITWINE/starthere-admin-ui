@@ -1,64 +1,49 @@
 <ion-content class="notifications-page">
-  <div class="app-shell">
-    <div class="page-header notif-hero">
-      <div class="crumb">
-        <button class="icon-btn" routerLink="/admin/dashboard" aria-label="Back">
-          <i class="bi bi-arrow-left text-dark"></i>
-        </button>
-        <span>Notifications</span>
-      </div>
-      <h1 class="page-title">Trail Updates</h1>
-      <p class="page-subtitle">Stay in sync with bookings, treks, and system alerts.</p>
-    </div>
-
-    <section class="notif-panel" role="region" aria-label="Notifications">
-      <header class="notif-header">
-        <div class="header-brand">
-          @if (unreadCount() > 0) {
+  <app-admin-shell title="Notifications" subtitle="Stay in sync with bookings, treks, and system alerts."
+    sectionLabel="Operations">
+    <div class="app-shell">
+      <section class="notif-panel" role="region" aria-label="Notifications">
+        <header class="notif-header">
+          <div class="header-brand">
+            @if (unreadCount() > 0) {
             <span class="unread-badge" [attr.aria-label]="unreadCount() + ' unread'">
               {{ unreadCount() }}
             </span>
-          }
-        </div>
-        <button
-          class="mark-all-btn"
-          (click)="markAllRead()"
-          [disabled]="unreadCount() === 0"
-          aria-label="Mark all as read">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          All read
-        </button>
-      </header>
+            }
+          </div>
+          <button class="mark-all-btn" (click)="markAllRead()" [disabled]="unreadCount() === 0"
+            aria-label="Mark all as read">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            All read
+          </button>
+        </header>
 
-      <nav class="notif-tabs" role="tablist" aria-label="Filter notifications">
-        @for (tab of tabs; track tab.key) {
-          <button
-            class="tab-btn"
-            role="tab"
-            [class.active]="activeTab() === tab.key"
-            [attr.aria-selected]="activeTab() === tab.key"
-            (click)="setTab(tab.key)">
+        <nav class="notif-tabs" role="tablist" aria-label="Filter notifications">
+          @for (tab of tabs; track tab.key) {
+          <button class="tab-btn" role="tab" [class.active]="activeTab() === tab.key"
+            [attr.aria-selected]="activeTab() === tab.key" (click)="setTab(tab.key)">
             {{ tab.label }}
           </button>
-        }
-      </nav>
+          }
+        </nav>
 
-      @if (loading()) {
+        @if (loading()) {
         <div class="state-loading" aria-live="polite" role="status">
           <div class="trail-loader">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
           <p>Fetching trail updates…</p>
         </div>
-      }
+        }
 
-      @if (error()) {
+        @if (error()) {
         <div class="state-error" role="alert" aria-live="assertive">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
           <div>
             <strong>Couldn't reach base camp</strong>
@@ -66,95 +51,90 @@
           </div>
           <button class="retry-btn" (click)="fetchNotifications()">Retry</button>
         </div>
-      }
+        }
 
-      @if (!loading() && !error() && notifications().length === 0) {
+        @if (!loading() && !error() && notifications().length === 0) {
         <div class="state-empty" aria-live="polite">
           <div class="empty-illustration">
             <svg viewBox="0 0 80 60" fill="none">
-              <path d="M10 50 L28 20 L40 35 L52 12 L70 50Z" fill="rgba(126,167,107,0.15)" stroke="rgba(126,167,107,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
-              <circle cx="64" cy="14" r="6" fill="rgba(255,178,80,0.2)" stroke="rgba(255,178,80,0.5)" stroke-width="1.5"/>
+              <path d="M10 50 L28 20 L40 35 L52 12 L70 50Z" fill="rgba(126,167,107,0.15)" stroke="rgba(126,167,107,0.4)"
+                stroke-width="1.5" stroke-linejoin="round" />
+              <circle cx="64" cy="14" r="6" fill="rgba(255,178,80,0.2)" stroke="rgba(255,178,80,0.5)"
+                stroke-width="1.5" />
             </svg>
           </div>
           <p class="empty-title">All clear on the trail!</p>
           <p class="empty-sub">No notifications here. Time to plan your next adventure.</p>
         </div>
-      }
+        }
 
-      @if (!loading() && !error() && notifications().length > 0) {
+        @if (!loading() && !error() && notifications().length > 0) {
         <ul class="notif-list" role="list">
           @for (notif of notifications(); track notif.id; let i = $index) {
-            <li
-              class="notif-item"
-              [class.unread]="!notif.read"
-              [class.type--booking]="notif.type === 'booking'"
-              [class.type--weather]="notif.type === 'weather'"
-              [class.type--trek]="notif.type === 'trek'"
-              [class.type--guide]="notif.type === 'guide'"
-              [class.type--offer]="notif.type === 'offer'"
-              [class.type--system]="notif.type === 'system'"
-              [style.animation-delay]="(i * 0.07) + 's'"
-              (click)="markRead(notif.id)"
-              role="listitem">
+          <li class="notif-item" [class.unread]="!notif.read" [class.type--booking]="notif.type === 'booking'"
+            [class.type--weather]="notif.type === 'weather'" [class.type--trek]="notif.type === 'trek'"
+            [class.type--guide]="notif.type === 'guide'" [class.type--offer]="notif.type === 'offer'"
+            [class.type--blog]="notif.type === 'blog'" [class.type--comment]="notif.type === 'comment'"
+            [class.type--system]="notif.type === 'system'" [style.animation-delay]="(i * 0.07) + 's'"
+            (click)="openNotification(notif)" role="listitem">
 
-              <div class="notif-strip" aria-hidden="true"></div>
+            <div class="notif-strip" aria-hidden="true"></div>
 
-          <div class="notif-icon" aria-hidden="true">
-            <span>{{ notif.icon }}</span>
-          </div>
-
-              <div class="notif-body">
-                <div class="notif-top">
-                  <span class="notif-title">{{ notif.title }}</span>
-              <span class="notif-type-tag">{{ notif.typeLabel }}</span>
+            <div class="notif-icon" aria-hidden="true">
+              <span>{{ notif.icon }}</span>
             </div>
-                @if (notif.meta) {
-                  <p class="notif-meta-label">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11">
-                      <path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5S12.5 9.5 12.5 6c0-2.5-2-4.5-4.5-4.5z"/>
-                      <circle cx="8" cy="6" r="1.5"/>
-                    </svg>
-                    {{ notif.meta }}
-                  </p>
-                }
-                <p class="notif-message">{{ notif.message }}</p>
-                <div class="notif-footer">
-              <time class="notif-time" [attr.datetime]="notif.dateIso">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11">
-                  <circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 2" stroke-linecap="round"/>
-                </svg>
-                {{ notif.timeAgo }}
-              </time>
-                  @if (notif.actionLabel) {
-                    <button class="notif-action-btn" (click)="$event.stopPropagation()">
-                      {{ notif.actionLabel }}
-                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
-                        <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </button>
-                  }
-                </div>
+
+            <div class="notif-body">
+              <div class="notif-top">
+                <span class="notif-title">{{ notif.title }}</span>
+                <span class="notif-type-tag">{{ notif.typeLabel }}</span>
               </div>
-
-              <button
-                class="notif-dismiss"
-                [attr.aria-label]="'Dismiss ' + notif.title"
-                (click)="$event.stopPropagation(); dismiss(notif.id)">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+              @if (notif.meta) {
+              <p class="notif-meta-label">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11">
+                  <path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5S12.5 9.5 12.5 6c0-2.5-2-4.5-4.5-4.5z" />
+                  <circle cx="8" cy="6" r="1.5" />
                 </svg>
-              </button>
-
-              @if (!notif.read) {
-                <span class="unread-pip" aria-label="Unread"></span>
+                {{ notif.meta }}
+              </p>
               }
+              <p class="notif-message">{{ notif.message }}</p>
+              <div class="notif-footer">
+                <time class="notif-time" [attr.datetime]="notif.dateIso">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11">
+                    <circle cx="8" cy="8" r="6.5" />
+                    <path d="M8 4.5V8l2.5 2" stroke-linecap="round" />
+                  </svg>
+                  {{ notif.timeAgo }}
+                </time>
+                @if (notif.actionLabel) {
+                <button class="notif-action-btn" (click)="onActionClick($event, notif)">
+                  {{ notif.actionLabel }}
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                }
+              </div>
+            </div>
 
-            </li>
+            <button class="notif-dismiss" [attr.aria-label]="'Dismiss ' + notif.title"
+              (click)="$event.stopPropagation(); dismiss(notif.id)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+              </svg>
+            </button>
+
+            @if (!notif.read) {
+            <span class="unread-pip" aria-label="Unread"></span>
+            }
+
+          </li>
           }
         </ul>
-      }
+        }
 
-      @if (!loading() && !error()) {
+        @if (!loading() && !error()) {
         <footer class="notif-footer-bar">
           <span class="footer-count">
             {{ notifications().length }} update{{ notifications().length !== 1 ? 's' : '' }}
@@ -162,12 +142,13 @@
           <button class="view-all-link">
             Explore all
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-              <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
         </footer>
-      }
+        }
 
-    </section>
-  </div>
+      </section>
+    </div>
+  </app-admin-shell>
 </ion-content>

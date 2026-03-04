@@ -23,7 +23,7 @@
   height: 40px;
   border-radius: 12px;
   border: 1px solid var(--app-border);
-  background: #fff;
+  background: #f1d868;
   display: grid;
   place-items: center;
 }
@@ -50,6 +50,19 @@
 .summary-card p {
   color: var(--app-ink-muted);
   margin: 0;
+}
+
+.trek-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.trek-toolbar .trek-search {
+  margin-bottom: 0;
+  flex: 1;
 }
 
 .trek-search {
@@ -122,6 +135,10 @@
 .trek-location {
   color: var(--app-ink-muted);
   margin: 0;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }
 
 .batch-pills {
@@ -145,6 +162,11 @@
     grid-template-columns: 1fr;
   }
 
+  .trek-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .trek-top {
     align-items: flex-start;
   }
@@ -159,3 +181,4 @@
     padding: 14px;
   }
 }
+

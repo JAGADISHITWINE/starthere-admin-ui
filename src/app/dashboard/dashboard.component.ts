@@ -5,6 +5,9 @@ import { Router, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { Dashboard } from './dashboard';
 import { Chart, registerables } from 'chart.js';
+import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
+import { DropdownManagerService } from '../dropdown-manager/dropdown-manager.service';
+import { take } from 'rxjs';
 
 Chart.register(...registerables);
 
@@ -31,6 +34,7 @@ interface StatCard {
     RouterLink,
     FormsModule,
     ReactiveFormsModule,
+    AdminShellComponent,
   ],
 })
 export class DashboardComponent implements OnInit {
@@ -72,31 +76,45 @@ export class DashboardComponent implements OnInit {
       route: '/admin/batch-management',
       color: 'secondary',
     },
+    {
+      label: 'Operations Center',
+      icon: 'clipboard-data',
+      route: '/admin/operations',
+      color: 'primary',
+    },
   ];
   Total_Blog: any;
   Total_comments: any;
   showAllBookings = false;
   searchQuery = '';
   statusFilter = 'all';
-  pageSize = 8;
+  rowOptions: number[] = [];
+  bookingStatusOptions: Array<{ value: string; label: string }> = [
+    { value: 'all', label: 'All' },
+  ];
+  pageSize = 0;
   currentPage = 1;
 
   constructor(
     private router: Router,
     private dashboardService: Dashboard,
+    private dropdownService: DropdownManagerService,
   ) { }
 
   ngOnInit() {
-    this.dashboardService.getDashData().subscribe((res: any) => {
-      this.Total_users = res.data.totalUsers;
-      this.Total_active_users = res.data.totalactiveUsers;
-      this.Total_trek = res.data.totaltrekCount;
-      this.Total_bookings = res.data.totalbookingCount;
-      this.Total_Revenue = res.data.totalRevenue || 0;
-      this.recentBooking = res.data.recentBookings;
+    this.loadDropdownOptions();
+    this.dashboardService.getDashData().subscribe({
+      next: (res: any) => {
+      const data = res?.data || {};
+      this.Total_users = data.totalUsers || 0;
+      this.Total_active_users = data.totalactiveUsers || 0;
+      this.Total_trek = data.totaltrekCount || 0;
+      this.Total_bookings = data.totalbookingCount || 0;
+      this.Total_Revenue = data.totalRevenue || 0;
+      this.recentBooking = Array.isArray(data.recentBookings) ? data.recentBookings : [];
       this.currentPage = 1;
-      this.Total_Blog = res.data.totalBlog;
-      this.Total_comments = res.data.totalComments;
+      this.Total_Blog = data.totalBlog || 0;
+      this.Total_comments = data.totalComments || 0;
       this.labels = this.recentBooking.map((r: any) => r.month);
       this.bookingsData = this.recentBooking.map((r: any) => r.bookings);
       this.revenueData = this.recentBooking.map((r: any) => r.revenue);
@@ -179,6 +197,34 @@ export class DashboardComponent implements OnInit {
           isCurrency: false,
         },
       ];
+      },
+      error: () => {
+        this.Total_users = 0;
+        this.Total_active_users = 0;
+        this.Total_trek = 0;
+        this.Total_bookings = 0;
+        this.Total_Revenue = 0;
+        this.recentBooking = [];
+      }
+    });
+  }
+
+  private loadDropdownOptions() {
+    this.dropdownService.getGroupOptions('bookingStatus').pipe(take(1)).subscribe((opts) => {
+      if (opts.length === 0) return;
+      this.bookingStatusOptions = [
+        { value: 'all', label: 'All' },
+        ...opts.map((opt) => ({ value: opt.value, label: opt.label })),
+      ];
+    });
+
+    this.dropdownService.getGroupOptions('dashboardRows').pipe(take(1)).subscribe((opts) => {
+      const mapped = opts
+        .map((opt) => Number(opt.value || opt.label))
+        .filter((num) => Number.isFinite(num) && num > 0);
+
+      this.rowOptions = mapped;
+      this.pageSize = mapped[0] || 0;
     });
   }
 
@@ -253,12 +299,14 @@ export class DashboardComponent implements OnInit {
   }
 
   get totalPages() {
-    return Math.max(1, Math.ceil(this.filteredBookings.length / this.pageSize));
+    const size = this.effectivePageSize;
+    return Math.max(1, Math.ceil(this.filteredBookings.length / size));
   }
 
   get pagedBookings() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.filteredBookings.slice(start, start + this.pageSize);
+    const size = this.effectivePageSize;
+    const start = (this.currentPage - 1) * size;
+    return this.filteredBookings.slice(start, start + size);
   }
 
   get pageNumbers() {
@@ -275,6 +323,10 @@ export class DashboardComponent implements OnInit {
 
   nextPage() {
     this.setPage(this.currentPage + 1);
+  }
+
+  private get effectivePageSize() {
+    return this.pageSize > 0 ? this.pageSize : Math.max(1, this.filteredBookings.length);
   }
 
 

@@ -4,9 +4,12 @@ import { IonicModule, ToastController, LoadingController } from '@ionic/angular'
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PostEditor } from '../post-editor';
+import { DropdownManagerService } from 'src/app/dropdown-manager/dropdown-manager.service';
+import { take } from 'rxjs';
+
 
 @Component({
-  selector: 'app-post-editor',
+  selector: 'app-post-editor',  
   templateUrl: './post-editor.component.html',
   styleUrls: ['./post-editor.component.scss'],
   standalone: true,
@@ -23,32 +26,35 @@ export class PostEditorComponent implements OnInit {
   readonly imageBaseUrl = 'http://localhost:4001/';
   existingImageUrl: string | null = null;
 
-  categories = [
-    'Trek Guides',
-    'Tips & Tricks',
-    'Gear Reviews',
-    'Travel Stories',
-    'Safety',
-    'Destinations'
-  ];
+  categories: string[] = [];
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private postEditorService: PostEditor,
+    private dropdownService: DropdownManagerService,
     private toastController: ToastController,
     private loadingController: LoadingController
   ) { }
 
   ngOnInit() {
     this.initForm();
+    this.loadManagedCategories();
 
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.postId = +params['id'];
         this.isEditMode = true;
         this.loadPost(this.postId);
+      }
+    });
+  }
+
+  private loadManagedCategories() {
+    this.dropdownService.getGroupOptions('blogCategory').pipe(take(1)).subscribe((options) => {
+      if (options.length > 0) {
+        this.categories = options.map((o) => o.label);
       }
     });
   }
@@ -60,7 +66,7 @@ export class PostEditorComponent implements OnInit {
       content: ['', Validators.required],
       category: ['', Validators.required],
       tags: this.fb.array([this.createTagControl()]),
-      status: ['draft'],
+      status: ['pending'],
       publishDate: [new Date().toISOString(), Validators.required],
       author: ['Admin', Validators.required]
     });

@@ -1,0 +1,93 @@
+<ion-content class="dropdown-page">
+  <app-admin-shell
+    sectionLabel="Dropdowns"
+    title="Dropdown Manager"
+    subtitle="Add, edit, activate, inactivate, and delete dropdown values used across admin pages.">
+
+    <div class="layout">
+      <section class="surface-card groups-panel">
+        <h3>Dropdown Groups</h3>
+
+        <div class="group-form">
+          <input type="text" placeholder="Group key (example: bookingStatus)" [(ngModel)]="newGroupKey" />
+          <input type="text" placeholder="Group label (example: Booking Status)" [(ngModel)]="newGroupLabel" />
+          <input type="text" placeholder="Page name (example: Bookings)" [(ngModel)]="newGroupPage" />
+          <button class="btn-app" (click)="addGroup()">Create Group</button>
+        </div>
+
+        <div class="groups-list" *ngIf="groups.length > 0">
+          <button
+            class="group-item"
+            *ngFor="let group of groups"
+            [class.active]="group.key === selectedGroupKey"
+            (click)="selectGroup(group.key)">
+            <div class="text-dark">
+              <strong>{{ group.label }}</strong>
+              <p>{{ group.page }}</p>
+            </div>
+            <span>{{ group.options.length }}</span>
+          </button>
+        </div>
+        <p class="empty" *ngIf="groups.length === 0">Create your first dropdown group to start managing values.</p>
+      </section>
+
+      <section class="surface-card editor-panel" *ngIf="selectedGroup as group">
+        <div class="panel-head">
+          <div>
+            <h3>{{ group.label }}</h3>
+            <p>{{ group.page }}</p>
+          </div>
+        </div>
+
+        <div class="add-row">
+          <input
+            type="text"
+            placeholder="Add new option..."
+            [(ngModel)]="newOptionLabel"
+            (keyup.enter)="addOption()" />
+          <button class="btn-app" (click)="addOption()">Add</button>
+        </div>
+
+        <div class="table-wrap" *ngIf="group.options.length > 0">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let option of group.options">
+                <td>
+                  <ng-container *ngIf="editingOptionId !== option.id; else editTpl">
+                    {{ option.label }}
+                  </ng-container>
+                  <ng-template #editTpl>
+                    <input type="text" [(ngModel)]="editingLabel" />
+                  </ng-template>
+                </td>
+                <td>
+                  <span class="status-pill" [ngClass]="'status-' + option.status">
+                    {{ option.status }}
+                  </span>
+                </td>
+                <td class="actions">
+                  <button class="btn-app bg-warning" *ngIf="editingOptionId !== option.id" (click)="startEdit(option)">Edit</button>
+                  <button class="btn-app" *ngIf="editingOptionId === option.id" (click)="saveEdit(option)">Save</button>
+                  <button class="btn-app ghost" *ngIf="editingOptionId === option.id" (click)="cancelEdit()">Cancel</button>
+                  <button class="btn-app" (click)="toggleStatus(option)">
+                    {{ option.status === 'active' ? 'Inactivate' : 'Activate' }}
+                  </button>
+                  <button class="btn-app bg-danger" (click)="deleteOption(option)">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="empty" *ngIf="group.options.length === 0">No options available for this group.</p>
+      </section>
+    </div>
+  </app-admin-shell>
+</ion-content>

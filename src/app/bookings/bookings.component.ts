@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Bookings } from './bookings';
-import { RouterLink } from '@angular/router';
+import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
+import { DropdownManagerService } from '../dropdown-manager/dropdown-manager.service';
+import { take } from 'rxjs';
 
 interface Booking {
   id: number;
@@ -24,7 +26,7 @@ interface Booking {
   templateUrl: './bookings.component.html',
   styleUrls: ['./bookings.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterLink]
+  imports: [IonicModule, CommonModule, FormsModule, AdminShellComponent]
 })
 export class BookingsComponent implements OnInit {
   searchQuery = '';
@@ -32,9 +34,13 @@ export class BookingsComponent implements OnInit {
   bookings: any = [];
   startDate: string = '';
   endDate: string = '';
-  constructor(private bookingService: Bookings) { }
+  constructor(
+    private bookingService: Bookings,
+    private dropdownService: DropdownManagerService
+  ) { }
 
   ngOnInit() {
+    this.loadDropdownOptions();
     this.bookingService.getBookingData().subscribe((res: any) => {
       if (res.success == true) {
         this.bookings = res.data
@@ -43,11 +49,18 @@ export class BookingsComponent implements OnInit {
   }
 
   statusOptions = [
-    { value: 'all', label: 'All' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'cancelled', label: 'Cancelled' }
+    { value: 'all', label: 'All' }
   ];
+
+  private loadDropdownOptions() {
+    this.dropdownService.getGroupOptions('bookingStatus').pipe(take(1)).subscribe((opts) => {
+      if (opts.length === 0) return;
+      this.statusOptions = [
+        { value: 'all', label: 'All' },
+        ...opts.map((opt) => ({ value: opt.value, label: opt.label }))
+      ];
+    });
+  }
 
 
 

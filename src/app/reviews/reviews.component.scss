@@ -31,6 +31,24 @@
 .review-summary {
   color: var(--app-ink-muted);
   margin: 10px 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.review-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.review-filters select {
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: #fff;
+  padding: 6px 10px;
 }
 
 .reviews-grid {
@@ -103,8 +121,34 @@
 }
 
 .review-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   color: var(--app-ink-muted);
   font-size: 0.9rem;
+}
+
+.status-pill {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background: rgba(231, 178, 59, 0.22);
+  color: #8a5f00;
+}
+
+.status-approved {
+  background: rgba(47, 157, 106, 0.18);
+  color: var(--ion-color-success);
+}
+
+.status-rejected {
+  background: rgba(222, 91, 66, 0.2);
+  color: var(--ion-color-danger);
 }
 
 @media (max-width: 768px) {

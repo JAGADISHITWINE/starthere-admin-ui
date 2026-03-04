@@ -24,4 +24,12 @@ export class NotificationsService {
       })
     );
   }
+
+  markAllRead(): Observable<any> {
+    return this.http.post(`${this.API}/notifications/read-all`, {});
+  }
+
+  markRead(id: string): Observable<any> {
+    return this.http.post(`${this.API}/notifications/read`, { id });
+  }
 }

@@ -1,26 +1,9 @@
 <ion-content class="dash-page">
-  <header class="dash-top">
-    <div class="app-shell">
-      <div class="top-row">
-        <div>
-          <span class="pill">Admin Suite</span>
-          <h1 class="page-title">Dashboard Overview</h1>
-          <p class="page-subtitle">Real-time snapshots of treks, bookings, and operations.</p>
-        </div>
-        <div class="top-actions">
-          <button class="icon-btn" routerLink="/admin/notifications" aria-label="Notifications">
-            <i class="bi bi-bell"></i>
-            <span class="notif-count">5</span>
-          </button>
-          <button class="icon-btn" (click)="logout()" aria-label="Sign out">
-            <i class="bi bi-box-arrow-right"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
+  <app-admin-shell
+    sectionLabel="Overview"
+    title="Dashboard"
+    subtitle="Real-time snapshots of treks, bookings, and operations.">
 
-  <div class="app-shell">
     <section class="stats-grid">
       <div class="stat-card" *ngFor="let stat of stats" [class.disabled]="stat.disabled"
         [attr.aria-disabled]="stat.disabled" role="button" (click)="onCardClick(stat)">
@@ -61,11 +44,10 @@
           <p>Track the latest activity across treks.</p>
         </div>
         <div class="d-flex justify-content-end align-items-center">
-                    <button class="btn-app ghost " (click)="toggleViewAll()">
-          {{ showAllBookings ? 'Hide' : 'View all' }}
-        </button>
+          <button class="btn-app ghost " (click)="toggleViewAll()">
+            {{ showAllBookings ? 'Hide' : 'View all' }}
+          </button>
         </div>
-
       </div>
 
       <div class="table-wrap">
@@ -133,18 +115,15 @@
           <div class="filter-group">
             <label>Status</label>
             <select [(ngModel)]="statusFilter">
-              <option value="all">All</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending">Pending</option>
-              <option value="cancelled">Cancelled</option>
+              <option *ngFor="let opt of bookingStatusOptions" [value]="opt.value">
+                {{ opt.label }}
+              </option>
             </select>
           </div>
           <div class="filter-group">
             <label>Rows</label>
             <select [(ngModel)]="pageSize">
-              <option [value]="5">5</option>
-              <option [value]="8">8</option>
-              <option [value]="12">12</option>
+              <option *ngFor="let size of rowOptions" [ngValue]="size">{{ size }}</option>
             </select>
           </div>
         </div>
@@ -197,7 +176,7 @@
         </div>
       </div>
     </section>
-  </div>
+  </app-admin-shell>
 </ion-content>
 
 <!-- Modal -->

@@ -4,18 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
 import { TrekBatchManagement } from './trek-batch-management';
 import { Subscription } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { WebSocketService } from '../services/websocket.service';
+import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
 
 @Component({
   selector: 'app-trek-batch-management',
   templateUrl: './trek-batch-management.component.html',
   styleUrls: ['./trek-batch-management.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, RouterLink]
+  imports: [CommonModule, IonicModule, RouterLink, AdminShellComponent]
 })
 export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
   private updateSubscription = new Subscription();
+  private autoCompleting = false;
 
   treks: any[] = [];
   selectedTrek: any = null;
@@ -30,6 +33,7 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
   showBatchesModal = false;
   showBookingsModal = false;
   completionStats: any = null;
+  batchActionLoadingId: number | null = null;
 
   constructor(private trekMgmtService: TrekBatchManagement, private wsService: WebSocketService) { }
 
@@ -54,7 +58,8 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
     this.trekMgmtService.getTreks().subscribe({
       next: (response) => {
         if (response.success == true) {
-          this.treks = response.data;
+          const rows = Array.isArray(response.data) ? response.data : [];
+          this.treks = rows.filter((trek: any) => this.shouldShowTrek(trek));
         }
         this.isLoadingTreks = false;
       },
@@ -76,7 +81,12 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
     this.trekMgmtService.getBatches(trek.id).subscribe({
       next: (response) => {
         if (response.success == true) {
-          this.batches = response.data;
+          const rows = Array.isArray(response.data) ? response.data : [];
+          this.batches = rows.filter((batch: any) => {
+            const status = String(batch?.status || '').toLowerCase();
+            return status === 'active' || status === 'inactive';
+          });
+          this.autoCompleteEndedBatches();
         }
         this.isLoadingBatches = false;
       },
@@ -98,12 +108,9 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
     this.trekMgmtService.getBatchBookings(batch.id).subscribe({
       next: (response) => {
-        if (response.success == true) {
-          this.bookings = response.data.map((booking: any) => ({
-            ...booking,
-            expanded: false // Initialize expanded state
-          }));
-        }
+        console.log('Raw bookings response:', response);
+        const rows = this.extractBookingRows(response);
+        this.bookings = rows.map((booking: any) => this.normalizeBookingRow(booking));
         this.isLoadingBookings = false;
       },
       error: (error) => {
@@ -125,21 +132,33 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
    * Stop booking for a batch
    */
   stopBooking(batch: any) {
-    if (!confirm(`Are you sure you want to stop bookings for this batch?\n\nTrek: ${this.selectedTrek.name}\nDate: ${new Date(batch.start_date).toLocaleDateString()}`)) {
+    if (this.batchActionLoadingId === Number(batch?.id)) return;
+
+    if (!confirm('Are you sure you want to stop bookings for this batch?\n\nTrek: ' + this.selectedTrek.name + '\nDate: ' + new Date(batch.start_date).toLocaleDateString())) {
       return;
     }
 
-    this.trekMgmtService.stopBooking(batch.id).subscribe({
+    this.batchActionLoadingId = Number(batch.id);
+
+    this.trekMgmtService.stopBooking(batch.id).pipe(
+      finalize(() => {
+        this.batchActionLoadingId = null;
+      })
+    ).subscribe({
       next: (response) => {
-        if (response.success == true) {
+        if (response?.success === true) {
           alert('Booking stopped successfully!');
-          batch.status = 'inactive';
-          this.viewBatches(this.selectedTrek);
+          const nextStatus = String(response?.batch?.status || 'inactive').toLowerCase();
+          batch.status = nextStatus;
+          this.batches = [...this.batches];
+          this.loadTreks();
+          return;
         }
+        alert(response?.message || 'Failed to stop booking');
       },
       error: (error) => {
         console.error('Stop booking error:', error);
-        alert('Failed to stop booking');
+        alert(error?.error?.message || 'Failed to stop booking');
       }
     });
   }
@@ -148,23 +167,39 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
    * Resume booking for a batch
    */
   resumeBooking(batch: any) {
-    if (!confirm(`Resume bookings for this batch?\n\nTrek: ${this.selectedTrek.name}\nDate: ${new Date(batch.start_date).toLocaleDateString()}`)) {
+    if (this.batchActionLoadingId === Number(batch?.id)) return;
+
+    if (!confirm('Resume bookings for this batch?\n\nTrek: ' + this.selectedTrek.name + '\nDate: ' + new Date(batch.start_date).toLocaleDateString())) {
       return;
     }
 
-    this.trekMgmtService.resumeBooking(batch.id).subscribe({
+    this.batchActionLoadingId = Number(batch.id);
+
+    this.trekMgmtService.resumeBooking(batch.id).pipe(
+      finalize(() => {
+        this.batchActionLoadingId = null;
+      })
+    ).subscribe({
       next: (response) => {
-        if (response.success == true) {
+        if (response?.success === true) {
           alert('Booking resumed successfully!');
-          batch.status = 'active';
-          this.viewBatches(this.selectedTrek);
+          const nextStatus = String(response?.batch?.status || 'active').toLowerCase();
+          batch.status = nextStatus;
+          this.batches = [...this.batches];
+          this.loadTreks();
+          return;
         }
+        alert(response?.message || 'Failed to resume booking');
       },
       error: (error) => {
         console.error('Resume booking error:', error);
-        alert('Failed to resume booking');
+        alert(error?.error?.message || 'Failed to resume booking');
       }
     });
+  }
+
+  isBatchActionLoading(batch: any): boolean {
+    return this.batchActionLoadingId === Number(batch?.id);
   }
 
   /**
@@ -362,5 +397,149 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
         alert('Failed to mark batch as completed');
       }
     });
+  }
+
+  private autoCompleteEndedBatches(): void {
+    if (this.autoCompleting || !Array.isArray(this.batches) || this.batches.length === 0) {
+      return;
+    }
+
+    const endedBatches = this.batches.filter(
+      (batch) => this.isBatchEnded(batch) && this.isAutoCompletableStatus(batch.status)
+    );
+
+    if (endedBatches.length === 0) {
+      return;
+    }
+
+    this.autoCompleting = true;
+    const requests = endedBatches.map((batch) =>
+      this.trekMgmtService.markBatchCompleted(batch.id).pipe(catchError(() => of(null)))
+    );
+
+    forkJoin(requests).subscribe({
+      next: (responses: any[]) => {
+        let hasChanges = false;
+        responses.forEach((res, idx) => {
+          if (res?.success) {
+            endedBatches[idx].status = 'completed';
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          this.loadCompletionStats();
+        }
+      },
+      complete: () => {
+        this.autoCompleting = false;
+      }
+    });
+  }
+
+  private isAutoCompletableStatus(status: string): boolean {
+    const current = String(status || '').toLowerCase();
+    return current === 'active' || current === 'inactive' || current === 'full';
+  }
+
+  private shouldShowTrek(trek: any): boolean {
+    const totalBatches = Number(trek?.total_batches || 0);
+    return totalBatches > 0;
+  }
+
+  private extractBookingRows(response: any): any[] {
+    const data = response?.data;
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.bookings)) return data.bookings;
+    if (Array.isArray(response?.results)) return response.results;
+    if (Array.isArray(response?.bookings)) return response.bookings;
+    return [];
+  }
+
+  private normalizeBookingRow(booking: any): any {
+    const totalParticipants = Number(
+      booking?.total_participants ??
+      booking?.participants_count ??
+      booking?.participants ??
+      0
+    );
+    const participants = this.normalizeParticipants(booking);
+
+    return {
+      ...booking,
+      booking_id: booking?.booking_id || booking?.booking_reference || booking?.bookingReference || `BK-${booking?.id ?? '-'}`,
+      name: booking?.name || booking?.customer_name || booking?.customerName || '-',
+      email: booking?.email || booking?.customer_email || booking?.customerEmail || '-',
+      phone: booking?.phone || booking?.customer_phone || booking?.customerPhone || '-',
+      total_participants: totalParticipants,
+      total_amount: Number(booking?.total_amount ?? booking?.amount ?? booking?.subtotal ?? 0),
+      payment_status: booking?.payment_status || booking?.paymentStatus || 'pending',
+      participants,
+      expanded: false,
+    };
+  }
+
+  private normalizeParticipants(booking: any): any[] {
+    const sources = [
+      booking?.participants,
+      booking?.participant_details,
+      booking?.participant_data,
+      booking?.participants_data,
+      booking?.booking_participants,
+      booking?.participants_json,
+      booking?.participant_list,
+    ];
+
+    const parsedRows: any[] = [];
+    sources.forEach((source) => {
+      const rows = this.parseParticipantsSource(source);
+      rows.forEach((row) => {
+        parsedRows.push({
+          name: row?.name || row?.full_name || row?.participant_name || '-',
+          age: row?.age ?? '-',
+          gender: row?.gender || '-',
+          phone: row?.phone || row?.phone_number || '-',
+          idType: row?.id_type || row?.idType || '-',
+          idNumber: row?.id_number || row?.idNumber || '-',
+          medicalInfo: row?.medical_info || row?.medicalInfo || '-',
+          isPrimary: !!(row?.is_primary_contact ?? row?.isPrimary),
+        });
+      });
+    });
+
+    if (parsedRows.length > 0) {
+      return parsedRows;
+    }
+
+    // Fallback to primary contact details when participant rows are missing.
+    const fallbackName = booking?.name || booking?.customer_name || booking?.customerName;
+    if (fallbackName) {
+      return [{
+        name: fallbackName,
+        age: booking?.age ?? '-',
+        gender: booking?.gender || '-',
+        phone: booking?.phone || booking?.customer_phone || booking?.customerPhone || '-',
+        idType: booking?.id_type || '-',
+        idNumber: booking?.id_number || '-',
+        medicalInfo: booking?.medical_info || '-',
+        isPrimary: true,
+      }];
+    }
+
+    return [];
+  }
+
+  private parseParticipantsSource(source: any): any[] {
+    if (Array.isArray(source)) {
+      return source;
+    }
+    if (typeof source === 'string') {
+      try {
+        const parsed = JSON.parse(source);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
   }
 }

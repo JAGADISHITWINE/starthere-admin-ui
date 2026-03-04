@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { EncryptionService } from '../services/encryption.service';
 
 export interface Post {
   id?: number;
@@ -17,7 +18,7 @@ export interface Post {
   featuredImage?: string;
   featured_image?: string;
   tags: string[];
-  status: 'draft' | 'published' | 'scheduled';
+  status: 'draft' | 'published' | 'scheduled' | 'pending' | 'rejected';
   views?: number;
   publishDate: string;
   published_at?: string;
@@ -31,16 +32,29 @@ export interface Post {
 export class PostEditor {
   private API = environment.baseUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private crypto: EncryptionService) {}
+
 
   // Get single post by ID
   getPost(id: number): Observable<Post> {
-    return this.http.get<Post>(`${this.API}/postEditor/${id}`);
+    return this.http.get<any>(`${this.API}/postEditor/${id}`).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted
+        };
+      })
+    );
   }
 
   // Get all posts
   getAllPosts(): Observable<Post[]> {
-    return this.http.get<Post[]>(`${this.API}/postEditor`);
+    return this.http.get<any>(`${this.API}/postEditor`).pipe(
+      map((res: any) => {
+        return this.crypto.decrypt(res.data); // no JSON.parse
+      })
+    );
   }
 
   // Create new post with FormData
@@ -69,6 +83,6 @@ export class PostEditor {
 
   // Get categories
   getCategories(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.API}/categories`);
+    return this.http.get<any>(`${this.API}/categories`)
   }
 }

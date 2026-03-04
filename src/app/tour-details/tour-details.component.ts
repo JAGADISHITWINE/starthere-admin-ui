@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { TourDetails } from './tour-details';
+import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
 
 
 interface Activity {
@@ -81,7 +82,7 @@ interface MappedTour {
   templateUrl: './tour-details.component.html',
   styleUrls: ['./tour-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, RouterLink, AdminShellComponent],
 })
 export class TourDetailsComponent implements OnInit {
   tour: MappedTour | null = null;

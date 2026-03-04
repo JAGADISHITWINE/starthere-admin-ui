@@ -1,17 +1,8 @@
 <ion-content class="bookings-page">
-  <div class="app-shell">
-    <div class="page-header bookings-header">
-      <div>
-        <div class="crumb">
-          <button class="icon-btn" routerLink="/admin/dashboard" aria-label="Back">
-            <i class="bi bi-arrow-left text-dark"></i>
-          </button>
-          <span>Bookings</span>
-        </div>
-        <h1 class="page-title">Manage Bookings</h1>
-        <p class="page-subtitle">Track trek reservations, payments, and status updates.</p>
-      </div>
-    </div>
+  <app-admin-shell
+    sectionLabel="Bookings"
+    title="Manage Bookings"
+    subtitle="Track trek reservations, payments, and status updates.">
 
     <div class="filters">
       <div class="filter-group">
@@ -64,5 +55,5 @@
     <p *ngIf="filteredBookings.length === 0" class="empty">
       No bookings found. Try adjusting your filters.
     </p>
-  </div>
+  </app-admin-shell>
 </ion-content>

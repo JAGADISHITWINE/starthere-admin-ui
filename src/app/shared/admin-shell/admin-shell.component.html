@@ -1,0 +1,59 @@
+<div class="admin-shell" [class.mobile-nav-open]="isMobileMenuOpen">
+  <aside class="admin-sidebar">
+    <div class="brand-block">
+      <img src="/assets/assets/logo.png" alt="goWILD™ Karunadu Admin" class="brand-logo" />
+      <div class="brand-text">
+        <p>goWILD™ Karunadu Admin</p>
+        <small>Operations Console</small>
+      </div>
+    </div>
+
+    <nav class="admin-nav" aria-label="Primary">
+      <a
+        *ngFor="let item of visibleNavItems"
+        [routerLink]="item.route"
+        (click)="closeMobileMenu()"
+        class="nav-item"
+        [class.active]="isRouteActive(item.route)">
+        <i class="bi" [ngClass]="'bi-' + item.icon"></i>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <button type="button" class="nav-item sign-out" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Sign out</span>
+    </button>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-header page-header">
+      <button type="button" class="menu-btn" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <div>
+        <span class="pill">{{ sectionLabel }}</span>
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="page-subtitle">{{ subtitle }}</p>
+      </div>
+      <button type="button" class="icon-btn notif-btn" (click)="openNotifications()" aria-label="Notifications">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge">
+          {{ unreadNotifications > 99 ? '99+' : unreadNotifications }}
+        </span>
+      </button>
+    </header>
+
+    <main class="admin-content">
+      <ng-content></ng-content>
+    </main>
+  </div>
+
+  <button
+    type="button"
+    class="mobile-overlay"
+    *ngIf="isMobileMenuOpen"
+    (click)="closeMobileMenu()"
+    aria-label="Close menu">
+  </button>
+</div>

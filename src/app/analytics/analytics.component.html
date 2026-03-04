@@ -1,29 +1,22 @@
 <ion-content class="analytics-page">
+<app-admin-shell
+    sectionLabel="Revenue"
+    title="Revenue Reports"
+    subtitle="Track earnings, booking performance, and trek-wise contribution in real time.">
+
   <div class="app-shell">
-    <div class="page-header analytics-header">
-      <div class="crumb">
-        <button class="icon-btn" routerLink="/admin/dashboard" aria-label="Back">
-          <i class="bi bi-arrow-left text-dark"></i>
-        </button>
-        <span>Revenue</span>
-      </div>
-      <div class="header-row">
-        <div>
-          <h1 class="page-title">Revenue Reports</h1>
-          <p class="page-subtitle">Track bookings performance and monthly growth.</p>
-        </div>
-        <button class="btn-app ghost" (click)="exportReport()">
-          <i class="bi bi-download"></i>
-          Export report
-        </button>
-      </div>
+    <div class="header-row mb-3 d-flex justify-content-end">
+      <button class="btn-app ghost" (click)="exportReport()">
+        <i class="bi bi-download"></i>
+        Export report
+      </button>
     </div>
 
     <section class="summary-section">
       <div class="revenue-card">
         <div>
           <h3>Total Revenue</h3>
-          <span class="pill">{{ monthlyGrowth }}</span>
+          <span class="pill">{{ monthlyGrowthLabel }}</span>
         </div>
         <div class="revenue-amount">₹{{ totalRevenue | number }}</div>
       </div>
@@ -91,4 +84,5 @@
       </div>
     </section>
   </div>
+    </app-admin-shell>
 </ion-content>

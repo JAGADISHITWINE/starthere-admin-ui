@@ -1,0 +1,266 @@
+<ion-content class="ops-page">
+  <app-admin-shell
+    sectionLabel="Operations"
+    title="Trek & Tour Control Center"
+    subtitle="Run inventory, batches, finance, CRM, content, and reporting from one professional admin workspace.">
+
+    <section class="health-card soft-card">
+      <div>
+        <h3>Backend Connectivity Check</h3>
+        <p *ngIf="lastSyncedAt">Last sync: {{ lastSyncedAt }}</p>
+        <p *ngIf="errorMessage" class="error-text">{{ errorMessage }}</p>
+      </div>
+      <button class="btn-app" (click)="loadOperationsData()" [disabled]="loading">
+        {{ loading ? 'Syncing...' : 'Refresh Sync' }}
+      </button>
+    </section>
+
+    <section class="checks-grid" *ngIf="apiChecks.length">
+      <article class="check-chip" *ngFor="let c of apiChecks" [class.ok]="c.ok" [class.fail]="!c.ok">
+        <span>{{ c.name }}</span>
+        <strong>{{ c.ok ? 'Connected' : 'Failed' }}</strong>
+      </article>
+    </section>
+
+    <section class="kpi-grid">
+      <article class="kpi-card">
+        <p>Failed Payments</p>
+        <h3>{{ failedPayments }}</h3>
+      </article>
+      <article class="kpi-card">
+        <p>Compliance Completion</p>
+        <h3>{{ complianceCompletion }}%</h3>
+      </article>
+      <article class="kpi-card">
+        <p>Open Support Tickets</p>
+        <h3>{{ openTicketCount }}</h3>
+      </article>
+      <article class="kpi-card">
+        <p>Total Revenue</p>
+        <h3>₹{{ totalRevenue }}</h3>
+      </article>
+      <article class="kpi-card">
+        <p>Total Bookings</p>
+        <h3>{{ totalBookings }}</h3>
+      </article>
+      <article class="kpi-card">
+        <p>Total Users</p>
+        <h3>{{ totalUsers }}</h3>
+      </article>
+    </section>
+
+    <section class="ops-section surface-card">
+      <div class="section-head">
+        <h2>Role-Based Access Control</h2>
+        <button
+          *ngIf="canEditPermissions"
+          class="btn-app"
+          [disabled]="isSavingPermissions"
+          (click)="savePermissions()">
+          {{ isSavingPermissions ? 'Saving...' : 'Save Permissions' }}
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Dashboard</th>
+              <th>Bookings</th>
+              <th>Finance</th>
+              <th>Content</th>
+              <th>Settings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of permissions">
+              <td>{{ row.role }}</td>
+              <td><input type="checkbox" [(ngModel)]="row.dashboard" [disabled]="!canEditPermissions" /></td>
+              <td><input type="checkbox" [(ngModel)]="row.bookings" [disabled]="!canEditPermissions" /></td>
+              <td><input type="checkbox" [(ngModel)]="row.finance" [disabled]="!canEditPermissions" /></td>
+              <td><input type="checkbox" [(ngModel)]="row.content" [disabled]="!canEditPermissions" /></td>
+              <td><input type="checkbox" [(ngModel)]="row.settings" [disabled]="!canEditPermissions" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="ops-section surface-card" *ngIf="canEditPermissions">
+      <div class="section-head">
+        <h2>Create Admin User</h2>
+      </div>
+
+      <div class="table-wrap" style="padding: 12px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;justify-content: end;
+">
+          <label>
+            <span>Name</span>
+            <input class="form-control" type="text" [(ngModel)]="newAdminForm.name" placeholder="Admin name" />
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input class="form-control" type="email" [(ngModel)]="newAdminForm.email" placeholder="admin@company.com" />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <div style="position:relative;">
+              <input
+                class="form-control"
+                [type]="showCreateAdminPassword ? 'text' : 'password'"
+                [(ngModel)]="newAdminForm.password"
+                placeholder="Minimum 8 characters"
+                style="padding-right:42px;" />
+              <button
+                type="button"
+                (click)="showCreateAdminPassword = !showCreateAdminPassword"
+                [attr.aria-label]="showCreateAdminPassword ? 'Hide password' : 'Show password'"
+                style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:transparent;padding:0;line-height:1;cursor:pointer;">
+                <i class="bi" [ngClass]="showCreateAdminPassword ? 'bi-eye-slash text-dark' : 'bi-eye text-dark'"></i>
+              </button>
+            </div>
+          </label>
+
+          <label>
+            <span>Role</span>
+            <select class="form-select" [(ngModel)]="newAdminForm.roleKey">
+              <option *ngFor="let roleRow of permissions" [value]="roleRow.roleKey">{{ roleRow.role }}</option>
+            </select>
+          </label>
+        </div>
+
+        <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button class="btn-app" (click)="createAdminUser()" [disabled]="createAdminLoading">
+            {{ createAdminLoading ? 'Creating...' : 'Create Admin' }}
+          </button>
+
+          <span *ngIf="createAdminMessage" style="color:#166534;">{{ createAdminMessage }}</span>
+          <span *ngIf="createAdminError" style="color:#b91c1c;">{{ createAdminError }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="ops-grid">
+      <article class="surface-card panel">
+        <h3>Trek Inventory & Pricing</h3>
+        <div class="list" *ngFor="let item of trekInventory">
+          <div>
+            <strong>{{ item.trek }}</strong>
+            <p>Seats: {{ item.seats }} | Waitlist: {{ item.waitlist }} | Seasonal x{{ item.seasonMultiplier }}</p>
+          </div>
+          <span class="pill">₹{{ item.basePrice }}</span>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Batch Lifecycle</h3>
+        <div class="list" *ngFor="let batch of batchLifecycle">
+          <div>
+            <strong>{{ batch.code }}</strong>
+            <p>{{ batch.phase }} | Cutoff: {{ batch.cutoff }}</p>
+          </div>
+          <span class="pill">{{ batch.action }}</span>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Guide & Vendor Management</h3>
+        <div class="list" *ngFor="let gv of guideVendors">
+          <div>
+            <strong>{{ gv.name }}</strong>
+            <p>{{ gv.type }} | {{ gv.assignment }} | Score {{ gv.score }}</p>
+          </div>
+          <span class="pill">₹{{ gv.payoutDue }}</span>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Customer CRM & Support</h3>
+        <div class="list" *ngFor="let t of supportTickets">
+          <div>
+            <strong>{{ t.customer }}</strong>
+            <p>{{ t.issue }}</p>
+          </div>
+          <span class="pill">{{ t.priority }} · {{ t.status }}</span>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Payment Operations</h3>
+        <div class="list" *ngFor="let p of paymentOps">
+          <div>
+            <strong>{{ p.bookingId }} · ₹{{ p.amount }}</strong>
+            <p>{{ p.mode }} | {{ p.status }}</p>
+          </div>
+          <span class="pill">{{ p.reconcile }}</span>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Document Compliance</h3>
+        <div class="list" *ngFor="let d of complianceDocs">
+          <div>
+            <strong>{{ d.bookingId }}</strong>
+            <p>Waiver: {{ d.waiver ? 'Yes' : 'No' }} | ID: {{ d.idProof ? 'Yes' : 'No' }} | Medical: {{ d.medical ? 'Yes' : 'No' }}</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Transport & Logistics</h3>
+        <div class="list" *ngFor="let l of logistics">
+          <div>
+            <strong>{{ l.route }}</strong>
+            <p>{{ l.vehicle }} | Pickup points: {{ l.pickupPoints }}</p>
+          </div>
+          <span class="pill">Manifest: {{ l.manifest }}</span>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Review Moderation</h3>
+        <div class="list" *ngFor="let r of reviewQueue">
+          <div>
+            <strong>{{ r.author }} · {{ r.trek }}</strong>
+            <p>Sentiment: {{ r.sentiment }}</p>
+          </div>
+          <span class="pill">{{ r.state }}</span>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Notification Center</h3>
+        <div class="list" *ngFor="let n of notificationTemplates">
+          <div>
+            <strong>{{ n.template }}</strong>
+            <p>{{ n.channel }}</p>
+          </div>
+          <span class="pill">Delivery {{ n.deliveryRate }}</span>
+        </div>
+      </article>
+
+      <article class="surface-card panel">
+        <h3>Reports & Exports</h3>
+        <div class="list" *ngFor="let report of reports">
+          <div>
+            <strong>{{ report.name }}</strong>
+            <p>Last: {{ report.lastGenerated }}</p>
+          </div>
+          <button class="btn-app" (click)="exportReport(report)">Export {{ report.format }}</button>
+        </div>
+      </article>
+
+      <article class="surface-card panel full-width">
+        <h3>Audit Log</h3>
+        <div class="list" *ngFor="let log of auditLogs">
+          <div>
+            <strong>{{ log.when }} · {{ log.actor }}</strong>
+            <p>{{ log.action }}</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </app-admin-shell>
+</ion-content>

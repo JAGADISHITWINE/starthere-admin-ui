@@ -325,6 +325,105 @@
   margin: 12px 0;
 }
 
+.custom-back-btn {
+  --color: var(--app-ink);
+  font-weight: 600;
+}
+
+.detail-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.da-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.da-btn:hover {
+  transform: translateY(-1px);
+}
+
+.da-btn.success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.da-btn.danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.no-bookings {
+  background: #fff;
+  border: 1px dashed var(--app-border);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  color: var(--app-ink-muted);
+}
+
+.booking-card {
+  background: #fff;
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--app-shadow-soft);
+  display: grid;
+  gap: 10px;
+}
+
+.bc-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.bc-ref {
+  display: inline-flex;
+  font-size: 0.78rem;
+  color: var(--app-ink-muted);
+  background: var(--app-surface-2);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.bc-name {
+  margin: 6px 0 0;
+  font-size: 1rem;
+}
+
+.bc-pills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.bc-pill {
+  background: #f8f5ef;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--app-ink);
+}
+
 @media (max-width: 768px) {
   .search-row {
     flex-wrap: wrap;
@@ -347,6 +446,20 @@
   .hero-inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .bc-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-actions {
+    flex-direction: column;
+  }
+
+  .da-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

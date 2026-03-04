@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Reviews } from './reviews';
-import { RouterLink } from '@angular/router';
+import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
+import { DropdownManagerService } from '../dropdown-manager/dropdown-manager.service';
+import { take } from 'rxjs';
 
 interface Review {
   id: number;
@@ -13,6 +15,7 @@ interface Review {
   comment: string;
   date: string;
   avatar: string;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 @Component({
@@ -20,18 +23,32 @@ interface Review {
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterLink],
+  imports: [IonicModule, CommonModule, FormsModule, AdminShellComponent],
 })
 export class ReviewsComponent implements OnInit {
 
   searchQuery: string = '';
+  selectedStatus: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
+  reviewStatusOptions: string[] = [];
   reviews: Review[] = [];
   loading: boolean = false;
 
-  constructor(private reviewService: Reviews) {}
+  constructor(
+    private reviewService: Reviews,
+    private dropdownService: DropdownManagerService
+  ) {}
 
   ngOnInit() {
+    this.loadDropdownOptions();
     this.loadReviews();
+  }
+
+  private loadDropdownOptions() {
+    this.dropdownService.getGroupOptions('reviewStatus').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) {
+        this.reviewStatusOptions = opts.map((opt) => opt.value) as Array<'pending' | 'approved' | 'rejected'>;
+      }
+    });
   }
 
   loadReviews() {
@@ -60,12 +77,17 @@ export class ReviewsComponent implements OnInit {
       likes: item.likes,
       comment: item.comment,
       date: item.comment_date,
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.author_name)}&size=100`
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.author_name)}&size=100`,
+      status: (item.status || item.review_status || 'pending') as 'pending' | 'approved' | 'rejected'
     }));
   }
 
   get filteredReviews(): Review[] {
     let filtered = this.reviews;
+
+    if (this.selectedStatus !== 'all') {
+      filtered = filtered.filter(r => r.status === this.selectedStatus);
+    }
 
     if (this.searchQuery.trim()) {
       const query = this.searchQuery.toLowerCase();
@@ -77,5 +99,18 @@ export class ReviewsComponent implements OnInit {
     }
 
     return filtered;
+  }
+
+  updateReviewStatus(review: Review, status: 'approved' | 'rejected') {
+    this.reviewService.updateReviewStatus(review.id, status).subscribe({
+      next: () => {
+        this.reviews = this.reviews.map((item) =>
+          item.id === review.id ? { ...item, status } : item
+        );
+      },
+      error: (err) => {
+        console.error(`Failed to ${status} review:`, err);
+      }
+    });
   }
 }

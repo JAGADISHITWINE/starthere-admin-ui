@@ -1,0 +1,62 @@
+.coupon-page {
+  --bg: #f4f6fb;
+}
+
+.coupon-form-card,
+.coupon-list-card {
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+label span {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: #4b5563;
+}
+
+.actions-row {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ok {
+  color: #166534;
+}
+
+.err {
+  color: #b91c1c;
+}
+
+.list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.table-wrap {
+  overflow: auto;
+}

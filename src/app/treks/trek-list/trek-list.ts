@@ -8,20 +8,23 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class TrekList {
-    private API = `${environment.baseUrl}`;
+  private API = `${environment.baseUrl}`;
 
-    constructor(private http: HttpClient, private crypto: EncryptionService) {}
+  constructor(private http: HttpClient, private crypto: EncryptionService) {}
 
+  getAllTreks(forceRefresh: boolean = false) {
+    const url = forceRefresh
+      ? `${this.API}/getAllTreks?_t=${Date.now()}`
+      : `${this.API}/getAllTreks`;
 
-    getAllTreks() {
-        return this.http.get<{ payload: string }>(`${this.API}/getAllTreks`).pipe(
-          map((res: any) => {
-            const decrypted = this.crypto.decrypt(res.data);
-            return {
-              ...res,
-              data: decrypted
-            };
-          })
-        )
-      }
+    return this.http.get<{ payload: string }>(url).pipe(
+      map((res: any) => {
+        const decrypted = this.crypto.decrypt(res.data);
+        return {
+          ...res,
+          data: decrypted,
+        };
+      })
+    );
+  }
 }

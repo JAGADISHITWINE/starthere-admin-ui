@@ -81,8 +81,6 @@ ion-content {
 }
 
 .app-shell {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 24px 20px 64px;
 }
 
@@ -223,6 +221,12 @@ ion-textarea {
 .navbar .btn,
 .navbar .btn-outline-light {
   border-radius: 999px;
+}
+
+ion-modal.bookings-modal-large {
+  --width: min(96vw, 1440px);
+  --height: 92vh;
+  --border-radius: 16px;
 }
 
 @keyframes floatIn {

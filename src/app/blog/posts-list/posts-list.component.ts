@@ -2,8 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { PostEditor } from '../post-editor';
+import { DropdownManagerService } from 'src/app/dropdown-manager/dropdown-manager.service';
+import { take } from 'rxjs';
+import { AdminShellComponent } from 'src/app/shared/admin-shell/admin-shell.component';
 
 interface BlogPost {
   id: number;
@@ -13,13 +16,14 @@ interface BlogPost {
   author: string;
   category: string;
   category_name?: string;
-  status: 'published' | 'draft' | 'scheduled';
+  status: 'published' | 'draft' | 'scheduled' | 'pending' | 'rejected';
   views: number;
   comments?: number;
   publishDate: string;
   image: string;
   featured_image?: string;
   tags?: string[];
+  authorType?: "admin" | "user";
 }
 
 @Component({
@@ -27,9 +31,10 @@ interface BlogPost {
   templateUrl: './posts-list.component.html',
   styleUrls: ['./posts-list.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterLink],
+  imports: [IonicModule, CommonModule, FormsModule, AdminShellComponent],
 })
 export class PostsListComponent implements OnInit {
+  private readonly imageBaseUrl = "http://localhost:4001/";
   searchQuery: string = '';
   selectedStatus: string = 'all';
   selectedCategory: string = 'all';
@@ -37,9 +42,6 @@ export class PostsListComponent implements OnInit {
 
   statusOptions = [
     { value: 'all', label: 'All Status' },
-    { value: 'published', label: 'Published' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'scheduled', label: 'Scheduled' }
   ];
 
   categoryOptions: { value: string; label: string }[] = [
@@ -51,14 +53,26 @@ export class PostsListComponent implements OnInit {
   constructor(
     private router: Router,
     private postEditorService: PostEditor,
+    private dropdownService: DropdownManagerService,
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController
   ) { }
 
   ngOnInit() {
+    this.loadDropdownOptions();
     this.loadPosts();
     this.loadCategories();
+  }
+
+  private loadDropdownOptions() {
+    this.dropdownService.getGroupOptions('blogStatus').pipe(take(1)).subscribe((opts) => {
+      if (opts.length === 0) return;
+      this.statusOptions = [
+        { value: 'all', label: 'All Status' },
+        ...opts.map((opt) => ({ value: opt.value, label: opt.label }))
+      ];
+    });
   }
 
   async loadPosts() {
@@ -69,23 +83,33 @@ export class PostsListComponent implements OnInit {
     await loading.present();
 
     this.postEditorService.getAllPosts().subscribe({
-      next: (posts) => {
-        this.posts = posts.map(post => ({
+      next: (res: any) => {
+        this.posts = res.map((post: any) => ({
           id: post.id!,
-          title: post.title,
-          excerpt: post.excerpt,
+          title: post.title || 'Untitled',
+          excerpt: post.excerpt || '',
           content: post.content,
-          author: post.author || 'Admin',
-          category: post.category_name || post.category,
+          author: post.author_name || 'Admin',
+          category: post.category_name || post.category || 'General',
           category_name: post.category_name,
-          status: post.status,
+          status: (post.status as any) || 'draft',
           views: post.views || 0,
           comments: 0,
           publishDate: this.formatDate(post.published_at || post.created_at),
-          image: post.featured_image || post.featuredImage || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
-          featured_image: post.featured_image,
-          tags: post.tags || []
+          image: post.featured_image
+            ? `http://localhost:4001/${String(post.featured_image).replace(/^\/+/, '')}`
+            : '',
+
+          featured_image: post.featured_image
+            ? `http://localhost:4001/${String(post.featured_image).replace(/^\/+/, '')}`
+            : '',
+
+
+          tags: post.tags || [],
+          authorType: String(post.author_type || "admin").toLowerCase() === "user" ? "user" : "admin"
         }));
+
+
         loading.dismiss();
         this.isLoading = false;
       },
@@ -114,7 +138,6 @@ export class PostsListComponent implements OnInit {
       }
     });
   }
-
   get filteredPosts(): BlogPost[] {
     let filtered = this.posts;
 
@@ -140,6 +163,7 @@ export class PostsListComponent implements OnInit {
     return filtered;
   }
 
+
   formatDate(dateString?: string): string {
     if (!dateString) return 'Not published';
 
@@ -152,11 +176,23 @@ export class PostsListComponent implements OnInit {
     return date.toLocaleDateString('en-GB', options);
   }
 
+  canApprovePost(post: BlogPost): boolean {
+    return post.authorType === "user" && (post.status === "pending" || post.status === "rejected");
+  }
+
+  canPublishPost(post: BlogPost): boolean {
+    if (post.status === "published") return false;
+    if (post.authorType === "user") return post.status === "pending" || post.status === "rejected";
+    return post.status === "draft" || post.status === "scheduled";
+  }
+
   getStatusColor(status: string): string {
     switch (status) {
+      case 'pending': return 'warning';
       case 'published': return 'success';
       case 'draft': return 'warning';
       case 'scheduled': return 'primary';
+      case 'rejected': return 'danger';
       default: return 'medium';
     }
   }
@@ -211,6 +247,83 @@ export class PostsListComponent implements OnInit {
     });
   }
 
+  async approvePost(post: BlogPost) {
+    const loading = await this.loadingController.create({
+      message: 'Approving post...',
+    });
+    await loading.present();
+
+    this.updatePostStatus(post, 'published').subscribe({
+      next: () => {
+        loading.dismiss();
+        this.showToast('Post approved and published', 'success');
+        this.loadPosts();
+      },
+      error: (error) => {
+        loading.dismiss();
+        console.error('Error approving post:', error);
+        this.showToast('Failed to approve post', 'danger');
+      }
+    });
+  }
+
+  async rejectPost(post: BlogPost) {
+    const loading = await this.loadingController.create({
+      message: 'Rejecting post...',
+    });
+    await loading.present();
+
+    this.updatePostStatus(post, 'rejected').subscribe({
+      next: () => {
+        loading.dismiss();
+        this.showToast('Post rejected', 'warning');
+        this.loadPosts();
+      },
+      error: (error) => {
+        loading.dismiss();
+        console.error('Error rejecting post:', error);
+        this.showToast('Failed to reject post', 'danger');
+      }
+    });
+  }
+
+  private updatePostStatus(post: BlogPost, status: BlogPost['status']) {
+    const formData = new FormData();
+    formData.append('title', post.title);
+    formData.append('excerpt', post.excerpt);
+    formData.append('content', post.content || '');
+    formData.append('category', post.category);
+    formData.append('status', status);
+    formData.append('publishDate', new Date().toISOString());
+    formData.append('author', post.author);
+    formData.append('tags', JSON.stringify(post.tags || []));
+
+    if (post.featured_image) {
+      formData.append('existingImageUrl', post.featured_image);
+    }
+
+    return this.postEditorService.savePost(post.id, formData);
+  }
+
+  async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000,
+      position: 'top',
+      color: color
+    });
+    toast.present();
+  }
+
+  refreshPosts(event?: any) {
+    this.loadPosts();
+    if (event) {
+      setTimeout(() => {
+        event.target.complete();
+      }, 1000);
+    }
+  }
+
   async publishPost(post: BlogPost) {
     const loading = await this.loadingController.create({
       message: 'Publishing post...',
@@ -245,24 +358,5 @@ export class PostsListComponent implements OnInit {
         this.showToast('Failed to publish post', 'danger');
       }
     });
-  }
-
-  async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 2000,
-      position: 'top',
-      color: color
-    });
-    toast.present();
-  }
-
-  refreshPosts(event?: any) {
-    this.loadPosts();
-    if (event) {
-      setTimeout(() => {
-        event.target.complete();
-      }, 1000);
-    }
   }
 }

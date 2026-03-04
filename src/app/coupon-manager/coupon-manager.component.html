@@ -1,0 +1,130 @@
+<ion-content class="coupon-page">
+  <app-admin-shell
+    sectionLabel="Coupons"
+    title="Trek Coupon Manager"
+    subtitle="Create and manage coupon codes for each trek.">
+
+    <section class="surface-card coupon-form-card">
+      <h3>{{ editingCouponId ? 'Edit Coupon' : 'Create Coupon' }}</h3>
+
+      <div class="form-grid">
+        <label>
+          <span>Trek *</span>
+          <select class="form-select" [(ngModel)]="form.trekId">
+            <option [ngValue]="0">Select trek</option>
+            <option *ngFor="let trek of treks" [ngValue]="trek.id">{{ trek.name }}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Code *</span>
+          <input class="form-control" type="text" [(ngModel)]="form.code" placeholder="SUMMER10" />
+        </label>
+
+        <label>
+          <span>Type *</span>
+          <select class="form-select" [(ngModel)]="form.discountType">
+            <option value="percentage">Percentage</option>
+            <option value="flat">Flat</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Discount Value *</span>
+          <input class="form-control" type="number" [(ngModel)]="form.discountValue" min="1" />
+        </label>
+
+        <label>
+          <span>Min Booking Amount</span>
+          <input class="form-control" type="number" [(ngModel)]="form.minBookingAmount" min="0" />
+        </label>
+
+        <label>
+          <span>Max Discount Amount</span>
+          <input class="form-control" type="number" [(ngModel)]="form.maxDiscountAmount" min="0" />
+        </label>
+
+        <label>
+          <span>Start Date</span>
+          <input class="form-control" type="datetime-local" [(ngModel)]="form.startDate" />
+        </label>
+
+        <label>
+          <span>End Date</span>
+          <input class="form-control" type="datetime-local" [(ngModel)]="form.endDate" />
+        </label>
+
+        <label>
+          <span>Usage Limit</span>
+          <input class="form-control" type="number" [(ngModel)]="form.usageLimit" min="0" />
+        </label>
+
+        <label>
+          <span>Status</span>
+          <select class="form-select" [(ngModel)]="form.isActive">
+            <option [ngValue]="true">Active</option>
+            <option [ngValue]="false">Inactive</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-app" (click)="saveCoupon()" [disabled]="saving">
+          {{ saving ? 'Saving...' : (editingCouponId ? 'Update Coupon' : 'Create Coupon') }}
+        </button>
+        <button class="btn-app ghost" type="button" (click)="clearForm()">Clear</button>
+        <span class="ok" *ngIf="message">{{ message }}</span>
+        <span class="err" *ngIf="error">{{ error }}</span>
+      </div>
+    </section>
+
+    <section class="surface-card coupon-list-card">
+      <div class="list-head">
+        <h3>Coupons</h3>
+        <div class="filters">
+          <select class="form-select" [(ngModel)]="filterTrekId" (change)="applyFilter()">
+            <option [ngValue]="null">All treks</option>
+            <option *ngFor="let trek of treks" [ngValue]="trek.id">{{ trek.name }}</option>
+          </select>
+          <button class="btn-app" type="button" (click)="loadCoupons()" [disabled]="loading">
+            {{ loading ? 'Loading...' : 'Refresh' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Trek</th>
+              <th>Type</th>
+              <th>Value</th>
+              <th>Usage</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of coupons">
+              <td>{{ c.code }}</td>
+              <td>{{ c.trekName }}</td>
+              <td>{{ c.discountType }}</td>
+              <td>{{ c.discountValue }}</td>
+              <td>{{ c.usageCount }} / {{ c.usageLimit ?? '∞' }}</td>
+              <td>{{ c.isActive ? 'Active' : 'Inactive' }}</td>
+              <td class="actions">
+                <button class="btn-app bg-warning" type="button" (click)="editCoupon(c)">Edit</button>
+                <button class="btn-app bg-danger" type="button" (click)="removeCoupon(c)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="!loading && coupons.length === 0">
+              <td colspan="7">No coupons found</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </app-admin-shell>
+</ion-content>

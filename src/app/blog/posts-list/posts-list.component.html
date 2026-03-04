@@ -1,118 +1,106 @@
 <ion-content class="posts-page">
-  <div class="app-shell">
-    <div class="page-header posts-header">
-      <div class="crumb">
-        <button class="icon-btn" routerLink="/admin/dashboard" aria-label="Back">
-          <i class="bi bi-arrow-left text-dark"></i>
-        </button>
-        <span>Blog</span>
-      </div>
-      <div class="header-row">
-        <div>
-          <h1 class="page-title">Blog Posts</h1>
-          <p class="page-subtitle">Create, schedule, and publish stories for the community.</p>
+  <app-admin-shell sectionLabel="Reviews" title="Blog Posts"
+    subtitle="Create, schedule, and publish stories for the community.">
+
+      <ion-refresher slot="fixed" (ionRefresh)="refreshPosts($event)">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
+
+      <div class="filters-panel">
+        <div class="search-field">
+          <i class="bi bi-search"></i>
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Search posts..." />
         </div>
-        <button class="btn-app" (click)="createPost()">
-          <i class="bi bi-plus-lg"></i>
-          New post
-        </button>
+        <div class="filter-select">
+          <label>Status</label>
+          <select [(ngModel)]="selectedStatus">
+            <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+        <div class="filter-select">
+          <label>Category</label>
+          <select [(ngModel)]="selectedCategory">
+            <option *ngFor="let opt of categoryOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+        <div class="filter-count">
+         
+          <span> <strong>{{ filteredPosts.length }}</strong> &nbsp;post{{ filteredPosts.length !== 1 ? 's' : '' }} found</span>
+        </div>
       </div>
-    </div>
 
-    <ion-refresher slot="fixed" (ionRefresh)="refreshPosts($event)">
-      <ion-refresher-content></ion-refresher-content>
-    </ion-refresher>
+      <div *ngIf="isLoading && posts.length === 0" class="state-center">
+        <ion-spinner></ion-spinner>
+        <p>Loading posts...</p>
+      </div>
 
-    <div class="filters-panel">
-      <div class="search-field">
-        <i class="bi bi-search"></i>
-        <input type="text" [(ngModel)]="searchQuery" placeholder="Search posts..." />
+      <div *ngIf="!isLoading && filteredPosts.length === 0" class="state-center">
+        <div class="empty-card">
+          <i class="bi bi-file-text"></i>
+          <h4>No posts found</h4>
+          <p>
+            <span *ngIf="searchQuery || selectedStatus !== 'all' || selectedCategory !== 'all'">
+              Try adjusting your filters
+            </span>
+            <span *ngIf="!searchQuery && selectedStatus === 'all' && selectedCategory === 'all'">
+              Create your first post to get started
+            </span>
+          </p>
+          <button class="btn-app" (click)="createPost()">Create New Post</button>
+        </div>
       </div>
-      <div class="filter-select">
-        <label>Status</label>
-        <select [(ngModel)]="selectedStatus">
-          <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
-        </select>
-      </div>
-      <div class="filter-select">
-        <label>Category</label>
-        <select [(ngModel)]="selectedCategory">
-          <option *ngFor="let opt of categoryOptions" [value]="opt.value">{{ opt.label }}</option>
-        </select>
-      </div>
-      <div class="filter-count">
-        <strong>{{ filteredPosts.length }}</strong>
-        <span>post{{ filteredPosts.length !== 1 ? 's' : '' }} found</span>
-      </div>
-    </div>
 
-    <div *ngIf="isLoading && posts.length === 0" class="state-center">
-      <ion-spinner></ion-spinner>
-      <p>Loading posts...</p>
-    </div>
 
-    <div *ngIf="!isLoading && filteredPosts.length === 0" class="state-center">
-      <div class="empty-card">
-        <i class="bi bi-file-text"></i>
-        <h4>No posts found</h4>
-        <p>
-          <span *ngIf="searchQuery || selectedStatus !== 'all' || selectedCategory !== 'all'">
-            Try adjusting your filters
-          </span>
-          <span *ngIf="!searchQuery && selectedStatus === 'all' && selectedCategory === 'all'">
-            Create your first post to get started
-          </span>
-        </p>
-        <button class="btn-app" (click)="createPost()">Create New Post</button>
-      </div>
-    </div>
-
-    <div class="posts-grid" *ngIf="!isLoading && filteredPosts.length > 0">
-      <div class="post-card" *ngFor="let post of filteredPosts">
-        <div class="post-cover">
-          <img [src]="post.image" [alt]="post.title"
-            (error)="post.image = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'" />
-          <span class="status-pill" [ngClass]="{
+      <div class="posts-grid" *ngIf="!isLoading && filteredPosts.length > 0">
+        <div class="post-card" *ngFor="let post of filteredPosts">
+          <div class="post-cover">
+            <img [src]="post.image" [alt]="post.title"
+              (error)="post.image = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'" />
+            <span class="status-pill" [ngClass]="{
             'status-success': post.status === 'published',
             'status-warning': post.status === 'draft',
             'status-primary': post.status === 'scheduled'
           }">
-            {{ post.status | titlecase }}
-          </span>
-        </div>
+              {{ post.status | titlecase }}
+            </span>
+          </div>
 
-        <div class="post-body">
-          <h3>{{ post.title }}</h3>
-          <p>{{ post.excerpt }}</p>
-          <div class="post-meta">
-            <span class="category-pill">{{ post.category }}</span>
-            <small>By {{ post.author }}</small>
-          </div>
-          <div class="post-stats">
-            <span>👁 {{ post.views }}</span>
-            <span *ngIf="post.comments !== undefined">💬 {{ post.comments }}</span>
-            <span>📅 {{ post.publishDate }}</span>
-          </div>
-          <div class="post-actions">
-            <button class="btn-app bg-warning" (click)="editPost(post.id)">
-              <i class="bi bi-pencil"></i>
-              Edit
-            </button>
-            <button class="btn-app" *ngIf="post.status !== 'published'" (click)="publishPost(post)">
-              <i class="bi bi-send"></i>
-              Publish
-            </button>
-            <button class="btn-app bg-danger" (click)="deletePost(post.id)">
-              <i class="bi bi-trash"></i>
-              Delete
-            </button>
+          <div class="post-body">
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.excerpt }}</p>
+            <div class="post-meta">
+              <span class="category-pill">{{ post.category }}</span>
+              <small>By {{ post.author }}</small>
+            </div>
+            <div class="post-stats">
+              <span>👁 {{ post.views }}</span>
+              <span *ngIf="post.comments !== undefined">💬 {{ post.comments }}</span>
+              <span>📅 {{ post.publishDate }}</span>
+            </div>
+            <div class="post-actions">
+              <button class="btn-app bg-warning" (click)="editPost(post.id)">
+                <i class="bi bi-pencil"></i>
+                Edit
+              </button>
+              <button class="btn-app" *ngIf="canApprovePost(post)" (click)="approvePost(post)">
+                <i class="bi bi-check-circle"></i>
+                Approve
+              </button>
+              <button class="btn-app" *ngIf="!canApprovePost(post) && canPublishPost(post)" (click)="publishPost(post)">
+                <i class="bi bi-send"></i>
+                Publish
+              </button>
+              <button class="btn-app bg-danger" (click)="deletePost(post.id)">
+                <i class="bi bi-trash"></i>
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <button class="floating-add" (click)="createPost()" aria-label="Create post">
-      <i class="bi bi-plus"></i>
-    </button>
-  </div>
+      <button class="floating-add" (click)="createPost()" aria-label="Create post">
+        <i class="bi bi-plus"></i>
+      </button>
+  </app-admin-shell>
 </ion-content>

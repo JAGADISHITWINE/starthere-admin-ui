@@ -1,16 +1,9 @@
-<ion-content>
-  <!-- HEADER -->
-  <nav class="modern-header">
-    <div class="container-fluid px-4 py-3">
-      <div class="d-flex align-items-center">
-        <a class="btn-back" routerLink="/admin/dashboard">
-          <i class="bi bi-arrow-left text-white"></i>
-        </a>
-        <h1 class="header-title mb-0 ms-3">Add New Trek</h1>
-      </div>
-    </div>
-  </nav>
 
+<ion-content>
+  <app-admin-shell
+  title="Add Trek"
+  subtitle="Create trek details, batches, and itinerary."
+  sectionLabel="Treks">
   <div class="excel-upload-section" *ngIf="!isUploadingExcel">
   <div class="container py-4">
     <div class="excel-upload-card">
@@ -187,6 +180,16 @@
                   <select class="form-select modern-select" formControlName="fitnessLevel">
                     <option value="" selected disabled>Select Fitness Level</option>
                     <option *ngFor="let f of fitnessLevels" [value]="f">{{ f }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Collection</label>
+                  <select class="form-select modern-select" formControlName="collection">
+                    <option value="" selected>Select Collection</option>
+                    <option *ngFor="let c of collections" [value]="c">{{ c }}</option>
                   </select>
                 </div>
               </div>
@@ -474,6 +477,74 @@
           </div>
         </div>
 
+
+        <!-- COUPON -->
+        <div class="section-card" formGroupName="coupon">
+          <div class="section-header">
+            <i class="bi bi-ticket-perforated-fill me-2"></i>
+            <span>Trek Coupon (Optional)</span>
+          </div>
+          <div class="section-body">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enableCoupon" formControlName="enabled" />
+              <label class="form-check-label" for="enableCoupon">Enable coupon for this trek</label>
+            </div>
+
+            <div class="row g-3" *ngIf="addTrekForm.get('coupon.enabled')?.value">
+              <div class="col-md-4">
+                <label class="form-label">Coupon Code</label>
+                <input class="form-control modern-input" formControlName="code" placeholder="e.g., GHATS10" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Discount Type</label>
+                <select class="form-select modern-select" formControlName="discountType">
+                  <option value="percentage">Percentage</option>
+                  <option value="flat">Flat</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Discount Value</label>
+                <input type="number" class="form-control modern-input" formControlName="discountValue" min="1" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Min Booking Amount</label>
+                <input type="number" class="form-control modern-input" formControlName="minBookingAmount" min="0" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Max Discount Amount</label>
+                <input type="number" class="form-control modern-input" formControlName="maxDiscountAmount" min="0" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Usage Limit</label>
+                <input type="number" class="form-control modern-input" formControlName="usageLimit" min="0" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Start Date</label>
+                <input type="datetime-local" class="form-control modern-input" formControlName="startDate" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">End Date</label>
+                <input type="datetime-local" class="form-control modern-input" formControlName="endDate" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Coupon Status</label>
+                <select class="form-select modern-select" formControlName="isActive">
+                  <option [ngValue]="true">Active</option>
+                  <option [ngValue]="false">Inactive</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- IMAGES -->
         <div class="section-card">
           <div class="section-header">
@@ -553,4 +624,5 @@
       </form>
     </div>
   </div>
+  </app-admin-shell>
 </ion-content>

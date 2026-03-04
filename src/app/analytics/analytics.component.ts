@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { RouterLink } from '@angular/router';
 import { Analytics } from './analytics';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
 
 @Component({
   selector: 'app-analytics',
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterLink],
+  imports: [IonicModule, CommonModule, AdminShellComponent],
 })
 export class AnalyticsComponent implements OnInit {
   totalBookings: number = 0;
@@ -20,21 +20,61 @@ export class AnalyticsComponent implements OnInit {
   monthlyData: any = [];
   trekRevenue: any[] = [];
   monthlyGrowth: any = 0;
+  monthlyGrowthLabel = 'N/A';
   selectedPeriod: string = 'monthly';
 
   constructor(private analyticService: Analytics) { }
 
   ngOnInit(): void {
     this.analyticService.getRevenueData().subscribe((res: any) => {
-      if (res.success == true) {
-        this.totalBookings = res.data.totalBooking;
-        this.totalRevenue = res.data.totalRevenue;
-        this.monthlyData = res.data.monthlyData;
-        this.trekRevenue = res.data.trekRevenue;
-        this.averageBookingValue = res.data.averageBookingValue;
-        this.monthlyGrowth = res.data.monthlyGrowth
-      }
+      const data = this.extractAnalyticsData(res);
+      this.monthlyData = Array.isArray(data.monthlyData) ? data.monthlyData : [];
+      this.trekRevenue = Array.isArray(data.trekRevenue) ? data.trekRevenue : [];
+
+      this.totalBookings = Number(
+        data.totalBooking ??
+        data.totalBookings ??
+        data.total_bookings ??
+        0
+      );
+
+      this.totalRevenue = Number(
+        data.totalRevenue ??
+        data.total_revenue ??
+        this.monthlyData.reduce((sum: number, row: any) => sum + Number(row?.amount || row?.revenue || 0), 0) ??
+        0
+      );
+
+      this.averageBookingValue = Number(
+        data.averageBookingValue ??
+        data.avgBookingValue ??
+        data.average_booking_value ??
+        (this.totalBookings > 0 ? this.totalRevenue / this.totalBookings : 0)
+      );
+
+      this.monthlyGrowth = data.monthlyGrowth ?? data.growth ?? 0;
+      this.monthlyGrowthLabel = this.toGrowthLabel(this.monthlyGrowth, this.monthlyData);
     });
+  }
+
+  private toGrowthLabel(rawGrowth: any, monthlyData: any[]): string {
+    if (!Array.isArray(monthlyData) || monthlyData.length < 2) {
+      return 'N/A';
+    }
+
+    const value = String(rawGrowth ?? '').trim();
+    if (!value || value === '0%' || value === '0.0%') {
+      return 'N/A';
+    }
+
+    return value;
+  }
+
+  private extractAnalyticsData(res: any): any {
+    if (res?.data?.data && typeof res.data.data === 'object') return res.data.data;
+    if (res?.data && typeof res.data === 'object') return res.data;
+    if (res?.results && typeof res.results === 'object') return res.results;
+    return {};
   }
 
   exportReport() {

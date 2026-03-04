@@ -3,11 +3,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { TrekAdd } from './trek-add';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ExcelUploadService } from 'src/app/services/excel-upload.service';
+import { DropdownManagerService } from 'src/app/dropdown-manager/dropdown-manager.service';
+import { take } from 'rxjs';
+import { AdminShellComponent } from 'src/app/shared/admin-shell/admin-shell.component';
 
 @Component({
   selector: 'app-trek-add',
@@ -19,7 +22,7 @@ import { ExcelUploadService } from 'src/app/services/excel-upload.service';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterLink,
+    AdminShellComponent,
   ],
 })
 export class TrekAddComponent implements OnInit {
@@ -36,15 +39,17 @@ export class TrekAddComponent implements OnInit {
   excelFileName = '';
   uploadedBatchCount = 0;
 
-  difficulties = ['Easy', 'Moderate', 'Difficult', 'Extreme', 'Challenging'];
-  categories = ['Peak Trek', 'Hill Trek', 'Waterfall Trek','Mountain Trek', 'Forest Trek', 'Desert Trek', 'Snow Trek'];
-  fitnessLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
-  batchStatuses = ['active', 'inactive', 'cancelled', 'completed'];
+  difficulties: string[] = [];
+  categories: string[] = [];
+  collections: string[] = [];
+  fitnessLevels: string[] = [];
+  batchStatuses: string[] = [];
   constructor(
     private fb: FormBuilder,
     private trekService: TrekAdd,
     private router: Router,
-    private excelService: ExcelUploadService
+    private excelService: ExcelUploadService,
+    private dropdownService: DropdownManagerService
   ) { }
 
   ngOnInit() {
@@ -53,12 +58,48 @@ export class TrekAddComponent implements OnInit {
       location: ['', Validators.required],
       difficulty: ['', Validators.required],
       category: ['', Validators.required],
+      collection: [''],
       fitnessLevel: [''],
       description: [''],
       highlights: this.fb.array([this.fb.control('')]),
       batches: this.fb.array([this.createBatch()]),
       thingsToCarry: this.fb.array([]),
-      importantNotes: this.fb.array([])
+      importantNotes: this.fb.array([]),
+      coupon: this.fb.group({
+        enabled: [false],
+        code: [''],
+        discountType: ['percentage'],
+        discountValue: [10],
+        minBookingAmount: [0],
+        maxDiscountAmount: [null],
+        startDate: [''],
+        endDate: [''],
+        usageLimit: [null],
+        isActive: [true],
+      })
+    });
+    this.loadDropdownOptions();
+  }
+
+  private loadDropdownOptions() {
+    this.dropdownService.getGroupOptions('trekDifficulty').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.difficulties = opts.map((o) => o.label);
+    });
+
+    this.dropdownService.getGroupOptions('trekCategory').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.categories = opts.map((o) => o.label);
+    });
+
+    this.dropdownService.getGroupOptions('trekCollection').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.collections = opts.map((o) => o.label);
+    });
+
+    this.dropdownService.getGroupOptions('trekFitnessLevel').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.fitnessLevels = opts.map((o) => o.label);
+    });
+
+    this.dropdownService.getGroupOptions('batchStatus').pipe(take(1)).subscribe((opts) => {
+      if (opts.length > 0) this.batchStatuses = opts.map((o) => o.label);
     });
   }
 
@@ -128,6 +169,7 @@ export class TrekAddComponent implements OnInit {
       location: data.trekInfo.location,
       difficulty: data.trekInfo.difficulty,
       category: data.trekInfo.category,
+      collection: data.trekInfo.collection || '',
       fitnessLevel: data.trekInfo.fitnessLevel,
       description: data.trekInfo.description
     });
@@ -288,7 +330,7 @@ export class TrekAddComponent implements OnInit {
       minParticipants: [''],
       maxParticipants: [''],
       duration: [''],
-      batchStatus: ['active', Validators.required],
+      batchStatus: ['', Validators.required],
       price: ['', Validators.required],
       inclusions: this.fb.array([this.fb.control('')]),
       exclusions: this.fb.array([this.fb.control('')]),
@@ -511,6 +553,7 @@ export class TrekAddComponent implements OnInit {
         this.coverPreview = null;
         this.galleryFiles = [];
         this.galleryPreviews = [];
+        alert('Trek added successfully');
         this.router.navigate(['/admin/treks/list']);
       } else {
         alert(response?.data?.message || 'Failed to create trek');

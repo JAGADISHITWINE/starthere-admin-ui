@@ -1,16 +1,9 @@
-<ion-content>
-  <!-- HEADER -->
-  <nav class="modern-header">
-    <div class="container-fluid px-4 py-3">
-      <div class="d-flex align-items-center">
-        <a class="btn-back" routerLink="/admin/treks/list">
-          <i class="bi bi-arrow-left text-white"></i>
-        </a>
-        <h1 class="header-title mb-0 ms-3">Edit Trek</h1>
-      </div>
-    </div>
-  </nav>
 
+<ion-content>
+  <app-admin-shell
+  title="Edit Trek"
+  subtitle="Update trek profile, batches, and media."
+  sectionLabel="Treks">
   <div class="form-wrapper">
     <div class="container py-4">
       <form [formGroup]="editTrekForm">
@@ -71,6 +64,16 @@
                   <select class="form-select modern-select" formControlName="fitnessLevel">
                     <option value="" selected disabled>Select Fitness Level</option>
                     <option *ngFor="let f of fitnessLevels" [value]="f">{{ f }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Collection</label>
+                  <select class="form-select modern-select" formControlName="collection">
+                    <option value="" selected>Select Collection</option>
+                    <option *ngFor="let c of collections" [value]="c">{{ c }}</option>
                   </select>
                 </div>
               </div>
@@ -648,4 +651,5 @@
       </form>
     </div>
   </div>
+  </app-admin-shell>
 </ion-content>

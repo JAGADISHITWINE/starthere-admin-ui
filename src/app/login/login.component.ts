@@ -15,10 +15,11 @@ import { AuthService } from '../core/services/auth.service';
   imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
 })
 export class LoginComponent implements OnInit {
-  credentials: any
+  credentials: any;
   showPassword = false;
 
-  constructor(private router: Router, private loginService: Login, private authService: AuthService) { }
+  constructor(private router: Router, private loginService: Login, private authService: AuthService) {}
+
   ngOnInit() {
     this.credentials = new FormGroup({
       email: new FormControl('', [Validators.required]),
@@ -28,19 +29,15 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.loginService.auth(this.credentials.value).subscribe((res: any) => {
-      if (res.response == true && res.user) {
+      if (res.response === true && res.user) {
         this.authService.setUser(res.user);
         this.credentials.reset();
-        this.router.navigate(['/admin/dashboard', {
-          replaceUrl: true,
-          skipLocationChange: true
-        }]);
+        this.router.navigateByUrl(this.authService.getDefaultAuthorizedRoute(), { replaceUrl: true });
       }
     });
   }
 
   togglePassword() {
-    this.showPassword = !this.showPassword
+    this.showPassword = !this.showPassword;
   }
-
 }

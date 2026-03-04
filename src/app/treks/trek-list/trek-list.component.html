@@ -1,15 +1,9 @@
 <ion-content class="treks-page">
-  <div class="app-shell">
-    <div class="page-header treks-header">
-      <div class="crumb">
-        <button class="icon-btn" routerLink="/admin/dashboard" aria-label="Back">
-          <i class="bi bi-arrow-left text-dark"></i>
-        </button>
-        <span>Treks</span>
-      </div>
-      <h1 class="page-title">All Treks</h1>
-      <p class="page-subtitle">Browse active batches, edit trek details, and preview batches.</p>
-    </div>
+  <app-admin-shell
+    sectionLabel="Treks"
+    title="All Treks"
+    subtitle="Browse active batches, edit trek details, and preview batches.">
+
 
     <div class="trek-summary">
       <div class="summary-card">
@@ -22,12 +16,18 @@
       </div>
     </div>
 
-    <div class="trek-search">
-      <ion-searchbar [(ngModel)]="searchQuery" placeholder="Search treks..." animated="true"></ion-searchbar>
+    <div class="trek-toolbar">
+      <div class="trek-search">
+        <ion-searchbar [(ngModel)]="searchQuery" placeholder="Search treks..." animated="true"></ion-searchbar>
+      </div>
+      <button class="btn-app" routerLink="/admin/treks/add" type="button">
+        <i class="bi bi-plus-circle me-2"></i>
+        Add Trek
+      </button>
     </div>
 
     <div class="trek-grid">
-      <div class="trek-card" *ngFor="let trek of filteredTreks">
+      <div class="trek-card" *ngFor="let trek of visibleTreks">
         <div class="trek-cover">
           <img [src]="'http://localhost:4001/' + trek.cover_image" />
           <span class="status-pill" [ngClass]="{
@@ -42,24 +42,29 @@
           <div class="trek-top">
             <h4>{{ trek.name }}</h4>
             <button class="icon-btn" (click)="editTrek(trek.id)" aria-label="Edit trek">
-              <i class="bi bi-pencil"></i>
+              <i class="bi bi-pencil text-dark"></i>
             </button>
           </div>
           <p class="trek-location"><i class="bi bi-geo-alt"></i> {{ trek.location }}</p>
-          <div class="batch-pills" *ngIf="trek?.batches?.length">
-            <button class="pill" *ngFor="let batch of trek.batches" (click)="viewTrek(batch.id)">
-              ⏱ {{ batch.duration }} · ₹{{ batch.price }} / {{ batch.startDate | date: 'dd MMM yyyy' }}
+          <p class="small text-muted mb-2">
+            Active: {{ getBatchStatusCount(trek, 'active') }} |
+            Inactive: {{ getBatchStatusCount(trek, 'inactive') }}
+          </p>
+          <div class="batch-pills" *ngIf="getVisibleBatches(trek).length">
+            <button class="pill" *ngFor="let batch of getVisibleBatches(trek)" (click)="viewTrek(batch.id)">
+              {{ getBatchStatusLabel(batch) | uppercase }} · ⏱ {{ batch.duration }} · ₹{{ batch.price }} / {{ batch.startDate | date: 'dd MMM yyyy' }}
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <div *ngIf="filteredTreks.length === 0" class="state-center">
+    <div *ngIf="visibleTreks.length === 0" class="state-center">
       <div class="empty-card">
         <h5>No treks found</h5>
         <p>Try a different search.</p>
       </div>
     </div>
-  </div>
+  
+  </app-admin-shell>
 </ion-content>

@@ -12,8 +12,9 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NotificationsService } from './notifications.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { WebSocketService } from '../services/websocket.service';
+import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
 
 /* ============================
    TYPES
@@ -22,6 +23,8 @@ import { WebSocketService } from '../services/websocket.service';
 export type NotificationType =
   | 'booking'
   | 'trek'
+  | 'blog'
+  | 'comment'
   | 'weather'
   | 'guide'
   | 'offer'
@@ -36,6 +39,7 @@ export interface Notification {
   read: boolean;
   actionLabel?: string;
   meta?: string;
+  route?: string;
 }
 
 type FilterTab = 'all' | 'unread' | NotificationType;
@@ -54,7 +58,7 @@ interface NotificationView extends Notification {
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, FormsModule, RouterLink],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, FormsModule, AdminShellComponent],
   providers: [NotificationsService],
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.scss'],
@@ -80,6 +84,8 @@ export class NotificationsComponent implements OnInit {
     { key: 'all',     label: 'All' },
     { key: 'unread',  label: 'Unread' },
     { key: 'booking', label: 'Bookings' },
+    { key: 'blog',    label: 'Blogs' },
+    { key: 'comment', label: 'Comments' },
     { key: 'trek',    label: 'Treks' },
     { key: 'weather', label: 'Weather' },
     { key: 'offer',   label: 'Offers' },
@@ -110,13 +116,13 @@ export class NotificationsComponent implements OnInit {
 
   constructor(
     private notificationsService: NotificationsService,
-    private webSocket: WebSocketService
+    private webSocket: WebSocketService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.fetchNotifications();
     this.listenToSocket();
-    this.destroyRef.onDestroy(() => this.webSocket.disconnect());
   }
 
   /* ============================
@@ -131,19 +137,21 @@ export class NotificationsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
       next: (response: any) => {
-
-        const mapped: NotificationView[] = (response?.results || []).map((n: any) => {
-          const date = new Date(n.date);
-          const type = n.type as NotificationType;
+        const rows = this.extractNotificationRows(response.data.notifications || response);
+        const mapped: NotificationView[] = rows.map((n: any) => {
+          const date = new Date(n.date || n.createdAt || n.created_at || Date.now());
+          const type = this.mapType(n.type);
+          const route = this.resolveRoute(n, type);
           return {
-            id: n.id,
+            id: String(n.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`),
             type,
-            title: n.title,
-            message: n.message,
+            title: n.title || 'Notification',
+            message: n.message || '',
             date,
-            read: !!n.read,
-            actionLabel: n.actionLabel,
-            meta: n.meta,
+            read: this.isRead(n.read),
+            actionLabel: n.actionLabel || (route ? 'Open' : undefined),
+            meta: n.meta || n.reference || n.trekName || n.postTitle,
+            route,
             icon: this.getIcon(type),
             typeLabel: this.getTypeLabel(type),
             timeAgo: this.timeAgo(date),
@@ -170,23 +178,59 @@ export class NotificationsComponent implements OnInit {
   }
 
   markAllRead(): void {
-    this.allNotifications.update(ns =>
-      ns.map(n => ({ ...n, read: true }))
-    );
+    const hadUnread = this.unreadCount() > 0;
+    this.allNotifications.update(ns => ns.map(n => ({ ...n, read: true })));
+
+    if (!hadUnread) return;
+
+    this.notificationsService.markAllRead()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
+          this.fetchNotifications();
+        }
+      });
   }
 
   markRead(id: string): void {
+    let changed = false;
     this.allNotifications.update(ns =>
-      ns.map(n =>
-        n.id === id ? { ...n, read: true } : n
-      )
+      ns.map(n => {
+        if (n.id === id && !n.read) {
+          changed = true;
+          return { ...n, read: true };
+        }
+        return n;
+      })
     );
+
+    if (!changed) return;
+
+    this.notificationsService.markRead(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
+          this.fetchNotifications();
+        }
+      });
   }
 
   dismiss(id: string): void {
     this.allNotifications.update(ns =>
       ns.filter(n => n.id !== id)
     );
+  }
+
+  openNotification(notification: NotificationView): void {
+    this.markRead(notification.id);
+    if (notification.route) {
+      this.router.navigateByUrl(notification.route);
+    }
+  }
+
+  onActionClick(event: Event, notification: NotificationView): void {
+    event.stopPropagation();
+    this.openNotification(notification);
   }
 
   /* ============================
@@ -197,6 +241,8 @@ export class NotificationsComponent implements OnInit {
     const icons: Record<NotificationType, string> = {
       booking: '🎫',
       trek: '🏔️',
+      blog: '📝',
+      comment: '💬',
       weather: '⛈️',
       guide: '🧭',
       offer: '🏷️',
@@ -209,6 +255,8 @@ export class NotificationsComponent implements OnInit {
     const labels: Record<NotificationType, string> = {
       booking: 'Booking',
       trek: 'Trek',
+      blog: 'Blog',
+      comment: 'Comment',
       weather: 'Weather',
       guide: 'Guide',
       offer: 'Offer',
@@ -255,20 +303,55 @@ export class NotificationsComponent implements OnInit {
       const customer = data.customerName || 'Customer';
       const trek = data.trekName ? ` for ${data.trekName}` : '';
       const message = `${customer} placed ${ref}${trek}.`;
-      return this.buildNotification(id, 'booking', title, message, createdAt, false, 'View booking', data.trekName);
+      return this.buildNotification(
+        id,
+        'booking',
+        title,
+        message,
+        createdAt,
+        false,
+        'View booking',
+        data.trekName,
+        '/admin/bookings'
+      );
     }
 
     if (update.type === 'completed') {
       const title = 'Booking completed';
       const ref = data.bookingReference || data.bookingId || 'Unknown booking';
       const message = `Booking ${ref} is marked completed.`;
-      return this.buildNotification(id, 'booking', title, message, createdAt, false, 'View booking', data.trekName);
+      return this.buildNotification(
+        id,
+        'booking',
+        title,
+        message,
+        createdAt,
+        false,
+        'View booking',
+        data.trekName,
+        '/admin/bookings'
+      );
     }
 
     if (update.type === 'batch-completed') {
       const title = 'Batch processed';
       const message = data.message || 'A booking batch finished processing.';
       return this.buildNotification(id, 'system', title, message, createdAt, false);
+    }
+
+    if (update.type === 'blog-created' || update.type === 'post-created' || update.type === 'blog-submitted') {
+      const postId = data.postId || data.id;
+      const postTitle = data.title || data.postTitle || 'New blog post';
+      const title = 'New blog submitted';
+      const message = `${data.authorName || 'A user'} submitted "${postTitle}" for approval.`;
+      const route = postId ? `/admin/blog/editor/${postId}` : '/admin/blog/posts';
+      return this.buildNotification(id, 'blog', title, message, createdAt, false, 'Review post', postTitle, route);
+    }
+
+    if (update.type === 'comment-created' || update.type === 'review-created' || update.type === 'comment-submitted') {
+      const title = 'New comment submitted';
+      const message = `${data.authorName || 'A user'} posted a new comment pending approval.`;
+      return this.buildNotification(id, 'comment', title, message, createdAt, false, 'Review comment', data.trekName, '/admin/reviews');
     }
 
     return null;
@@ -282,7 +365,8 @@ export class NotificationsComponent implements OnInit {
     date: Date,
     read: boolean,
     actionLabel?: string,
-    meta?: string
+    meta?: string,
+    route?: string
   ): NotificationView {
     return {
       id,
@@ -293,6 +377,7 @@ export class NotificationsComponent implements OnInit {
       read,
       actionLabel,
       meta,
+      route,
       icon: this.getIcon(type),
       typeLabel: this.getTypeLabel(type),
       timeAgo: this.timeAgo(date),
@@ -300,7 +385,71 @@ export class NotificationsComponent implements OnInit {
     };
   }
 
+  private mapType(type: string): NotificationType {
+    switch ((type || '').toLowerCase()) {
+      case 'booking':
+      case 'trek':
+      case 'weather':
+      case 'guide':
+      case 'offer':
+      case 'system':
+      case 'blog':
+      case 'comment':
+        return type.toLowerCase() as NotificationType;
+      case 'review':
+        return 'comment';
+      case 'post':
+      case 'content':
+        return 'blog';
+      default:
+        return 'system';
+    }
+  }
+
+  private resolveRoute(notification: any, type: NotificationType): string | undefined {
+    const explicitRoute =
+      notification?.route ||
+      notification?.path ||
+      notification?.url ||
+      notification?.actionUrl ||
+      notification?.targetUrl;
+
+    if (explicitRoute) {
+      return explicitRoute;
+    }
+
+    const entityId = notification?.postId || notification?.blogId || notification?.entityId || notification?.idRef;
+    if (type === 'blog') {
+      return entityId ? `/admin/blog/editor/${entityId}` : '/admin/blog/posts';
+    }
+    if (type === 'comment') {
+      return '/admin/reviews';
+    }
+    if (type === 'booking') {
+      return '/admin/bookings';
+    }
+
+    return undefined;
+  }
+
   trackById(_: number, n: Notification): string {
     return n.id;
+  }
+
+  private extractNotificationRows(response: any): any[] {
+    if (Array.isArray(response?.results)) return response.results;
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response?.data?.results)) return response.data.results;
+    if (Array.isArray(response)) return response;
+    return [];
+  }
+
+  private isRead(value: any): boolean {
+    if (value === true || value === 1) return true;
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      return normalized === '1' || normalized === 'true' || normalized === 'yes';
+    }
+    return false;
   }
 }

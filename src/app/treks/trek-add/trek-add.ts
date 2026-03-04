@@ -19,13 +19,15 @@ createTrek(trekData: any, files: any) {
     name: trekData.name,
     location: trekData.location,
     category: trekData.category,
+    collection: trekData.collection || null,
     difficulty: trekData.difficulty,
     fitnessLevel: trekData.fitnessLevel,
     description: trekData.description,
     highlights: trekData.highlights,
     thingsToCarry: trekData.thingsToCarry,
     importantNotes: trekData.importantNotes,
-    batches: trekData.batches
+    batches: trekData.batches,
+    coupon: trekData.coupon || null
   });
 
   // 👇 FormData ONLY for transport

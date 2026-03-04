@@ -1,18 +1,18 @@
 <ion-content class="reviews-page">
-  <div class="app-shell">
-    <div class="page-header reviews-header">
-      <div class="crumb">
-        <button class="icon-btn" routerLink="/admin/dashboard" aria-label="Back">
-          <i class="bi bi-arrow-left text-dark"></i>
-        </button>
-        <span>Reviews</span>
-      </div>
-      <h1 class="page-title">Manage Reviews</h1>
-      <p class="page-subtitle">Track guest feedback and trip sentiment in one place.</p>
-    </div>
+  <app-admin-shell
+    sectionLabel="Reviews"
+    title="Manage Reviews"
+    subtitle="Track guest feedback and trip sentiment in one place.">
 
     <div class="review-summary">
       <span><strong>{{ filteredReviews.length }}</strong> reviews found</span>
+      <div class="review-filters">
+        <label for="reviewStatus">Status</label>
+        <select id="reviewStatus" [(ngModel)]="selectedStatus">
+          <option value="all">All</option>
+          <option *ngFor="let status of reviewStatusOptions" [value]="status">{{ status | titlecase }}</option>
+        </select>
+      </div>
     </div>
 
     <div class="reviews-grid">
@@ -38,8 +38,22 @@
             <i class="bi bi-calendar-event"></i>
             {{ review.date }}
           </span>
+          <span class="status-pill" [ngClass]="'status-' + review.status">
+            {{ review.status | titlecase }}
+          </span>
+        </div>
+
+        <div class="review-footer" *ngIf="review.status === 'pending'">
+          <button class="btn-app" (click)="updateReviewStatus(review, 'approved')">
+            <i class="bi bi-check2-circle"></i>
+            Approve
+          </button>
+          <button class="btn-app bg-danger" (click)="updateReviewStatus(review, 'rejected')">
+            <i class="bi bi-x-circle"></i>
+            Reject
+          </button>
         </div>
       </div>
     </div>
-  </div>
+  </app-admin-shell>
 </ion-content>

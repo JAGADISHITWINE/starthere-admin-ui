@@ -18,4 +18,8 @@ export class Reviews {
     return this.http.get<Post[]>(`${this.API}/reviews`);
   }
 
+  updateReviewStatus(id: number, status: 'approved' | 'rejected'): Observable<any> {
+    return this.http.patch(`${this.API}/reviews/${id}/status`, { status });
+  }
+
 }

@@ -1,297 +1,277 @@
-<!-- ================= LIST VIEW ================= -->
-<ng-container *ngIf="!isDetailView">
-
-  <ion-header class="ion-no-border">
-    <ion-toolbar class="main-toolbar">
-      <div class="crumb">
-        <button class="icon-btn" routerLink="/admin/dashboard" aria-label="Back">
-          <i class="bi bi-arrow-left text-dark"></i>
+<ion-content>
+  <app-admin-shell
+    sectionLabel="Users"
+    title="Manage Users"
+    subtitle="Monitor user activity, booking history, and account status from one place.">
+    <!-- ================= LIST VIEW ================= -->
+    <div *ngIf="!isDetailView">
+      <div class="search-row">
+        <div class="search-wrap">
+          <i class="bi bi-search search-icon"></i>
+          <ion-searchbar [(ngModel)]="searchQuery" placeholder="Search by name, email or phone…"
+            class="custom-searchbar" [debounce]="200">
+          </ion-searchbar>
+        </div>
+        <button class="filter-btn">
+          <i class="bi bi-sliders"></i>
+          <span>Filter</span>
         </button>
-        <span>Manage Users</span>
       </div>
-    </ion-toolbar>
 
-    <div class="search-row">
-      <div class="search-wrap">
-        <i class="bi bi-search search-icon"></i>
-        <ion-searchbar [(ngModel)]="searchQuery" placeholder="Search by name, email or phone…" class="custom-searchbar"
-          [debounce]="200">
-        </ion-searchbar>
-      </div>
-      <button class="filter-btn">
-        <i class="bi bi-sliders"></i>
-        <span>Filter</span>
-      </button>
-    </div>
-
-    <!-- Summary Strip -->
-    <div class="summary-strip">
-      <div class="summary-item">
-        <span class="summary-num">248</span>
-        <span class="summary-lbl">Total</span>
-      </div>
-      <div class="strip-div"></div>
-      <div class="summary-item">
-        <span class="summary-num active">189</span>
-        <span class="summary-lbl">Active</span>
-      </div>
-      <div class="strip-div"></div>
-      <div class="summary-item">
-        <span class="summary-num blocked">23</span>
-        <span class="summary-lbl">Blocked</span>
-      </div>
-      <div class="strip-div"></div>
-      <div class="summary-item">
-        <span class="summary-num pending">36</span>
-        <span class="summary-lbl">Pending</span>
-      </div>
-    </div>
-  </ion-header>
-
-  <ion-content class="page-content">
-    <div class="app-shell">
-    <div class="list-header">
-      <span class="list-label">All Users</span>
-      <span class="list-count">{{ filteredUsers.length }} results</span>
-    </div>
-
-    <div class="users-grid">
-      <div class="user-card" *ngFor="let user of filteredUsers">
-
-        <!-- Card Top -->
-        <div class="card-top">
-          <div class="avatar-wrap">
-            <img [src]="getAvatar(user)" [alt]="user.name" class="u-avatar" />
-            <span class="status-dot" [ngClass]="'dot-' + user.status"></span>
-          </div>
-          <div class="u-info">
-            <h3 class="u-name">{{ user.name }}</h3>
-            <p class="u-email">{{ user.email }}</p>
-            <p class="u-phone">{{ user.phone }}</p>
-          </div>
-          <span class="u-badge" [ngClass]="'badge-' + user.status">{{ user.status }}</span>
+      <!-- Summary Strip -->
+      <div class="summary-strip">
+        <div class="summary-item">
+          <span class="summary-num">{{ totalUsersCount }}</span>
+          <span>Total</span>
         </div>
-
-        <!-- Divider -->
-        <div class="card-rule"></div>
-
-        <!-- Stats Row -->
-        <div class="card-stats">
-          <div class="cs">
-            <span class="cs-val">{{ user.totalBookings }}</span>
-            <span class="cs-lbl">Bookings</span>
-          </div>
-          <div class="cs-sep"></div>
-          <div class="cs">
-            <span class="cs-val green">₹{{ user.totalSpent }}</span>
-            <span class="cs-lbl">Total Spent</span>
-          </div>
-          <div class="cs-sep"></div>
-          <div class="cs">
-            <span class="cs-val sm">{{ user.joinDate }}</span>
-            <span class="cs-lbl">Joined</span>
-          </div>
+        <div class="summary-item">
+          <span class="summary-num active">{{ activeUsersCount }}</span>
+          <span>Active</span>
         </div>
-
-        <!-- Divider -->
-        <div class="card-rule"></div>
-
-        <!-- Actions -->
-        <div class="card-actions">
-          <button class="ca-btn outline" (click)="viewUser(user.id)">
-            <i class="bi bi-eye"></i>
-            View
-          </button>
-          <button class="ca-btn success" (click)="activateUser(user)" *ngIf="user.status !== 'active'">
-            <i class="bi bi-check-lg"></i>
-            Activate
-          </button>
-          <button class="ca-btn danger" (click)="blockUser(user)" *ngIf="user.status !== 'blocked'">
-            <i class="bi bi-slash-circle"></i>
-            Block
-          </button>
+        <div class="summary-item">
+          <span class="summary-num blocked">{{ blockedUsersCount }}</span>
+          <span>Blocked</span>
         </div>
+        <div class="summary-item">
+          <span class="summary-num pending">{{ pendingUsersCount }}</span>
+          <span>Pending</span>
+        </div>
+      </div>
 
+      <div class="page-content">
+        <div class="app-shell">
+          <div class="list-header">
+            <span class="list-label">All Users</span>
+            <span class="list-count">{{ filteredUsers.length }} results</span>
+          </div>
+
+          <div class="users-grid">
+            <div class="user-card" *ngFor="let user of filteredUsers">
+
+              <!-- Card Top -->
+              <div class="card-top">
+                <div class="avatar-wrap">
+                  <img [src]="getAvatar(user)" [alt]="user.name" class="u-avatar" />
+                  <span class="status-dot" [ngClass]="'dot-' + user.status"></span>
+                </div>
+                <div class="u-info">
+                  <h3 class="u-name">{{ user.name }}</h3>
+                  <p class="u-email">{{ user.email }}</p>
+                  <p class="u-phone">{{ user.phone }}</p>
+                </div>
+                <span class="u-badge" [ngClass]="'badge-' + user.status">{{ user.status }}</span>
+              </div>
+
+              <!-- Divider -->
+              <div class="card-rule"></div>
+
+              <!-- Stats Row -->
+              <div class="card-stats">
+                <div class="cs">
+                  <span class="cs-val">{{ user.totalBookings }}</span>
+                  <span class="cs-lbl">Bookings</span>
+                </div>
+                <div class="cs-sep"></div>
+                <div class="cs">
+                  <span class="cs-val green">₹{{ user.totalSpent }}</span>
+                  <span class="cs-lbl">Total Spent</span>
+                </div>
+                <div class="cs-sep"></div>
+                <div class="cs">
+                  <span class="cs-val sm">{{ user.joinDate }}</span>
+                  <span class="cs-lbl">Joined</span>
+                </div>
+              </div>
+
+              <!-- Divider -->
+              <div class="card-rule"></div>
+
+              <!-- Actions -->
+              <div class="card-actions">
+                <button class="ca-btn outline text-dark" (click)="viewUser(user.id)">
+                  <i class="bi bi-eye"></i>
+                  View
+                </button>
+                <button class="ca-btn success" (click)="activateUser(user)" *ngIf="user.status !== 'active'">
+                  <i class="bi bi-check-lg"></i>
+                  Activate
+                </button>
+                <button class="ca-btn danger" (click)="blockUser(user)" *ngIf="user.status !== 'blocked'">
+                  <i class="bi bi-slash-circle"></i>
+                  Block
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- No Results -->
+          <div class="no-results" *ngIf="filteredUsers.length === 0">
+            <i class="bi bi-people"></i>
+            <h3>No users found</h3>
+            <p>Try adjusting your search or filters.</p>
+          </div>
+
+        </div>
       </div>
     </div>
 
-    <!-- No Results -->
-    <div class="no-results" *ngIf="filteredUsers.length === 0">
-      <i class="bi bi-people"></i>
-      <h3>No users found</h3>
-      <p>Try adjusting your search or filters.</p>
-    </div>
 
-    </div>
-  </ion-content>
-</ng-container>
+    <!-- ================= DETAIL VIEW ================= -->
+    <div *ngIf="isDetailView">
+      <div class="page-content">
+        <div class="app-shell">
 
-
-<!-- ================= DETAIL VIEW ================= -->
-<ng-container *ngIf="isDetailView">
-
-  <ion-header class="ion-no-border">
-    <ion-toolbar class="main-toolbar">
-      <ion-buttons slot="start">
-        <ion-back-button class="custom-back" (click)="goBack()"></ion-back-button>
-      </ion-buttons>
-      <ion-title class="toolbar-title">User Details</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <ion-content class="page-content">
-    <div class="app-shell">
-
-    <!-- Loading -->
-    <div class="loading-state" *ngIf="isLoading">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Loading user…</p>
-    </div>
-
-    <ng-container *ngIf="!isLoading && user">
-
-      <!-- Profile Hero -->
-      <div class="profile-hero">
-        <div class="hero-bg-pattern"></div>
-        <div class="hero-inner">
-          <div class="hero-avatar-wrap">
-            <img [src]="getAvatar(user)" class="hero-avatar" />
-            <span class="hero-status-ring" [ngClass]="'ring-' + user.status"></span>
+          <!-- Loading -->
+          <div class="loading-state" *ngIf="isLoading">
+            <ion-spinner name="crescent"></ion-spinner>
+            <p>Loading user…</p>
           </div>
-          <div class="hero-text">
-            <h2 class="hero-name">{{ user.name }}</h2>
-            <p class="hero-email">{{ user.email }}</p>
-            <span class="hero-badge" [ngClass]="'badge-' + user.status">{{ user.status }}</span>
-          </div>
-        </div>
 
-        <!-- Hero Stats -->
-        <div class="hero-stats">
-          <div class="hs">
-            <span class="hs-val">{{ user.totalBookings }}</span>
-            <span class="hs-lbl">Bookings</span>
-          </div>
-          <div class="hs-sep"></div>
-          <div class="hs">
-            <span class="hs-val">₹{{ user.totalSpent }}</span>
-            <span class="hs-lbl">Total Spent</span>
-          </div>
-          <div class="hs-sep"></div>
-          <div class="hs">
-            <span class="hs-val">{{ user.joinDate }}</span>
-            <span class="hs-lbl">Member Since</span>
+          <div *ngIf="!isLoading && user">
+
+            <!-- Profile Hero -->
+            <div class="profile-hero">
+              <div class="hero-bg-pattern"></div>
+              <div class="hero-inner">
+                <div class="hero-avatar-wrap">
+                  <img [src]="getAvatar(user)" class="hero-avatar" />
+                  <span class="hero-status-ring" [ngClass]="'ring-' + user.status"></span>
+                </div>
+                <div class="hero-text">
+                  <h2 class="hero-name">{{ user.name }}</h2>
+                  <p class="hero-email">{{ user.email }}</p>
+                  <span class="hero-badge" [ngClass]="'badge-' + user.status">{{ user.status }}</span>
+                </div>
+              </div>
+
+              <!-- Hero Stats -->
+              <div class="hero-stats">
+                <div class="hs">
+                  <span class="hs-val">{{ user.totalBookings }}</span>
+                  <span class="hs-lbl">Bookings</span>
+                </div>
+                <div class="hs-sep"></div>
+                <div class="hs">
+                  <span class="hs-val">₹{{ user.totalSpent }}</span>
+                  <span class="hs-lbl">Total Spent</span>
+                </div>
+                <div class="hs-sep"></div>
+                <div class="hs">
+                  <span class="hs-val">{{ user.joinDate }}</span>
+                  <span class="hs-lbl">Member Since</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Segment Tabs -->
+            <ion-segment [(ngModel)]="selectedSegment" class="detail-segment">
+              <ion-segment-button value="details" class="seg-btn">
+                <ion-label>Details</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="bookings" class="seg-btn">
+                <ion-label>Bookings ({{ bookings.length }})</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+
+            <!-- ── DETAILS TAB ── -->
+            <div class="seg-content" *ngIf="selectedSegment === 'details'">
+
+              <div class="info-card">
+                <div class="info-row">
+                  <div class="info-icon-wrap">
+                    <i class="bi bi-person"></i>
+                  </div>
+                  <div class="info-text">
+                    <span class="info-lbl">Full Name</span>
+                    <span class="info-val">{{ user.name }}</span>
+                  </div>
+                </div>
+                <div class="info-divider"></div>
+                <div class="info-row">
+                  <div class="info-icon-wrap">
+                    <i class="bi bi-envelope"></i>
+                  </div>
+                  <div class="info-text">
+                    <span class="info-lbl">Email Address</span>
+                    <span class="info-val">{{ user.email }}</span>
+                  </div>
+                </div>
+                <div class="info-divider"></div>
+                <div class="info-row">
+                  <div class="info-icon-wrap">
+                    <i class="bi bi-telephone"></i>
+                  </div>
+                  <div class="info-text">
+                    <span class="info-lbl">Phone Number</span>
+                    <span class="info-val">{{ user.phone || "—" }}</span>
+                  </div>
+                </div>
+                <div class="info-divider"></div>
+                <div class="info-row">
+                  <div class="info-icon-wrap">
+                    <i class="bi bi-calendar-event"></i>
+                  </div>
+                  <div class="info-text">
+                    <span class="info-lbl">Member Since</span>
+                    <span class="info-val">{{ user.joinDate }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="detail-actions">
+                <button class="da-btn success" *ngIf="user.status !== 'active'" (click)="activateUser(user)">
+                  <i class="bi bi-check-circle"></i>
+                  Activate User
+                </button>
+                <button class="da-btn danger" *ngIf="user.status !== 'blocked'" (click)="confirmBlock(user)">
+                  <i class="bi bi-slash-circle"></i>
+                  Block User
+                </button>
+              </div>
+
+            </div>
+
+            <!-- ── BOOKINGS TAB ── -->
+            <div class="seg-content" *ngIf="selectedSegment === 'bookings'">
+
+              <!-- No Bookings -->
+              <div class="no-bookings" *ngIf="bookings.length === 0">
+                <i class="bi bi-receipt"></i>
+                <p>No bookings found for this user.</p>
+              </div>
+
+              <!-- Booking Cards -->
+              <div class="booking-card" *ngFor="let booking of bookings">
+                <div class="bc-top">
+                  <div class="bc-left">
+                    <span class="bc-ref">{{ booking.booking_reference }}</span>
+                    <h3 class="bc-name">{{ booking.trek_name }}</h3>
+                  </div>
+                  <span class="u-badge" [ngClass]="'badge-' + booking.booking_status">
+                    {{ booking.booking_status }}
+                  </span>
+                </div>
+                <div class="bc-pills">
+                  <div class="bc-pill">
+                    <i class="bi bi-cash"></i>
+                    ₹{{ booking.total_amount }}
+                  </div>
+                  <div class="bc-pill">
+                    <i class="bi bi-people"></i>
+                    {{ booking.participants }} Participants
+                  </div>
+                  <div class="bc-pill">
+                    <i class="bi bi-credit-card"></i>
+                    {{ booking.payment_status }}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Segment Tabs -->
-      <ion-segment [(ngModel)]="selectedSegment" class="detail-segment">
-        <ion-segment-button value="details" class="seg-btn">
-          <ion-label>Details</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="bookings" class="seg-btn">
-          <ion-label>Bookings ({{ bookings.length }})</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-
-      <!-- ── DETAILS TAB ── -->
-      <div class="seg-content" *ngIf="selectedSegment === 'details'">
-
-        <div class="info-card">
-          <div class="info-row">
-            <div class="info-icon-wrap">
-              <i class="bi bi-person"></i>
-            </div>
-            <div class="info-text">
-              <span class="info-lbl">Full Name</span>
-              <span class="info-val">{{ user.name }}</span>
-            </div>
-          </div>
-          <div class="info-divider"></div>
-          <div class="info-row">
-            <div class="info-icon-wrap">
-              <i class="bi bi-envelope"></i>
-            </div>
-            <div class="info-text">
-              <span class="info-lbl">Email Address</span>
-              <span class="info-val">{{ user.email }}</span>
-            </div>
-          </div>
-          <div class="info-divider"></div>
-          <div class="info-row">
-            <div class="info-icon-wrap">
-              <i class="bi bi-telephone"></i>
-            </div>
-            <div class="info-text">
-              <span class="info-lbl">Phone Number</span>
-              <span class="info-val">{{ user.phone || "—" }}</span>
-            </div>
-          </div>
-          <div class="info-divider"></div>
-          <div class="info-row">
-            <div class="info-icon-wrap">
-              <i class="bi bi-calendar-event"></i>
-            </div>
-            <div class="info-text">
-              <span class="info-lbl">Member Since</span>
-              <span class="info-val">{{ user.joinDate }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="detail-actions">
-          <button class="da-btn success" *ngIf="user.status !== 'active'" (click)="activateUser(user)">
-            <i class="bi bi-check-circle"></i>
-            Activate User
-          </button>
-          <button class="da-btn danger" *ngIf="user.status !== 'blocked'" (click)="confirmBlock(user)">
-            <i class="bi bi-slash-circle"></i>
-            Block User
-          </button>
-        </div>
-
-      </div>
-
-      <!-- ── BOOKINGS TAB ── -->
-      <div class="seg-content" *ngIf="selectedSegment === 'bookings'">
-
-        <!-- No Bookings -->
-        <div class="no-bookings" *ngIf="bookings.length === 0">
-          <i class="bi bi-receipt"></i>
-          <p>No bookings found for this user.</p>
-        </div>
-
-        <!-- Booking Cards -->
-        <div class="booking-card" *ngFor="let booking of bookings">
-          <div class="bc-top">
-            <div class="bc-left">
-              <span class="bc-ref">{{ booking.booking_reference }}</span>
-              <h3 class="bc-name">{{ booking.trek_name }}</h3>
-            </div>
-            <span class="u-badge" [ngClass]="'badge-' + booking.booking_status">
-              {{ booking.booking_status }}
-            </span>
-          </div>
-          <div class="bc-pills">
-            <div class="bc-pill">
-              <i class="bi bi-cash"></i>
-              ₹{{ booking.total_amount }}
-            </div>
-            <div class="bc-pill">
-              <i class="bi bi-people"></i>
-              {{ booking.participants }} Participants
-            </div>
-            <div class="bc-pill">
-              <i class="bi bi-credit-card"></i>
-              {{ booking.payment_status }}
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </ng-container>
     </div>
-  </ion-content>
-</ng-container>
+  </app-admin-shell>
+</ion-content>
