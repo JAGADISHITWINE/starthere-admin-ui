@@ -82,7 +82,7 @@
         <div class="surface-card editor-card">
           <h3>Featured Image</h3>
           <div *ngIf="imagePreview" class="image-preview">
-            <img [src]="getImageSrc(imagePreview)" alt="Preview" />
+            <img loading="lazy" decoding="async" [src]="getImageSrc(imagePreview)" alt="Preview" />
             <button class="btn-app ghost" type="button" (click)="removeImage()">
               <i class="bi bi-trash"></i>
               Remove Image

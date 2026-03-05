@@ -5,7 +5,7 @@
 <ion-content class="tour-page">
   <div *ngIf="tour && !isLoading">
     <div class="hero-image">
-      <img [src]="getImageUrl(tour.image)" [alt]="tour.name" (error)="$event.target.src='assets/placeholder-trek.jpg'" />
+      <img loading="lazy" decoding="async" [src]="getImageUrl(tour.image)" [alt]="tour.name" (error)="$event.target.src='assets/placeholder-trek.jpg'" />
       <div class="hero-overlay">
         <button class="icon-btn" routerLink="/admin/treks/list" aria-label="Back">
           <i class="bi bi-arrow-left text-dark"></i>
@@ -91,7 +91,7 @@
           <div class="section-block">
             <h3>Photo Gallery</h3>
             <div class="gallery-grid">
-              <img *ngFor="let photo of tour.gallery" [src]="getImageUrl(photo)"
+              <img loading="lazy" decoding="async" *ngFor="let photo of tour.gallery" [src]="getImageUrl(photo)"
                 (error)="$event.target.src='assets/placeholder-trek.jpg'" />
             </div>
           </div>

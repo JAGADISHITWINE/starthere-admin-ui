@@ -147,7 +147,7 @@ export class PostEditorComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
+      if (!this.isAcceptedImage(file)) {
         this.showToast('Please select an image file', 'warning');
         return;
       }
@@ -170,6 +170,19 @@ export class PostEditorComponent implements OnInit {
 
       this.showToast('Image selected successfully', 'success');
     }
+  }
+
+  private isAcceptedImage(file: File): boolean {
+    const mime = String(file?.type || '').toLowerCase();
+    if (mime.startsWith('image/')) return true;
+
+    const name = String(file?.name || '').toLowerCase();
+    const ext = name.includes('.') ? name.split('.').pop() || '' : '';
+    const imageExt = new Set([
+      'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'svg',
+      'tif', 'tiff', 'ico', 'heic', 'heif', 'jfif'
+    ]);
+    return imageExt.has(ext);
   }
 
   removeImage() {

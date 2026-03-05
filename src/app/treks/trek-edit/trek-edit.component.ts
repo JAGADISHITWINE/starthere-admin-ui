@@ -336,6 +336,10 @@ export class TrekEditComponent implements OnInit {
   onCoverImageSelect(event: any) {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (!this.isAcceptedImage(file)) {
+      alert('Please select a valid image file');
+      return;
+    }
 
     this.coverImageFile = file;
     this.coverDeleted = false;
@@ -356,6 +360,7 @@ export class TrekEditComponent implements OnInit {
 
   onGallerySelect(event: any) {
     Array.from(event.target.files).forEach((file: any) => {
+      if (!this.isAcceptedImage(file)) return;
       this.galleryImageFiles.push(file);
       const reader = new FileReader();
       reader.onload = () => this.galleryPreviews.push(reader.result as string);
@@ -380,6 +385,19 @@ export class TrekEditComponent implements OnInit {
 
   getGalleryPreviewUrl(filename: string): string {
     return `${this.mediaBaseUrl}${filename}`;
+  }
+
+  private isAcceptedImage(file: File): boolean {
+    const mime = String(file?.type || '').toLowerCase();
+    if (mime.startsWith('image/')) return true;
+
+    const name = String(file?.name || '').toLowerCase();
+    const ext = name.includes('.') ? name.split('.').pop() || '' : '';
+    const imageExt = new Set([
+      'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'svg',
+      'tif', 'tiff', 'ico', 'heic', 'heif', 'jfif'
+    ]);
+    return imageExt.has(ext);
   }
 
   // ===== UPDATE TREK =====

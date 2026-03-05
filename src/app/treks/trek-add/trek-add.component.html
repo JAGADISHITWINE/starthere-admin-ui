@@ -572,7 +572,7 @@
                 (change)="onCoverImageSelect($event)" />
 
               <div *ngIf="coverPreview" class="image-preview-card cover-preview">
-                <img [src]="coverPreview" alt="Cover" />
+                <img loading="lazy" decoding="async" [src]="coverPreview" alt="Cover" />
                 <button type="button" class="btn-remove-image" (click)="removeCoverImage()">
                   <i class="bi bi-x-lg"></i>
                 </button>
@@ -600,7 +600,7 @@
 
               <div class="gallery-grid" *ngIf="galleryPreviews.length">
                 <div class="gallery-item" *ngFor="let img of galleryPreviews; let i = index">
-                  <img [src]="img" alt="Gallery image" />
+                  <img loading="lazy" decoding="async" [src]="img" alt="Gallery image" />
                   <button type="button" class="btn-remove-image" (click)="removeGalleryImage(i)">
                     <i class="bi bi-trash"></i>
                   </button>

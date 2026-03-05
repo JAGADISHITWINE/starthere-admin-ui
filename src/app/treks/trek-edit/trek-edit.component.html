@@ -548,7 +548,7 @@
               />
 
               <div *ngIf="coverPreview" class="image-preview-card cover-preview">
-                <img [src]="coverPreview" alt="Cover" />
+                <img loading="lazy" decoding="async" [src]="coverPreview" alt="Cover" />
                 <button
                   type="button"
                   class="btn-remove-image"
@@ -604,7 +604,7 @@
                   class="gallery-item"
                   *ngFor="let filename of existingGalleryFilenames; let i = index"
                 >
-                  <img [src]="getGalleryPreviewUrl(filename)" alt="Gallery image" />
+                  <img loading="lazy" decoding="async" [src]="getGalleryPreviewUrl(filename)" alt="Gallery image" />
                   <button
                     type="button"
                     class="btn-remove-image"
@@ -619,7 +619,7 @@
                   class="gallery-item"
                   *ngFor="let img of galleryPreviews; let i = index"
                 >
-                  <img [src]="img" alt="Gallery image" />
+                  <img loading="lazy" decoding="async" [src]="img" alt="Gallery image" />
                   <button
                     type="button"
                     class="btn-remove-image"

@@ -54,7 +54,7 @@
       <div class="posts-grid" *ngIf="!isLoading && filteredPosts.length > 0">
         <div class="post-card" *ngFor="let post of filteredPosts">
           <div class="post-cover">
-            <img [src]="post.image" [alt]="post.title"
+            <img loading="lazy" decoding="async" [src]="post.image" [alt]="post.title"
               (error)="post.image = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'" />
             <span class="status-pill" [ngClass]="{
             'status-success': post.status === 'published',

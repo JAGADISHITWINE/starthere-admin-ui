@@ -51,7 +51,7 @@
               <!-- Card Top -->
               <div class="card-top">
                 <div class="avatar-wrap">
-                  <img [src]="getAvatar(user)" [alt]="user.name" class="u-avatar" />
+                  <img loading="lazy" decoding="async" [src]="getAvatar(user)" [alt]="user.name" class="u-avatar" />
                   <span class="status-dot" [ngClass]="'dot-' + user.status"></span>
                 </div>
                 <div class="u-info">
@@ -135,7 +135,7 @@
               <div class="hero-bg-pattern"></div>
               <div class="hero-inner">
                 <div class="hero-avatar-wrap">
-                  <img [src]="getAvatar(user)" class="hero-avatar" />
+                  <img loading="lazy" decoding="async" [src]="getAvatar(user)" class="hero-avatar" />
                   <span class="hero-status-ring" [ngClass]="'ring-' + user.status"></span>
                 </div>
                 <div class="hero-text">

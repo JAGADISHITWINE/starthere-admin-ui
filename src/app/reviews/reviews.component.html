@@ -19,7 +19,7 @@
       <div class="review-card" *ngFor="let review of filteredReviews">
         <div class="review-top">
           <div class="customer-info">
-            <img [src]="review.avatar" [alt]="review.customerName" class="avatar" />
+            <img loading="lazy" decoding="async" [src]="review.avatar" [alt]="review.customerName" class="avatar" />
             <div>
               <h3>{{ review.customerName }}</h3>
               <p class="trek-name">{{ review.trekName }}</p>
