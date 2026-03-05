@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PostEditor } from '../post-editor';
 import { DropdownManagerService } from 'src/app/dropdown-manager/dropdown-manager.service';
 import { take } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -23,7 +24,7 @@ export class PostEditorComponent implements OnInit {
   // Image handling
   selectedFile: File | null = null;
   imagePreview: string | null = null;
-  readonly imageBaseUrl = 'http://localhost:4001/';
+  readonly imageBaseUrl = (environment.mediaBaseUrl || '').replace(/\/?$/, '/');
   existingImageUrl: string | null = null;
 
   categories: string[] = [];

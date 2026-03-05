@@ -115,6 +115,6 @@ export class WebSocketService {
         const base = environment.baseUrl || '';
         // baseUrl format: http://host:port/api/auth -> socket host: http://host:port
         const url = base.replace(/\/api\/auth\/?$/, '');
-        return url || 'http://localhost:4001';
+        return url || window.location.origin;
     }
 }

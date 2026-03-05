@@ -7,6 +7,7 @@ import { PostEditor } from '../post-editor';
 import { DropdownManagerService } from 'src/app/dropdown-manager/dropdown-manager.service';
 import { take } from 'rxjs';
 import { AdminShellComponent } from 'src/app/shared/admin-shell/admin-shell.component';
+import { environment } from 'src/environments/environment';
 
 interface BlogPost {
   id: number;
@@ -34,7 +35,7 @@ interface BlogPost {
   imports: [IonicModule, CommonModule, FormsModule, AdminShellComponent],
 })
 export class PostsListComponent implements OnInit {
-  private readonly imageBaseUrl = "http://localhost:4001/";
+  private readonly imageBaseUrl = (environment.mediaBaseUrl || '').replace(/\/?$/, '/');
   searchQuery: string = '';
   selectedStatus: string = 'all';
   selectedCategory: string = 'all';
@@ -97,11 +98,11 @@ export class PostsListComponent implements OnInit {
           comments: 0,
           publishDate: this.formatDate(post.published_at || post.created_at),
           image: post.featured_image
-            ? `http://localhost:4001/${String(post.featured_image).replace(/^\/+/, '')}`
+            ? `${this.imageBaseUrl}${String(post.featured_image).replace(/^\/+/, '')}`
             : '',
 
           featured_image: post.featured_image
-            ? `http://localhost:4001/${String(post.featured_image).replace(/^\/+/, '')}`
+            ? `${this.imageBaseUrl}${String(post.featured_image).replace(/^\/+/, '')}`
             : '',
 
 

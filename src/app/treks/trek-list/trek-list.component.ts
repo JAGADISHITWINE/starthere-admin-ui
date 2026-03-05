@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TrekList } from './trek-list';
 import { AdminShellComponent } from 'src/app/shared/admin-shell/admin-shell.component';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -15,6 +16,7 @@ import { AdminShellComponent } from 'src/app/shared/admin-shell/admin-shell.comp
   imports: [IonicModule, CommonModule, FormsModule, AdminShellComponent],
 })
 export class TrekListComponent implements OnInit {
+  readonly mediaBaseUrl = (environment.mediaBaseUrl || '').replace(/\/?$/, '/');
   searchQuery: string = '';
   treks: any[] = [];
   activeCount = 0;

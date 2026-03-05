@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  baseUrl: 'http://localhost:4001/api/auth',
+  baseUrl: (window as any)?.__env?.API_BASE_URL || 'http://localhost:4001/api/auth',
+  mediaBaseUrl: (window as any)?.__env?.MEDIA_BASE_URL || 'http://localhost:4001/',
   // Do NOT store production secrets here. Use server-side secrets or a secure runtime config.
   // We keep a non-sensitive salt for client-side derivations only.
   encryptionKey: (window as any)?.__env?.ENCRYPTION_KEY || 'JagguBoss_Secret_2025!',

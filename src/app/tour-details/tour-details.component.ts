@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { TourDetails } from './tour-details';
 import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
+import { environment } from 'src/environments/environment';
 
 
 interface Activity {
@@ -90,7 +91,7 @@ export class TourDetailsComponent implements OnInit {
   tourId: number = 0;
   selectedSegment: string = 'overview';
 
-  baseUrl = 'http://localhost:4001/';
+  baseUrl = (environment.mediaBaseUrl || '').replace(/\/?$/, '/');
 
   constructor(
     private route: ActivatedRoute,

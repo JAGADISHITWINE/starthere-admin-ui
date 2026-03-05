@@ -29,7 +29,7 @@
     <div class="trek-grid">
       <div class="trek-card" *ngFor="let trek of visibleTreks">
         <div class="trek-cover">
-          <img [src]="'http://localhost:4001/' + trek.cover_image" />
+          <img [src]="mediaBaseUrl + trek.cover_image" />
           <span class="status-pill" [ngClass]="{
             'status-success': trek.status === 'active',
             'status-secondary': trek.status === 'draft'

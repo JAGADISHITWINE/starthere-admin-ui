@@ -13,6 +13,7 @@ import { TrekEdit } from './trek-edit';
 import { DropdownManagerService } from 'src/app/dropdown-manager/dropdown-manager.service';
 import { take } from 'rxjs';
 import { AdminShellComponent } from 'src/app/shared/admin-shell/admin-shell.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   standalone: true,
@@ -22,6 +23,7 @@ import { AdminShellComponent } from 'src/app/shared/admin-shell/admin-shell.comp
   imports: [IonicModule, CommonModule, ReactiveFormsModule, AdminShellComponent],
 })
 export class TrekEditComponent implements OnInit {
+  readonly mediaBaseUrl = (environment.mediaBaseUrl || '').replace(/\/?$/, '/');
   @ViewChild('coverGalleryInput') coverGalleryInput!: any;
   @ViewChild('coverCameraInput') coverCameraInput!: any;
   @ViewChild('galleryGalleryInput') galleryGalleryInput!: any;
@@ -373,11 +375,11 @@ export class TrekEditComponent implements OnInit {
   }
 
   getImageUrl(filename: string): string {
-    return `http://localhost:4001/${filename}`;
+    return `${this.mediaBaseUrl}${filename}`;
   }
 
   getGalleryPreviewUrl(filename: string): string {
-    return `http://localhost:4001/${filename}`;
+    return `${this.mediaBaseUrl}${filename}`;
   }
 
   // ===== UPDATE TREK =====
