@@ -13,7 +13,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NotificationsService } from './notifications.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { WebSocketService } from '../services/websocket.service';
 import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
 
 /* ============================
@@ -116,13 +115,11 @@ export class NotificationsComponent implements OnInit {
 
   constructor(
     private notificationsService: NotificationsService,
-    private webSocket: WebSocketService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.fetchNotifications();
-    this.listenToSocket();
   }
 
   /* ============================
@@ -277,112 +274,6 @@ export class NotificationsComponent implements OnInit {
     if (days < 7) return `${days}d ago`;
 
     return new Date(date).toLocaleDateString();
-  }
-
-  private listenToSocket(): void {
-    this.webSocket.connect();
-    this.webSocket.getBookingUpdates()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((update) => {
-        const next = this.mapSocketUpdate(update);
-        if (!next) return;
-        this.allNotifications.update(ns => [next, ...ns]);
-      });
-  }
-
-  private mapSocketUpdate(update: any): NotificationView | null {
-    if (!update?.type) return null;
-
-    const data = update?.data || {};
-    const createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
-    if (update.type === 'created') {
-      const title = 'New booking created';
-      const ref = data.bookingReference || data.bookingId || 'Unknown booking';
-      const customer = data.customerName || 'Customer';
-      const trek = data.trekName ? ` for ${data.trekName}` : '';
-      const message = `${customer} placed ${ref}${trek}.`;
-      return this.buildNotification(
-        id,
-        'booking',
-        title,
-        message,
-        createdAt,
-        false,
-        'View booking',
-        data.trekName,
-        '/admin/bookings'
-      );
-    }
-
-    if (update.type === 'completed') {
-      const title = 'Booking completed';
-      const ref = data.bookingReference || data.bookingId || 'Unknown booking';
-      const message = `Booking ${ref} is marked completed.`;
-      return this.buildNotification(
-        id,
-        'booking',
-        title,
-        message,
-        createdAt,
-        false,
-        'View booking',
-        data.trekName,
-        '/admin/bookings'
-      );
-    }
-
-    if (update.type === 'batch-completed') {
-      const title = 'Batch processed';
-      const message = data.message || 'A booking batch finished processing.';
-      return this.buildNotification(id, 'system', title, message, createdAt, false);
-    }
-
-    if (update.type === 'blog-created' || update.type === 'post-created' || update.type === 'blog-submitted') {
-      const postId = data.postId || data.id;
-      const postTitle = data.title || data.postTitle || 'New blog post';
-      const title = 'New blog submitted';
-      const message = `${data.authorName || 'A user'} submitted "${postTitle}" for approval.`;
-      const route = postId ? `/admin/blog/editor/${postId}` : '/admin/blog/posts';
-      return this.buildNotification(id, 'blog', title, message, createdAt, false, 'Review post', postTitle, route);
-    }
-
-    if (update.type === 'comment-created' || update.type === 'review-created' || update.type === 'comment-submitted') {
-      const title = 'New comment submitted';
-      const message = `${data.authorName || 'A user'} posted a new comment pending approval.`;
-      return this.buildNotification(id, 'comment', title, message, createdAt, false, 'Review comment', data.trekName, '/admin/reviews');
-    }
-
-    return null;
-  }
-
-  private buildNotification(
-    id: string,
-    type: NotificationType,
-    title: string,
-    message: string,
-    date: Date,
-    read: boolean,
-    actionLabel?: string,
-    meta?: string,
-    route?: string
-  ): NotificationView {
-    return {
-      id,
-      type,
-      title,
-      message,
-      date,
-      read,
-      actionLabel,
-      meta,
-      route,
-      icon: this.getIcon(type),
-      typeLabel: this.getTypeLabel(type),
-      timeAgo: this.timeAgo(date),
-      dateIso: date.toISOString(),
-    };
   }
 
   private mapType(type: string): NotificationType {

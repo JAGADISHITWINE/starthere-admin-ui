@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
 import { TrekBatchManagement } from './trek-batch-management';
-import { Subscription } from 'rxjs';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
-import { WebSocketService } from '../services/websocket.service';
 import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component';
 
 @Component({
@@ -17,7 +15,6 @@ import { AdminShellComponent } from '../shared/admin-shell/admin-shell.component
 })
 export class TrekBatchManagementComponent implements OnInit, OnDestroy {
 
-  private updateSubscription = new Subscription();
   private autoCompleting = false;
 
   treks: any[] = [];
@@ -35,18 +32,11 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
   completionStats: any = null;
   batchActionLoadingId: number | null = null;
 
-  constructor(private trekMgmtService: TrekBatchManagement, private wsService: WebSocketService) { }
+  constructor(private trekMgmtService: TrekBatchManagement) { }
 
   ngOnInit() {
     this.loadTreks();
     this.loadCompletionStats();
-
-    // Listen for real-time updates
-    this.updateSubscription = this.wsService.getBookingUpdates().subscribe({
-      next: (update) => {
-        this.handleRealTimeUpdate(update);
-      }
-    });
   }
 
   /**
@@ -309,33 +299,6 @@ export class TrekBatchManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.updateSubscription) {
-      this.updateSubscription.unsubscribe();
-    }
-  }
-
-  handleRealTimeUpdate(update: any) {
-    if (update.type === 'completed') {
-      if (this.showBookingsModal && this.selectedBatch) {
-        this.viewBookings(this.selectedBatch);
-      } else if (this.showBatchesModal && this.selectedTrek) {
-        this.viewBatches(this.selectedTrek);
-      } else {
-        this.loadTreks();
-      }
-
-      this.loadCompletionStats();
-    } else if (update.type === 'created') {
-      if (this.showBookingsModal && this.selectedBatch) {
-        this.viewBookings(this.selectedBatch);
-      } else if (this.showBatchesModal && this.selectedTrek) {
-        this.viewBatches(this.selectedTrek);
-      } else {
-        this.loadTreks();
-      }
-
-      this.loadCompletionStats();
-    }
   }
 
   loadCompletionStats() {

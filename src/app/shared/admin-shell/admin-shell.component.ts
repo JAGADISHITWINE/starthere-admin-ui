@@ -1,9 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { NotificationsService } from 'src/app/notifications/notifications.service';
-import { WebSocketService } from 'src/app/services/websocket.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 
 interface AdminNavItem {
@@ -27,8 +25,6 @@ export class AdminShellComponent implements OnInit, OnDestroy {
 
   isMobileMenuOpen = false;
   unreadNotifications = 0;
-  private wsSubscription?: Subscription;
-
   readonly navItems: AdminNavItem[] = [
     { label: 'Dashboard', icon: 'grid-1x2', route: '/admin/dashboard', permission: 'dashboard.view' },
     { label: 'Bookings', icon: 'calendar-event', route: '/admin/bookings', permission: 'bookings.view' },
@@ -44,7 +40,6 @@ export class AdminShellComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private notificationsService: NotificationsService,
-    private wsService: WebSocketService,
     private authService: AuthService
   ) {}
 
@@ -54,16 +49,9 @@ export class AdminShellComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadNotificationCount();
-    this.wsService.connect();
-    this.wsSubscription = this.wsService.getBookingUpdates().subscribe((update) => {
-      if (update?.type) {
-        this.unreadNotifications += 1;
-      }
-    });
   }
 
   ngOnDestroy(): void {
-    this.wsSubscription?.unsubscribe();
   }
 
   isRouteActive(route: string): boolean {
